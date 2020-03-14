@@ -15,7 +15,7 @@
 <meta property="og:site_name">
 <meta property="og:description" content="前言  net&#x2F;http包是Go原生包中使用十分频繁的包，然而最近在写程序的时候发现了一些有意思的知识点，故想记录下来以防自己以后忘记。  首先来看看一个最常出错的地方，net&#x2F;http包中，Response结构体Body的处理方法不当所导致的内存泄露问题">
 <meta property="article:published_time" content="2020-03-14T11:07:17.000Z">
-<meta property="article:modified_time" content="2020-03-14T14:43:52.053Z">
+<meta property="article:modified_time" content="2020-03-14T16:05:22.704Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="源码">
 <meta name="twitter:card" content="summary">
@@ -222,8 +222,9 @@
 <p>  在这个问题上，我还想讨论一个机制，那就是keepalive的机制，我们都知道keepalive是旨在让connection更多的承载http信息，而不用一个http创建一个tcp，从而节省资源。</p>
 <p>  在go中，我们可以通过Transport的Disablekeepalive选项来选择关闭或者启用，当我们关闭了keepalive机制的时候，那么每一个http请求都会新建一个tcp连接，而每个连接将都不会放入client的连接池中，这意味着所有连接都不可复用，两个负责读写的goroutine也是只处理一个request后立即退出</p>
 <p>  <strong>这里有一点要注意，那就是如果你启用了keepalive选项，并不代表你的所有连接真的可以复用了，因为我在实际测试中发现，如果对方服务器的返回头当中Connection这一项置空或者为close，那么哪怕你自己启用了，实际上还是无法复用，这一点很奇怪，因为我看了不少资料表示http1.1应该是默认keepalive，除非显式指明Connection头为close才会导致不启用复用的情况，但是在实际测试中我发现这在一定程度上不是很准确（也可能是我失误），<br>但是确实只有当服务器回送的header指明了keepalive，这个链接才可以被复用，不然还是无法复用</strong></p>
+<p><strong>新进展。。。做了个实验，看来不是说服务端包头没有connection alive就一定不是keepalive的，主要还是看服务器具体如何实现的（是真的不keep还是假的不keep）</strong></p>
 <p>  注：我这里举的例子是在两边均同意复用的情况下才称为keepalive机制启用，vice versa。</p>
-<p>  keepalive关闭时分三种情况：</p>
+<p>  keepalive关闭时分四种情况：</p>
 <p>   首先每次都会新建连接，读写goroutine也都是新的</p>
 <p>  （1）如果我们既读Body数据，也close了body，那么最后导致读写goroutine退出的将是由Read方法-&gt;condfn方法-&gt;goroutine解除阻塞,然后下方代码中resp.Close变为true（因为这个标志表示连接已经断开，不可读），导致alive变为false，从而使得两个goroutine在下个循环中退出</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">if resp.Close || rc.req.Close || resp.StatusCode &lt;&#x3D; 199 || bodyWritable &#123;</span><br><span class="line">			&#x2F;&#x2F; Don&#39;t do keep-alive on error if either party requested a close</span><br><span class="line">			&#x2F;&#x2F; or we get an unexpected informational (1xx) response.</span><br><span class="line">			&#x2F;&#x2F; StatusCode 100 is already handled above.</span><br><span class="line">			alive &#x3D; false</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure>
@@ -232,12 +233,14 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if es.earlyCloseFn !&#x3D; nil &amp;&amp; es.rerr !&#x3D; io.EOF &#123;</span><br><span class="line">		return es.earlyCloseFn()</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
 
 <p>  （3）如果我们只读数据，不Close，那么情况和第一种一致</p>
-<p>   keepalive开启时也分三种情况：</p>
+<p>  （4）如果我们不读也不Close，这里由于keepalive本身就被关闭，那么会导致goroutine一直阻塞，connection无法复用，一个http请求一个tcp连接,会导致内存泄露</p>
+<p>   keepalive开启时也分四种情况：</p>
 <p>   首先每次连接只要连接池中有足够的空闲connection，则不需要新建，可以直接复用，默认情况下每个host对应最多两个connection</p>
 <p>  （1）如果我们既读Body数据，也close了body，那么读写goroutine在keepalive到期之前将不会退出，一直会重复处理connection数据，将connection放回连接池，处理connection数据。。。这样的循环操作，直到keepalive到期，然后就和keepalive关闭时第一种情况一样了</p>
 <p>  （2）如果我们不读数据，直接close，那么keepalive将会失效（其实不是真的失效，只是因为不读数据的情况下，es.rerr为nil，导致goroutine被退出，无法放入连接池以供复用，所以看起来好像是失效了，实际只是我们强行关闭了）</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">func (es *bodyEOFSignal) Read(p []byte) (n int, err error) &#123;</span><br><span class="line">	es.mu.Lock()</span><br><span class="line">	closed, rerr :&#x3D; es.closed, es.rerr</span><br><span class="line">	es.mu.Unlock()</span><br><span class="line">	if closed &#123;</span><br><span class="line">		return 0, errReadOnClosedResBody</span><br><span class="line">	&#125;</span><br><span class="line">	if rerr !&#x3D; nil &#123;</span><br><span class="line">		return 0, rerr</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	n, err &#x3D; es.body.Read(p)</span><br><span class="line">	if err !&#x3D; nil &#123;</span><br><span class="line">		es.mu.Lock()</span><br><span class="line">		defer es.mu.Unlock()</span><br><span class="line">		if es.rerr &#x3D;&#x3D; nil &#123;</span><br><span class="line">                  &#x2F;&#x2F;因为没有调用read方法，所以es.rerr一直是nil，故而close函数中条件被满足了</span><br><span class="line">	           es.rerr &#x3D; err</span><br><span class="line">		&#125;</span><br><span class="line">		fmt.Println(&quot;wo zai read han shu zheer&quot;)</span><br><span class="line">		err &#x3D; es.condfn(err)</span><br><span class="line">	&#125;</span><br><span class="line">	return</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>  （3）如果我们只读数据，不close，和第一种一致</p>
+<p>  （4）如果我们既不读也不close，那么keepalive将会失效，因为读写goroutine被阻塞，无法将connection放入连接池，导致后续数据传输无法复用connection，只能一个http请求一个tcp连接，最终导致内存泄露。</p>
 <h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>  其实看似简单的功能背后也有很多玄机，随便看看都是一个个大坑（笑）</p>
 
       
