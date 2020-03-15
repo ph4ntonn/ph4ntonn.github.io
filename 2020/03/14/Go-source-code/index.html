@@ -14,11 +14,14 @@
 <meta property="og:url" content="http://yoursite.com/2020/03/14/Go-source-code/index.html">
 <meta property="og:site_name">
 <meta property="og:description" content="前言  net&#x2F;http包是Go原生包中使用十分频繁的包，然而最近在写程序的时候发现了一些有意思的知识点，故想记录下来以防自己以后忘记。  首先来看看一个最常出错的地方，net&#x2F;http包中，Response结构体Body的处理方法不当所导致的内存泄露问题">
+<meta property="og:image" content="http://yoursite.com/img/Sourcecode/fake-not-keepalive.png">
+<meta property="og:image" content="http://yoursite.com/img/Sourcecode/curl-active-disable-keepalive.png">
 <meta property="article:published_time" content="2020-03-14T11:07:17.000Z">
-<meta property="article:modified_time" content="2020-03-15T03:52:15.194Z">
+<meta property="article:modified_time" content="2020-03-15T05:35:13.115Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="源码">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/img/Sourcecode/fake-not-keepalive.png">
   
     <link rel="alternative" href="/atom.xml" title="" type="application/atom+xml">
   
@@ -222,7 +225,12 @@
 <p>  在这个问题上，我还想讨论一个机制，那就是keepalive的机制，我们都知道keepalive是旨在让connection更多的承载http信息，而不用一个http创建一个tcp，从而节省资源。</p>
 <p>  在go中，我们可以通过Transport的Disablekeepalive选项来选择关闭或者启用，当我们关闭了keepalive机制的时候，那么每一个http请求都会新建一个tcp连接，而每个连接将都不会放入client的连接池中，这意味着所有连接都不可复用，两个负责读写的goroutine也是只处理一个request后立即退出</p>
 <p>  <strong>这里有一点要注意，那就是如果你启用了keepalive选项，并不代表你的所有连接真的可以复用了，因为我在实际测试中发现，如果对方服务器的返回头当中Connection这一项置空或者为close，那么哪怕你自己启用了，实际上还是无法复用，这一点很奇怪，因为我看了不少资料表示http1.1应该是默认keepalive，除非显式指明Connection头为close才会导致不启用复用的情况，但是在实际测试中我发现这在一定程度上不是很准确（也可能是我失误），<br>但是确实只有当服务器回送的header指明了keepalive，这个链接才可以被复用，不然还是无法复用</strong></p>
-<p><strong>新进展。。。做了个实验，看来不是说服务端包头没有connection alive就一定不是keepalive的，主要还是看服务器具体如何实现的（是真的不keep还是假的不keep）</strong></p>
+<p><strong>新进展。。。做了个实验，看来不是说服务端包头没有connection alive就一定不是keepalive的，主要还是看服务器具体如何实现的（是真的不keep还是假的不keep），附上一张抓包图</strong></p>
+<p><img src="/img/Sourcecode/fake-not-keepalive.png" alt="capture"></p>
+<p><strong>可以看见虽然服务器返回头当中没有keepalive（客户端request有keepalive），但是仍然保持了长连接并没有断开，这就是‘假’的不keep</strong></p>
+<p><strong>PS:实际上也要看客户端的实现，就比如curl，就算你设置了connection alive头，他也会主动向服务器断开连接，哪怕服务器实现了keepalive机制也一样,附上抓包图</strong></p>
+<p><img src="/img/Sourcecode/curl-active-disable-keepalive.png" alt="caputre"></p>
+<p><strong>可以看见虽然客户端的request中有keepalive，但是最后是client主动在发送完request后关闭了tcp连接</strong></p>
 <p>  注：我这里举的例子是在两边均同意复用的情况下才称为keepalive机制启用，vice versa。</p>
 <p>  keepalive关闭时分四种情况：</p>
 <p>   首先每次都会新建连接，读写goroutine也都是新的</p>
