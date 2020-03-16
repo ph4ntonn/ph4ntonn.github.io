@@ -15,7 +15,7 @@
 <meta property="og:site_name">
 <meta property="og:description" content="前言  最近在写自己的多级代理跳板工具时，本来想为其加入端口复用的功能，以期在高度受限的环境下仍然可以正常工作，但是在测试的过程中我发现，端口复用在应用层上不是不行，但是效果并不理想，并且限制条件也比较多，故而想自己记录一下一些坑点">
 <meta property="article:published_time" content="2020-03-16T09:40:33.000Z">
-<meta property="article:modified_time" content="2020-03-16T10:31:13.455Z">
+<meta property="article:modified_time" content="2020-03-16T10:34:06.987Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="渗透,linux">
 <meta name="twitter:card" content="summary">
@@ -172,7 +172,7 @@
 <a id="more"></a>
 
 <p><strong>为了叙述方便，本文假设我们控制了一台主机，其80端口之上运行着apache服务，而我们需要复用80端口</strong></p>
-<h1 id="利用IPtables"><a href="#利用IPtables" class="headerlink" title="利用IPtables"></a>利用IPtables</h1><p>  首先第一种方法我是参考了网上的一篇文章<a href="/archives/Portreuse.htm">文章</a>，主要是利用IPtables规则来实现端口复用。</p>
+<h1 id="利用IPtables"><a href="#利用IPtables" class="headerlink" title="利用IPtables"></a>利用IPtables</h1><p>  首先第一种方法我是参考了网上的一篇<a href="/archives/Portreuse.htm">文章</a>，主要是利用IPtables规则来实现端口复用。</p>
 <p>  实际上这个方法属于伪端口复用，因为实际上我们的程序并不会复用同样的端口，而是利用IPtables会在路由决策之前生效的特性，将我们的程序监听在本地的另一个端口上（比方说8888），将外部流量全部导向我们自己的程序，再由我们自己的程序进行流量的分发（通过识别流量特征区分工具流量和正常http流量）</p>
 <p>  那么这个方法实际上确实效果还不错，不会影响到正常服务器的运行，而且在严格受限的环境当中（即只允许80端口的出入站连接），确实可以完成既定目标</p>
 <p>  但是，这个方法的局限性也比较明显，那就是需要完成这个操作需要有root权限（废话。。。），并且仅支持linux服务器，而且会监听额外的端口。root权限虽然说不是每次都搞不到，但是也算是一个受限的点，毕竟我们无法保证能否在一些受限严格的边缘服务器上搞到root权限。</p>
