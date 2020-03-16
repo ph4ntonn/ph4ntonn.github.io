@@ -6,15 +6,18 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives | </title>
+  <title>端口复用的一些tricks | </title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="The wheel turns,nothing is ever new">
-<meta property="og:type" content="website">
-<meta property="og:title">
-<meta property="og:url" content="http://yoursite.com/archives/index.html">
+  <meta name="description" content="前言  最近在写自己的多级代理跳板工具时，本来想为其加入端口复用的功能，以期在高度受限的环境下仍然可以正常工作，但是在测试的过程中我发现，端口复用在应用层上不是不行，但是效果并不理想，并且限制条件也比较多，故而想自己记录一下一些坑点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="端口复用的一些tricks">
+<meta property="og:url" content="http://yoursite.com/2020/03/16/Port-reuse/index.html">
 <meta property="og:site_name">
-<meta property="og:description" content="The wheel turns,nothing is ever new">
+<meta property="og:description" content="前言  最近在写自己的多级代理跳板工具时，本来想为其加入端口复用的功能，以期在高度受限的环境下仍然可以正常工作，但是在测试的过程中我发现，端口复用在应用层上不是不行，但是效果并不理想，并且限制条件也比较多，故而想自己记录一下一些坑点">
+<meta property="article:published_time" content="2020-03-16T09:40:33.000Z">
+<meta property="article:modified_time" content="2020-03-16T10:31:13.455Z">
 <meta property="article:author" content="ph4ntom">
+<meta property="article:tag" content="渗透,linux">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="" type="application/atom+xml">
@@ -145,36 +148,72 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Port-reuse" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/03/16/Port-reuse/" class="archive-article-date">
-  	<time datetime="2020-03-16T09:40:33.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-03-16</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/03/16/Port-reuse/">端口复用的一些tricks</a>
+    <h1 class="article-title" itemprop="name">
+      端口复用的一些tricks
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2020/03/16/Port-reuse/" class="archive-article-date">
+  	<time datetime="2020-03-16T09:40:33.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-03-16</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  最近在写自己的多级代理跳板工具时，本来想为其加入端口复用的功能，以期在高度受限的环境下仍然可以正常工作，但是在测试的过程中我发现，端口复用在应用层上不是不行，但是效果并不理想，并且限制条件也比较多，故而想自己记录一下一些坑点</p>
+<a id="more"></a>
+
+<p><strong>为了叙述方便，本文假设我们控制了一台主机，其80端口之上运行着apache服务，而我们需要复用80端口</strong></p>
+<h1 id="利用IPtables"><a href="#利用IPtables" class="headerlink" title="利用IPtables"></a>利用IPtables</h1><p>  首先第一种方法我是参考了网上的一篇文章<a href="/archives/Portreuse.htm">文章</a>，主要是利用IPtables规则来实现端口复用。</p>
+<p>  实际上这个方法属于伪端口复用，因为实际上我们的程序并不会复用同样的端口，而是利用IPtables会在路由决策之前生效的特性，将我们的程序监听在本地的另一个端口上（比方说8888），将外部流量全部导向我们自己的程序，再由我们自己的程序进行流量的分发（通过识别流量特征区分工具流量和正常http流量）</p>
+<p>  那么这个方法实际上确实效果还不错，不会影响到正常服务器的运行，而且在严格受限的环境当中（即只允许80端口的出入站连接），确实可以完成既定目标</p>
+<p>  但是，这个方法的局限性也比较明显，那就是需要完成这个操作需要有root权限（废话。。。），并且仅支持linux服务器，而且会监听额外的端口。root权限虽然说不是每次都搞不到，但是也算是一个受限的点，毕竟我们无法保证能否在一些受限严格的边缘服务器上搞到root权限。</p>
+<p>  总的来说，在有root权限的情况下，是个不错的方式，但使用场景比较局限</p>
+<h1 id="利用SO-REUSEADDR和SO-REUSEPORT"><a href="#利用SO-REUSEADDR和SO-REUSEPORT" class="headerlink" title="利用SO_REUSEADDR和SO_REUSEPORT"></a>利用SO_REUSEADDR和SO_REUSEPORT</h1><p>  其实这个方法也是由来已久，这里主要讲一下SO_REUSEPORT，这个选项在linux和windosw都是可用的，它的出现是旨在进一步实现负载均衡，可以让两个不同的进程同时监听在完全一致的ip：port组合上，从而实现端口复用</p>
+<p>  但是我在使用的时候，也发现了一些局限性。</p>
+<p>  其一就是，这个方法本身是用来帮助实现进一步负载均衡的，所以所有连接到此端口的tcp连接都会被随机分配到同时监听在这个ip：port的进程上，这也就导致了假设我们的程序和apache一起监听在了80上，那么所有访问80端口的tcp连接不一定会被我们的程序捕获，而被我们程序捕获的连接我们需要做转发，将正常的tcp连接转发至apache，那么问题来了，应该如何转呢？那肯定是程序发起一个连向自身80端口的连接，而这个操作又会引起一个循环（即又被我们程序捕获-&gt;又要转发-&gt;又被捕获。。。。。），如果脸比较黑的话，可能要十几次甚至几十次这样的操作才能将一个正常的tcp连接转发给apache，这就相当于为了一个正常的tcp连接，我们需要用十几倍甚至几十倍的代价来进行转发，那万一服务器的访问量是比较大的，那就会使我们的程序占用大量内存，网站服务也会变慢，更容易被管理者发现。</p>
+<p>  其二就是，我们的程序在SO_REUSEPORT方法下想要与apache等等服务监听同一个端口，是需要这些web服务开启了SO_REUSEPORT这个方法才可以的，也就是说如果之前监听这个端口的服务没有开启SO_REUSEPORT，那么我们的程序是无法重复绑定的，而像nginx等一些web服务器默认情况下是不会开启SO_REUSEPORT的，需要手动开启，这也一定程度上限制了可用性</p>
+<p>  当然这个方法也有好处</p>
+<p>  首先是这个方法不需要root权限，只需要与之前启动web程序的用户权限相同即可，而这通过webshell很容易做到，因为我们webshell的权限一般情况下和启动web服务的权限是一样的</p>
+<p>  另外就是这个方法不需要监听额外的端口，这就增加了一定的隐蔽性</p>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>  感觉在应用层上做端口复用效果不是很理想，可能要在内核层面上做才会有更好的效果</p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -186,57 +225,106 @@
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/03/16/Port-reuse/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/03/14/Go-source-code/" class="archive-article-date">
-  	<time datetime="2020-03-14T11:07:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-03-14</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2020/03/14/Go-source-code/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Go net/http包源码解析（一）</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
+        
+        
+    </div>
+</aside>
+
+
+
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/03/14/Go-source-code/">Go net/http包源码解析（一）</a>
-    </h1>
+  
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">源码</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
   
 
-    
+  
+
+  
 
 
           </div>
@@ -259,8 +347,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
