@@ -17,7 +17,7 @@
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/snapshot.png">
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/PAC.png">
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/ServiceTicket.png">
-<meta property="og:image" content="http://yoursite.com/img/Kerberos/check_PAC.png">
+<meta property="og:image" content="http://yoursite.com/img/Kerberos/Check_PAC.png">
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/init.jpg">
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/beforeinject.jpg">
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/attack.jpg">
@@ -29,7 +29,7 @@
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/success.jpg">
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/final.jpg">
 <meta property="article:published_time" content="2020-03-17T04:38:40.000Z">
-<meta property="article:modified_time" content="2020-03-18T09:36:02.323Z">
+<meta property="article:modified_time" content="2020-03-18T09:54:30.290Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="漏洞，内网渗透">
 <meta name="twitter:card" content="summary">
@@ -221,7 +221,7 @@
 <p>  <img src="/img/Kerberos/ServiceTicket.png" alt="image"></p>
 <p>  需要注意的是，在KRB_TGS_REQ阶段，携带PAC的TGT被TGS服务接收后，认证A的合法性后（解密Authenticator符合要求）会将PAC解密出来，验证尾部两个签名的合法性，如果合法则认为PAC没有被篡改，于是重新在PAC的尾部更换了另外两个签名，一个是Server Signature，这次是以Server-B的密码副本生成的签名（因为对于Client-A和Server-B，这次的第三方机构是TGS服务），另外一个仍旧是KDC Signature，两者合在一起，最终成为New Signed PAC被拷贝在ServericeTicket中被加密起来。</p>
 <p><strong>注意，这里再次签发的PAC尾部的签名一个基于是B的密码hash一个仍然是基于KDC的密码hash（krgtgt用户的密码hash），在B端可以选择是否认证这个PAC的KDC签名，如果选择不认证，就不对PAC进行签名校验（也可能只校验基于B的密码hash的签名，这一点不太确定），并且之后也只是在解密PAC后直接根据用户权限来决定是否允许客户端访问相对应的资源，但是如果选择认证，B将会把PAC中的签名传递给DC来进行检验，只有DC确认签名有效后B才会根据用户权限来决定是否允许客户端访问相对应的资源，如下图所示,图片来自微软官方<a href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-apds/1d1f2b0c-8e8a-4d2a-8665-508d04976f84" target="_blank" rel="noopener">巨硬</a></strong></p>
-<p> <img src="/img/Kerberos/check_PAC.png" alt="check"></p>
+<p> <img src="/img/Kerberos/Check_PAC.png" alt="check"></p>
 <p><strong>当然，有的服务器并不校验KDC签名，校验与否决定了银票是否能够正常被使用（银票下一篇文章会讲）</strong></p>
 <p>  最终绕过来绕过去，KDC上所拥有的关于Client-A的权限证书PAC终于发给了Server-B，Server-B在对Client-A进行认证的同时，同时也能判断Client-A有没有访问网络资源的权限。</p>
 <h2 id="MS14-068"><a href="#MS14-068" class="headerlink" title="MS14-068"></a>MS14-068</h2><p>  这里我发现的一个大师傅分析的很不错，受教了</p>
