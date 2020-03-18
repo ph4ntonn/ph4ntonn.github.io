@@ -15,7 +15,7 @@
 <meta property="og:site_name">
 <meta property="og:description" content="前言  在分析了MS14-068漏洞之后，来讲讲域渗透中很重要的两个知识，Kerberos的黄金票据和白银票据，为了方便叙述，假定A为客户端，B为服务端">
 <meta property="article:published_time" content="2020-03-17T06:22:25.000Z">
-<meta property="article:modified_time" content="2020-03-17T08:11:30.668Z">
+<meta property="article:modified_time" content="2020-03-18T08:37:19.174Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="内网渗透">
 <meta name="twitter:card" content="summary">
@@ -173,13 +173,18 @@
 
 <h1 id="白银票据"><a href="#白银票据" class="headerlink" title="白银票据"></a>白银票据</h1><p>  从上一篇文章中我们可以懂得微软对于windosw系列的Kerberos协议的具体实现过程</p>
 <p>  那么我们可以总结出来一点就是，实际上A作为客户端访问B的时候，其权限完全是基于KDC所颁发的PAC的，B也只认这个PAC，并以这个PAC为参考来决定是否允许A访问B上的一些资源，那也就是说如果我们能够伪造发送给B的serrviceTicket中的PAC，我们就可以随意对B的资源进行访问了</p>
-<p>  让我们来看看构成ServerTicket的必要条件：A与B通讯的临时密钥SessionKey以及B的密码的副本（其实是其hash），那么SessionKey其实A作为一个合法的客户端，SessionKey是已知的，主要缺少的就是B的密码的hash值，那么如果我们有了这个hash值，我们就可以伪造PAC，伪造PAC后面的校验签名，从而实现对B资源完全的访问权。那么这样的票据就被称为白银票据，拥有这样的票据表示着客户端A对B有着完全的访问权</p>
-<p>  白银票据的限制就在于只能拥有某一台服务器的完全访问权，而不能拥有所有的，换一台C服务器白银票据就会失去效用</p>
+<p>  让我们来看看构成ServerTicket的必要条件：KDC密码的副本以及B的密码的副本（两者的hash），主要缺少的就是B的密码的hash值，那么如果我们有了这个hash值，我们就可以伪造PAC，伪造PAC后面的校验签名，从而实现对B资源完全的访问权。那么这样的票据就被称为白银票据，拥有这样的票据表示着客户端A对B有着完全的访问权，但是注意了，由于我们同样也不知道KDC的密码hash，所以实际上我们伪造的PAC最后是没有有效的KDC的校验签名的，只有由B的密码hash生成的校验签名，而如果此时服务端开启了KDC PAC签名校验，那么PAC的校验将无法通过，白银票据也就会失效，所以白银票据成功的大前提是请求的服务不校验KDC PAC签名。</p>
+<p>  白银票据的限制就在于只能拥有某一台服务器所提供的部分服务的访问权，而不能拥有所有的，换一台C服务器或者需求权限更高的服务，白银票据就会失去效用。</p>
+<p>  给一些好的参考：<br><a href="/archives/Kerberos/sliverticket.html">银票</a></p>
+<p><a href="/archives/Kerberos/sliverticket_defend.html">银票防御</a></p>
+<p><a href="/archives/Kerberos/sliverticket_exploit.html">银票利用</a></p>
 <h1 id="黄金票据"><a href="#黄金票据" class="headerlink" title="黄金票据"></a>黄金票据</h1><p>  白银票据的限制在黄金票据中不复存在，一旦拥有了黄金票据，你就拥有了这个域当中的最高权限。</p>
 <p>  让我们来回顾一下A发送给B的ServiceTicket是如何生成的</p>
 <p>  首先，是A要向TGS发送由AS颁发的TGT，证明自己已经通过了合法性校验，是域中的合法用户，然后由TGS利用KDC的永久密钥（也称为krgtgt账户的密码hash，krgtgt账户相当于是域管理员）解密TGT，校验签名，确定TGT中的PAC没有被篡改之后，重新签名PAC，并将A与B之间通讯所需要的密钥SessionKey以及重新签名后的PAC用B的密码hash进行加密，将两者组合为了ServiceTicket。</p>
 <p>  那么我们可以看到，这整个过程的关键点就是TGT中所携带的PAC，只要我们能够篡改TGT中的PAC，欺骗TGS，就能拿到访问任意服务器的ServiceTicket。而要想篡改TGT，唯一的障碍就是krgtgt用户的密码hash，有了这个密码的hash，我们就可以解密TGT，伪造任意PAC来欺骗TGS为A颁发在此域中访问任意一台服务器的任意ServiceTicket，获取在此域中的最高权限</p>
 <p>  我们把这种票据称为黄金票据</p>
+<p>  提供一些好的参考:</p>
+<p>  <a href="/archives/Kerberos/goldenticket.html">黄金票据</a></p>
 <h1 id="利用工具"><a href="#利用工具" class="headerlink" title="利用工具"></a>利用工具</h1><p>  一般是使用mimikatz来抓取用户的密码hash</p>
 
       
@@ -284,6 +289,15 @@
 
   
 <nav id="article-nav">
+  
+    <a href="/2020/03/18/Steal-ntds-dit/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Steal_ntds.dit
+        
+      </div>
+    </a>
   
   
     <a href="/2020/03/17/Kerberos/" id="article-nav-older" class="article-nav-link-wrap">

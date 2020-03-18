@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<!-- saved from url=(0038)https://aijishu.com/a/1060000000014682 -->
+<html lang="zh"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, width=device-width">
+
+    <title>Windows认证 | 域认证 - 极术社区 - AIoT 开发者之家</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="https://cdn-static.aijishu.com/v-5e6f0162/public/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://cdn-static.aijishu.com/v-5e6f0162/public/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://cdn-static.aijishu.com/v-5e6f0162/public/favicons/favicon-16x16.png">
+    <link rel="manifest" href="https://cdn-static.aijishu.com/v-5e6f0162/public/favicons/site.webmanifest">
+    <link rel="mask-icon" href="https://cdn-static.aijishu.com/v-5e6f0162/public/favicons/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="icon" href="https://cdn-static.aijishu.com/v-5e6f0162/public/favicons/favicon.ico">
+    <meta name="msapplication-config" content="https://cdn-static.aijishu.com/v-5e6f0162/public/favicons/browserconfig.xml">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="keywords" content="Arm,AI人工智能,机器学习,服务器,芯片,嵌入式,SoC,IoT物联网,大数据,EAIDK,OpenAILab">
+    <meta name="description" content="极术社区是Arm中国携手SegmentFault思否以及Arm中国生态重要合作伙伴发起的专注为人工智能、物联网、芯片领域的开发者社区，旨在为广大的软硬件开发者提供一个自由交流的和答疑解惑的平台，借助强大的Arm全球及中国生态系统资源，助力中国开发者轻松的进入AIoT领域。">
+
+    
+    <link rel="stylesheet" href="./kerberos_files/index.css">
+            <link rel="stylesheet" href="./kerberos_files/index(1).css">
+    
+    
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async="" defer="" src="./kerberos_files/fl.js"></script><script async="" defer="" src="./kerberos_files/spc.php"></script><script type="text/javascript" async="" src="./kerberos_files/analytics.js"></script><script async="" defer="" src="./kerberos_files/spcjs.php"></script><script async="" src="./kerberos_files/js"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-918487-15');
+    </script>
+
+    <script>
+        var _oa = [], OA_google = false;
+
+        function OA_script(src, cb) {
+            var s = document.createElement('script'), m = document.getElementsByTagName('script')[0];
+
+            if (cb) {
+                s.onload = cb;
+            }
+
+            s.async = 1;
+            s.defer = 1;
+            s.src = src;
+            m.parentNode.insertBefore(s, m);
+        }
+
+        function OA_show(name) {
+            _oa.push(name);
+            document.write('<div id=\"OA_holder_' + name + '\"></div>');
+        }
+
+        OA_script('https://sponsor.segmentfault.com/spcjs.php?id=2&block=1');
+    </script>
+</head>
+<body class="">
+    <div class="d-none"><img src="./kerberos_files/wechat-share-icon.png" alt=""></div>
+    <nav class="ent-header navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand font-weight-bold text-hide" id="logo" href="https://aijishu.com/">极术社区</a>
+
+                        
+                        <a class="btn btn-light d-lg-none ml-auto mr-2" href="https://aijishu.com/login" data-target="#loginModal">注册</a>
+            
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav font-weight-bold">
+                                                            <li class="nav-item">
+                        <a class="nav-link" href="https://aijishu.com/">首页</a>
+                    </li>
+                                        <li class="nav-item">
+                        <a class="nav-link" href="https://aijishu.com/questions">问答</a>
+                    </li>
+                                        <li class="nav-item">
+                        <a class="nav-link" href="https://aijishu.com/lives">直播</a>
+                    </li>
+                                        <li class="nav-item">
+                        <a class="nav-link" href="https://aijishu.com/events">活动</a>
+                    </li>
+                                    </ul>
+                <form class="ent-header-search form-inline my-2 my-lg-0 mx-auto d-none d-lg-block" action="https://aijishu.com/search" style="width: 45%">
+                    <input class="form-control border-0 w-100" type="search" name="q" value="" placeholder="搜索关键字" aria-label="搜索">
+                </form>
+                <ul class="navbar-nav">
+                                        <li class="nav-item d-none d-lg-block">
+                        <a class="nav-link pr-0" href="https://aijishu.com/login" data-target="#loginModal">注册 · 登录</a>
+                    </li>
+                                    </ul>
+            </div>
+        </div>
+    </nav>
+
+<div data-js-back2top="" class="back2top">
+    <button type="button" class="btn btn-light d-none d-lg-block">▲</button>
+</div>
+
+    <div class="container position-relative">
+                <div class="row py-4">
+            <div class="col-lg-1 handle-bar text-center d-none d-lg-block">
+                <div class="">
+                    <a id="article-like-side-btn" data-icon-count="" data-toggle-button-api="/api/article/1060000000014682/vote/up" data-count-sel="[data-icon-count-size]" data-link-sel="#article-like-bottom-btn" data-toggle-style="link" data-state="false" href="javascript:;" style="width: 38px; height: 38px" class="bg-white d-inline-flex align-items-center justify-content-center rounded-circle">
+                        <i class="far fa-thumbs-up"></i>
+                    </a>
+                    <div data-icon-count-size="" class="mt-1 h5 text-body">0</div>
+                </div>
+
+                <div>
+                    <hr>
+                </div>
+
+                <div class="mb-3">
+                    <a id="article-bookmark-side-btn" data-toggle-button-api="/api/article/1060000000014682/bookmark" data-count-sel="[data-bookmark-count-size]" data-link-sel="#article-bookmark-bottom-btn" data-toggle-style="link" data-state="false" href="javascript:;">
+                        <i class="far fa-bookmark"></i>
+                    </a>
+                </div>
+                <div class="dropdown d-inline" data-qr-direct="right" data-share-title="%E6%88%91%E5%9C%A8+%40%E6%9E%81%E6%9C%AF%E7%A4%BE%E5%8C%BA+%E4%B8%8A%E5%8F%91%E7%8E%B0%E4%BA%86%E3%80%8AWindows%E8%AE%A4%E8%AF%81+%7C+%E5%9F%9F%E8%AE%A4%E8%AF%81%E3%80%8B%EF%BC%8C%E5%BF%AB%E6%9D%A5%E7%9C%8B%E7%9C%8B%E5%90%A7" data-share-url="/a/1060000000014682"><a href="https://aijishu.com/a/1060000000014682#" role="button" id="share-9557601" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="far fa-share-alt"></i>
+      </a>
+
+      <div class="dropdown-menu" aria-labelledby="share-9557601">
+        <a class="dropdown-item share-link" data-clipboard-text="https://aijishu.com/a/1060000000014682" href="javascript:;"><i class="far fa-link mr-2 text-secondary"></i>复制链接</a>
+        <a class="dropdown-item share-weibo" href="javascript:;"><i class="fab fa-weibo mr-2 text-danger"></i>新浪微博</a>
+        <a class="dropdown-item share-weixin" href="javascript:;" data-original-title="" title=""><i class="fab fa-weixin mr-2 text-success"></i>微信扫一扫</a>
+      </div></div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card border-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center font-size-14 mb-3">
+                            <a class="d-flex align-items-center" href="https://aijishu.com/u/wuxindemeng">
+                                <picture class="mr-2">
+                                    <img class="d-inline-block rounded-circle" width="24" src="./kerberos_files/781669416-5d8c192d1c4e4_24" aria-hidden="true">
+                                </picture>
+                                <span class="text-body">无心的梦呓</span>
+                            </a>
+                            <span class="ml-1 text-secondary">·
+                                2019年09月28日</span>
+                        </div>
+
+                        <h1 class="h2 mb-3">
+                            <a class="text-body" href="https://aijishu.com/a/1060000000014682">Windows认证 | 域认证</a>
+                        </h1>
+
+                        <div class="d-flex flex-wrap mb-4">
+                            <div class="m-n1"><a class="m-1 badge-tag" href="https://aijishu.com/t/learning">学习分享</a><a class="m-1 badge-tag" href="https://aijishu.com/t/python">Python</a><a class="m-1 badge-tag" href="https://aijishu.com/t/c-plus-plus">C++</a><a class="m-1 badge-tag" href="https://aijishu.com/t/linux">Linux</a><a class="m-1 badge-tag" href="https://aijishu.com/t/database">数据库</a></div>
+                        </div>
+
+                        <article class="fmt">
+                            <p>在Windows中的身份认证方式有很多，也在不断的升级，但是在域中，依旧使用的是Kerberos认证。</p><p>Kerberos 是一种网络认证协议，它的实现<code>不依赖</code>于主机操作系统的认证，无需基于主机地址的信任，不要求网络上所有主机的物理安全，并假定网络上传送的数据包可以被任意地读取、修改和插入数据，也就是说它的认证完全是从一个<code>不安全</code>的网络环境出发进行认证的，它是拥有第三方信托机构的，与上一篇主机间的交互是不同的。</p><p>Kerberos 这个名字来源于希腊神话，是冥界守护神兽的名字</p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdYJ" alt="file" title="file"></p><p>其实看到这张图后，也就能明白Kerberos认证的是由三方来完成的，他们分别是<code>client</code>、<code>server</code>、<code>KDC(Key Distribution Center)</code>。</p><p>其中<code>KDC</code>是由两种服务所构成的，<code>AS(Authentication Service)</code>和<code>TGS(Ticket Granting Service)</code></p><p>AS是用来为client生成TGT的，TGS是用来为client生成某个服务的Ticket的，TGT(Ticket Granting Ticket)是用来获取Ticket的临时凭证，Ticket是用来访问某种服务所必须使用的票据</p><p><code>只有</code>用户TGT才能获取Ticket，才能去访问server上的服务。</p><p>而在Windows当中，域控DC(Domain Controller)充当了KDC的角色，还有一点需要注意的是，它有一个类似于本地SAM一样的数据库AD(Account Database)，里面存储着所有client的名单，只有存在于client中的用户才能申请到TGT。</p><p>从物理层面看，AD与KDC均为域控制器DC(Domain Controller)。</p><p><strong> 域认证的大致流程是这样的：</strong></p><p>** client先向DC请求，要求获取访问server的权限，当DC接收到请求之后，先由AS向AD发起请求，查看此client是否在白名单中，成功后，则由AS将TGT返回给client。</p><p>** 然后client带着TGT继续向DC发起请求，要求获取访问server的权限，当DC接收到请求后，TGS会通过TGT判断此client是否有获取server服务的权限，成功后，则将Ticket返回给client。</p><p>** 然后client凭借Ticket去访问所请求的server，这个Ticket只对该server有效，如果要访问其他server，需要重新申请。</p><p>结合下面的图片，分析大致流程效果更佳，文章最后有用通俗的语言解释过程的。</p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdYK" alt="file" title="file"></p><p>接下来我们走一遍完整的数据请求流程</p><p>先说一下这次实验中所使用的机器</p><pre><code>DC 192.168.5.130
+
+Client 192.168.5.238
+计算机名：SECQUAN_WIN7-PC
+域用户：win7
+
+Server 192.168.5.239
+计算机名：SECQUAN_WIN7
+域用户：win71</code></pre><p>以下的讲解中的Kerberos数据包是通过网络共享服务来抓取的</p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdYL" alt="file" title="file"></p><p>首先，我们来看第一步的流程</p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdYM" alt="file" title="file"></p><p>Client发送自己的身份信息给KDC，KDC验证成功后，会在本地生成一个<code>随机</code>字符串session key，然后返回给client两个信息。</p><p>** 一个是由client提供的用户名所对应的NTLM hash对session key进行加密后得到的，那么为什么KDC可以用client用户的NTLM hash来进行加密呢，在AD中储存了所有域用户的账号密码等信息，当client发送过身份信息之后，AS会先向AD请求，询问是否有此用户，如果有的话，就会取出它的NTLM hash，然后对所生成的session key进行加密然后作为返回数据包中的一个内容。</p><p>** 另一个就是KDC中的一个特定用户的NTLM hash对session key和client所发送的用户信息进行加密后得到的，其中这个特定用户就是krbtgt（krbtgt是在创建域控的时候自动生成的，并且由系统给他随机分配一个密码）；这个加密数据的内容其实就是后面请求中所使用的TGT。</p><ul><li>这两个中间所用到的session key是相同的。</li></ul><p>接下来再详细理一遍每一个请求所传输的具体内容</p><p>先看一下client发送身份信息的时候，都传输了哪些内容</p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdYN" alt="file" title="file"></p><p>他发送一个<code>KRB_AS_REQ</code>的一个请求，包含了<code>被client加密</code>的timestamp，还有自己的名字等信息，还有请求域时候的服务器信息</p><p>我们来看一下他中间所有的数据包</p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdYO" alt="file" title="file"></p><p>当KDC验证成功后，给client返回一个<code>KRB_AS_REP</code>的请求，它所包含的详细内容是这样的</p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdYP" alt="file" title="file"></p><p>再从数据包中对应一下</p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdYQ" alt="file" title="file"></p><p>到这里为止，Kerberos请求的第一步过程就结束了，此时<code>已经获取到了所需要的TGT</code>，接下来就是通过TGT来请求ticket。</p><p>** 这里还有一点需要注意的是，返回的两个内容，第一个client hash，client可以通过自己的NTLM hash解密，得到其中的session key，但是client是没有KDC的hash，也就是client不知道krbtgt用户的密码，是无法得到TGT中的具体内容的，我们可以使用前面得到的session key继续和TGS进行通信。</p><p>接下来我们来看一下第二步的协议流程</p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdYR" alt="file" title="file"></p><p>首先他会传输之前所获得到的TGT，然后还有前面通过自己的NTLM hash解密出来的session key，来加密client的信息和timestamp，还有client和server的信息，client将这三块信息一同发送给TGS。</p><p>等到TGS接收到前面所传输的信息后，因为TGS本身也属于KDC的一部分，它是拥有krbtgt用户的NTLM hash的，可以对所传输的TGT进行解密，为什么要先解密TGT呢，因为<code>TGS本身是没有session key的</code>，不能对client中所加密的其他信息进行一个认证，而<code>TGT中是存在session key的</code>，TGS通过解密TGT便可以获得传输中的session key，最后便通过session key来解密client所加密的内容，从中获取到时间戳timestamp，如果时间戳跟当前时间相差太久的话，认证就需要重新再来，重复第一步中的操作，重新去请求TGT（<code>因为Kerberos在设计的时候，就假设是处于一个不安全的环境中的，是假设它中间存在中间人攻击的，所以依靠时间戳来限制</code>）。</p><p>从中还能获取到client的信息，TGS还会将这个client的信息与TGT中的client信息进行比较，如果两个相等的话，还会继续判断此client有没有权限访问server，如果都没有问题的话，就认证成功，返回ticket给client。</p><p>在这次传输的时候，里面是包含有两个信息的</p><ul><li>首先它会在本地<code>再生成</code>一个<code>随机</code>字符server session key，使用之前的session key将新生成的server session key加密得到第一个字符串，这里的server session key主要用于后面在client与server的认证过程中的。</li><li>第二个内容就是ticket了，KDC先会通过前面所得到的server的信息，在AD中找到所对应的NTLM hash，然后通过这个NTLM hash去加密ticket，最后一并返回到client。</li></ul><p>在给到client以后，client拥有session key的，所以可以解密得到server session key，但是服务端没有server hash，所以是无法解密得到ticket的。</p><p>Ticket中所包含的内容主要有以下几个</p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdYS" alt="file" title="file"></p><p>我们再在数据包中看一下所有的流程</p><p>先有client发起krb-tgs-req的一个请求</p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdYT" alt="file" title="file"></p><p>当TGS处理完以后，回复了krb-tgs-rep数据包</p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdYU" alt="file" title="file"></p><p>到这里为止，与KDC的通信就结束了，接下来是拿着ticket与server进行通信</p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdYV" alt="file" title="file"></p><p>Client向server发送一个krb-ap-req请求，其中第一块就是ticket，因为client是不能对其进行解密的。然后第二个内容就是解密出来的server session key，通过解密出来的server session key加密client信息和时间戳，最后一并发送到server。</p><p>Server在收到数据包之后，使用<code>自己的hash</code>将ticket解密，从中获得server session key，然后将krb-ap-req中的client信息和时间戳解密出来，然后与ticket中的client信息进行比对，将这里的时间戳与ticket中的end time进行比较，如果超过了这个时间，就代表ticket已经失效了，需要重新进行认证。</p><p>其实在整个Kerberos认证流程中，TGT和ticket的结构都是一样的，唯一不同的就是TGT中是session key，ticket中是server session key，session key是由AS给client的，server session key是由TGS给client的。</p><p>以下是两个交互的数据包</p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdYW" alt="file" title="file"></p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdYX" alt="file" title="file"></p><p>其实整个Kerberos认证的流程就是不断交换密钥，使用对称加密算法，解密验证身份和时间戳，最后达到认证的效果。</p><p>最后使用比较通俗的话来给大家解释一下</p><p>比如你要去坐飞机，首先你去购买机票，对方（AS）肯定会先验证你的身份（client info），验证通过后，把机票（TGT）给你，然后在登机的时候，检票人员（TGS）会验证你的机票（TGT），然后告诉你飞机位置（ticket），之后你就可以带着ticket去相应的位置了。</p><p>文章首发公众号：无心的梦呓(wuxinmengyi)</p><p>这是一个记录红队学习、信安笔记，个人成长的公众号</p><p>扫码关注即可</p><p><img referrerpolicy="no-referrer" src="./kerberos_files/bVdK5" alt="file" title="file"></p>
+
+                                                    </article>
+
+
+                        <div class="handle-bar text-secondary d-flex align-items-center justify-content-between mt-4">
+                            <div>
+                                <a id="article-like-bottom-btn" data-icon-count="" data-toggle-button-api="/api/article/1060000000014682/vote/up" data-count-sel="[data-icon-count-size]" data-link-sel="#article-like-side-btn" data-toggle-style="link" data-state="false" class="mr-3" href="javascript:;">
+                                    <i class="far fa-thumbs-up mr-2"></i>
+                                    <span data-icon-count-size="" data-count-hidden="true" class="d-none">0</span>
+                                </a>
+                                <span>阅读
+                                    440</span>
+                                                            </div>
+                            <div>
+                                <a id="article-bookmark-bottom-btn" data-icon-count="" data-toggle-button-api="/api/article/1060000000014682/bookmark" data-count-sel="[data-bookmark-count-size]" data-link-sel="#article-bookmark-side-btn" data-toggle-style="link" data-state="false" class="ml-3" href="javascript:;">
+                                    <i class="far fa-bookmark mr-2"></i>
+                                    <span data-bookmark-count-size="" data-count-hidden="true" class="d-none">0</span>
+                                </a>
+
+                                <div class="dropdown ml-3 d-inline" data-qr-direct="left" data-share-title="%E6%88%91%E5%9C%A8+%40%E6%9E%81%E6%9C%AF%E7%A4%BE%E5%8C%BA+%E4%B8%8A%E5%8F%91%E7%8E%B0%E4%BA%86%E3%80%8AWindows%E8%AE%A4%E8%AF%81+%7C+%E5%9F%9F%E8%AE%A4%E8%AF%81%E3%80%8B%EF%BC%8C%E5%BF%AB%E6%9D%A5%E7%9C%8B%E7%9C%8B%E5%90%A7" data-share-url="/a/1060000000014682"><a href="https://aijishu.com/a/1060000000014682#" role="button" id="share-23863" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="far fa-share-alt"></i>
+      </a>
+
+      <div class="dropdown-menu" aria-labelledby="share-23863">
+        <a class="dropdown-item share-link" data-clipboard-text="https://aijishu.com/a/1060000000014682" href="javascript:;"><i class="far fa-link mr-2 text-secondary"></i>复制链接</a>
+        <a class="dropdown-item share-weibo" href="javascript:;"><i class="fab fa-weibo mr-2 text-danger"></i>新浪微博</a>
+        <a class="dropdown-item share-weixin" href="javascript:;" data-original-title="" title=""><i class="fab fa-weixin mr-2 text-success"></i>微信扫一扫</a>
+      </div></div>
+
+                                <div class="dropdown ml-3 d-inline">
+                                    <a class="" href="https://aijishu.com/a/1060000000014682#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="far fa-ellipsis-h"></i>
+                                    </a>
+
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+                                        <a class="dropdown-item" data-report="1060000000014682" data-report-type="article" href="https://aijishu.com/a/1060000000014682#">举报</a>
+
+                                        
+                                                                            </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                                                    <h5 class="mt-4">推荐阅读</h5>
+                    <div class="card border-0 mb-4">
+                        <div class="list-group list-group-flush">
+                                        <a href="https://aijishu.com/a/1060000000018291" class="list-group-item list-group-item-action">
+            linux上安装LAMP笔记
+                    </a>
+            <a href="https://aijishu.com/a/1060000000054814" class="list-group-item list-group-item-action">
+            小白学 Python 爬虫（5）：前置准备（四）数据库基础
+                    </a>
+            <a href="https://aijishu.com/a/1060000000089658" class="list-group-item list-group-item-action">
+             Python为什么成为人工智能的首选语言
+                    </a>
+            <a href="https://aijishu.com/a/1060000000095341" class="list-group-item list-group-item-action">
+            《 Python编程快速上手：让繁琐工作自动化》分享下载
+                    </a>
+            <a href="https://aijishu.com/a/1060000000086542" class="list-group-item list-group-item-action">
+            Linux locate命令
+                    </a>
+            <a href="https://aijishu.com/a/1060000000093679" class="list-group-item list-group-item-action">
+            《流畅的Python》分享下载
+                    </a>
+    
+                        </div>
+                    </div>
+                
+                <h5 class="mt-4">0
+                    条评论</h5>
+
+                <div class="card border-0 mb-4">
+                    <div class="card-body">
+                        <div class="media mb-4">
+                            <img class="d-block rounded-circle mr-3" width="38" src="./kerberos_files/user.svg" aria-hidden="true">
+                            <form class="media-body article-comment-form" action="https://aijishu.com/api/comment/add">
+                                <div class="form-group">
+                                    <div class="form-control comment-text" style="height: auto;" contenteditable="true" name="text"></div>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button data-js-replay-submit-btn="" type="submit" class="btn btn-primary float-right">
+                                        提交
+                                    </button>
+                                    <input type="hidden" name="objectId" value="1060000000014682" autocomplete="off">
+                                </div>
+                            </form>
+                        </div>
+
+                        <div id="blogArticleCommentStream" data-js-stream-list="" data-next-page="1">
+                            <div data-js-stream-load-more="" data-api-url="/api/comment/list/1060000000014682" class="text-center">
+                                <div data-js-stream-loading="" class="ent-home-loading spinner-border text-secondary" role="status" hidden="">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                                <div data-js-stream-reload="" class="ent-home-reload" hidden="">
+                                    <i class="far fa-redo-alt text-secondary"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                            </div>
+
+            <div class="col-lg-3">
+                <div class="mb-4">
+                    <div>
+                                                    <div class="card mb-4 border-0">
+                                <div class="card-body">
+                                    <div class="media align-items-center mb-3">
+                                        <img src="./kerberos_files/781669416-5d8c192d1c4e4_36" width="36" height="36" class="align-self-center rounded-circle mr-3" alt="...">
+                                        <div class="media-body">
+                                            <a class="text-body" href="https://aijishu.com/u/wuxindemeng">
+                                                <h5 class="mb-0">无心的梦呓</h5>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex mb-2">
+                                        <div class="mr-5">
+                                            <div class="text-secondary">关注数</div>
+                                            <div class="h5" id="user-followers-count">0</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-secondary">文章数</div>
+                                            <div class="h5">43</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3 text-secondary font-size-14">
+                                        
+                                    </div>
+                                    <div class="d-flex">
+                                        <a data-toggle-button-api="/api/user/1030000000013695/follow" data-on-text="取消关注" data-off-text="关注作者" data-count-sel="#user-followers-count" data-state="false" class="btn btn-primary btn-sm mr-2" href="javascript:;">关注作者</a>
+                                        <a class="btn btn-outline-primary btn-sm" href="https://aijishu.com/u/wuxindemeng">作者主页</a>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                        
+
+                        
+<div class="mb-4">
+    <div class="card border-0">
+        <div class="card-body py-3">
+            <div class="d-flex align-items-center">
+                <div class="mr-3">
+                    <img width="64" height="64" class="" src="./kerberos_files/showqrcode" alt="qrcode">
+                </div>
+                <div class="div font-size-14">
+                    <strong>关注微信服务号</strong><br>
+                    <span class="text-secondary">实时接收新的回答提醒和评论通知</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ul class="mb-4 font-size-14 text-secondary list-unstyled">
+    <li class="my-2">
+        <a class="text-secondary" href="https://aijishu.com/about">关于我们</a> ·
+        <a class="text-secondary" href="https://aijishu.com/help">用户指南</a> ·
+        <a class="text-secondary" href="https://aijishu.com/tos">用户协议</a>
+    </li>
+    <li class="my-2">
+        <a class="text-secondary" href="mailto:%62%65%6E%2E%73%6F%6E%67%40%61%72%6D%63%68%69%6E%61%2E%63%6F%6D">联系合作</a> ·
+        <a class="text-secondary" href="https://jinshuju.net/f/7NSOGq" target="_blank">建议反馈</a>
+        
+    </li>
+    <li class="my-2">
+        <a class="text-secondary" href="http://beian.miit.gov.cn/" target="_blank">沪ICP备 17048686号-2</a>
+    </li>
+    <li class="my-2">
+        版权所有 © 2020 极术社区
+    </li>
+    <li class="my-2">
+        由 <a class="text-secondary" href="https://segmentfault.com/" target="_blank">SegmentFault</a> 提供动力
+    </li>
+    <li><hr><a class="text-secondary" href="https://aijishu.com/links">友情链接</a></li>
+    <li>    
+    
+        <ul class="list-inline">
+                <li class="list-inline-item mt-2">
+            <a href="https://www.armchina.com/" target="_blank" class="text-secondary">Arm 中国</a>
+        </li>
+                <li class="list-inline-item mt-2">
+            <a href="http://www.arm-aiec.com/" target="_blank" class="text-secondary">Arm 人工智能生态联盟</a>
+        </li>
+                <li class="list-inline-item mt-2">
+            <a href="https://segmentfault.com/" target="_blank" class="text-secondary">SegmentFault</a>
+        </li>
+                <li class="list-inline-item mt-2">
+            <a href="http://www.armaccelerator.com/" target="_blank" class="text-secondary">安创空间</a>
+        </li>
+                <li class="list-inline-item mt-2">
+            <a href="https://www.eeeknow.com/" target="_blank" class="text-secondary">移知</a>
+        </li>
+                <li class="list-inline-item mt-2">
+            <a href="https://www.ithingedu.com/" target="_blank" class="text-secondary">安芯教育</a>
+        </li>
+                <li class="list-inline-item mt-2">
+            <a href="http://www.openailab.com/" target="_blank" class="text-secondary">OPEN AI LAB</a>
+        </li>
+                <li class="list-inline-item mt-2">
+            <a href="https://www.oschina.net/" target="_blank" class="text-secondary">开源中国</a>
+        </li>
+                <li class="list-inline-item mt-2">
+            <a href="https://www.geekbang.org/" target="_blank" class="text-secondary">极客邦</a>
+        </li>
+                <li class="list-inline-item mt-2">
+            <a href="http://shenzhenware.com/" target="_blank" class="text-secondary">深圳湾</a>
+        </li>
+                <li class="list-inline-item mt-2">
+            <a href="https://aijishu.com/blog/naojiti" target="_blank" class="text-secondary">脑极体</a>
+        </li>
+                <li class="list-inline-item mt-2">
+            <a href="http://www.jazzyear.com/" target="_blank" class="text-secondary">甲子光年</a>
+        </li>
+                <li class="list-inline-item mt-2">
+            <a href="http://byjs.com.cn/" target="_blank" class="text-secondary">边缘计算社区</a>
+        </li>
+            </ul>
+    
+    </li>
+</ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+  (function (w) {
+    w.GLOBAL = {
+      staticUrl: "https://cdn-static.aijishu.com/v-5e6f0162/",
+      wxLogin: "https://open.weixin.qq.com/connect/qrconnect?appid=wx28bb22f416bf4d6b&redirect_uri=https%3A%2F%2Faijishu.com%2Fuser%2Foauth%2Fwechat&scope=snsapi_login&self_redirect=false&login_type=jssdk&style=dark&https://cdn-static.aijishu.com/v-5e6f0162/public/wx-qrcode.css",
+      wxLoginParams : {"id":"wx-login-qrcode","appid":"wx28bb22f416bf4d6b","scope":"snsapi_login","redirect_uri":"https%3A%2F%2Faijishu.com%2Fuser%2Foauth%2Fwechat","state":"","style":"dark","href":"https:\/\/cdn-static.aijishu.com\/v-5e6f0162\/public\/wx-qrcode.css"},
+      hasLogin: false,
+      hasActivated: false,
+      pageName: "detail",
+      actionBase: location.protocol + "//" + location.host
+    };
+    w.GLOBAL.token = (function () {
+    var _M16c22 = '5'//'tDR'
++'98'//'C'
++''///*'l9k'*/'l9k'
++''///*'Sm'*/'Sm'
++/* 'h'//'h' */''+//'ZX'
+'b2f'+//'D'
+'9'+//'yxk'
+'92f'+'de'//'kfr'
++//'Y'
+'a'+'c'//'LE'
++''///*'hkV'*/'hkV'
++//'n'
+'e'+'c'//'rz3'
++'6'//'YF'
++''///*'3ic'*/'3ic'
++'5'//'3'
++'tcR'//'tcR'
++//'Ez'
+'74a'+//'2'
+'c6'+/* 'uru'//'uru' */''+//'UJ'
+'69f'+//'c'
+'3'+''///*'N9'*/'N9'
++'8'//'DZ'
++//'YOP'
+'3'+//'uA8'
+'ec'+'1'//'LYp'
+, _3En9a8G = [[18,21]];
+
+    for (var i = 0; i < _3En9a8G.length; i ++) {
+        _M16c22 = _M16c22.substring(0, _3En9a8G[i][0]) + _M16c22.substring(_3En9a8G[i][1]);
+    }
+
+    return _M16c22;
+})();;
+  })(window);
+</script>
+<script src="./kerberos_files/wxLogin.js"></script>
+<script src="./kerberos_files/index.js"></script>
+
+    <script src="./kerberos_files/index(2).js"></script>
+
+
+<script src="./kerberos_files/jweixin-1.6.0.js"></script>
+<script>
+    var signPackage = {"appId":"wx233d8320263618de","nonceStr":"sZ7oMHceOkY0oasE","timestamp":1584520507,"url":"https:\/\/aijishu.com\/a\/1060000000014682","signature":"92f3dea3323fdf0e63c6f6e8e85eb02756c6bf86","rawString":"jsapi_ticket=HoagFKDcsGMVCIY2vOjf9q-Q8WQqOlb4LVKDz-fTChkkptHFH0EnIZwwKKK39tGfQRG2YZWfnlvmlXJXONOADA&noncestr=sZ7oMHceOkY0oasE&timestamp=1584520507&url=https:\/\/aijishu.com\/a\/1060000000014682"};
+    if (signPackage) {
+        wx.config({
+            debug: false,
+            appId: signPackage.appId,
+            timestamp: signPackage.timestamp,
+            nonceStr: signPackage.nonceStr,
+            signature: signPackage.signature,
+            jsApiList: [
+                'onMenuShareTimeline',
+                'onMenuShareAppMessage',
+                'onMenuShareQQ',
+                'showAllNonBaseMenuItem',
+            ]
+        });
+    }
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        // 在这里调用 API
+        var shareConfig = {
+            title: 'Windows认证 | 域认证',
+            desc: "在Windows中的身份认证方式有很多，也在不断的升级，但是在域中，依旧使用的是Kerberos认证。",
+            imgUrl: "https://cdn-static.aijishu.com/v-5e6f0162/public/favicons/wechat-share-icon.png",
+            success: function () {
+            },
+            cancel: function () {
+            },
+        };
+        wx.ready(function () {
+            wx.updateAppMessageShareData(shareConfig);
+            wx.updateTimelineShareData(shareConfig);
+            // wx.onMenuShareTimeline(shareConfig);
+            // wx.onMenuShareAppMessage(shareConfig);
+            // wx.onMenuShareQQ(shareConfig);
+            // wx.onMenuShareQZone(shareConfig);
+        });
+    });
+</script>
+
+
+</body></html>

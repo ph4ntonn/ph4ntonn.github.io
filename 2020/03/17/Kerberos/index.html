@@ -8,15 +8,16 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>Kerberos MS14-068 | </title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="前言  最近想继续搞一下内网方面的东西，并且对各个经典的nltm，kerberos漏洞进行一些分析和复现，仅以此记录">
+  <meta name="description" content="前言  最近想继续搞一下内网方面的东西，并且对各个经典的ntlm，kerberos漏洞进行一些分析和复现，仅以此记录">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Kerberos MS14-068">
 <meta property="og:url" content="http://yoursite.com/2020/03/17/Kerberos/index.html">
 <meta property="og:site_name">
-<meta property="og:description" content="前言  最近想继续搞一下内网方面的东西，并且对各个经典的nltm，kerberos漏洞进行一些分析和复现，仅以此记录">
+<meta property="og:description" content="前言  最近想继续搞一下内网方面的东西，并且对各个经典的ntlm，kerberos漏洞进行一些分析和复现，仅以此记录">
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/snapshot.png">
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/PAC.png">
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/ServiceTicket.png">
+<meta property="og:image" content="http://yoursite.com/img/Kerberos/check_PAC.png">
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/init.jpg">
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/beforeinject.jpg">
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/attack.jpg">
@@ -28,7 +29,7 @@
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/success.jpg">
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/final.jpg">
 <meta property="article:published_time" content="2020-03-17T04:38:40.000Z">
-<meta property="article:modified_time" content="2020-03-18T04:17:22.818Z">
+<meta property="article:modified_time" content="2020-03-18T08:38:45.001Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="漏洞，内网渗透">
 <meta name="twitter:card" content="summary">
@@ -182,7 +183,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  最近想继续搞一下内网方面的东西，并且对各个经典的nltm，kerberos漏洞进行一些分析和复现，仅以此记录</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  最近想继续搞一下内网方面的东西，并且对各个经典的ntlm，kerberos漏洞进行一些分析和复现，仅以此记录</p>
 <a id="more"></a>
 
 <h1 id="MS14-068漏洞"><a href="#MS14-068漏洞" class="headerlink" title="MS14-068漏洞"></a>MS14-068漏洞</h1><p>  先从一个知名的漏洞开始吧：MS14-068</p>
@@ -205,6 +206,8 @@
 <p>第④步：KRB_TGS_REP：TGS在接收到KRB_TGS_REP之后，利用KDC密码解密TGT获得本来就该发送给自己的SessionKeya-kdc，然后用其解密KRB_TGS_REQ中的Authenticator得到Client-A发送过来的时间戳，如果时间戳符合要求，则生成一个短期有效的SessionKeya-b，注意此时利用SessionKeya-kdc将SessionKeya-b加密为密文1，然后利用Server-B的密码将SessionKeya-b加密为密文2（称为ServiceTicket），两个密文一同构成KRB_TGS_REP返回给Client-A</p>
 <p>第⑤步：KRB_AP_REQ：Client-A在接收到KRB_TGS_REP之后，首先使用缓存的SessionKeya-kdc将密文1中的SessionKeya-b解密出来，然后利用其加密时间戳生成Authenticator用于向B进行对自身的验证，另外，和刚才TGT一样，密文2也就是ServiceTicket是用Server-B的密码加密的，所以Client-A无法解密，也就无法伪造，这也同样解决了在三方认证中作为Server端的B无法及时接收SessionKey的问题，又不怕Client-A对ServiceTicket的伪造</p>
 <p>第⑥步：KRB_AP_REP：Server-B受到KRB_AP_REQ之后，利用自身密码解密ServiceTicket，得到SessionKeya-b，然后用SessionKeya-b解密Authenticator得到时间戳，验证A的身份</p>
+<p> 一个参考：</p>
+<p> <a href="/archives/Kerberos/kerberos.html">详细过程</a>  </p>
 <h2 id="PAC"><a href="#PAC" class="headerlink" title="PAC"></a>PAC</h2><p>  那么以上就是Kerberos协议的标准实现过程，但是在实际运行的windows服务器上，微软对标准Kerberos协议进行了扩充，其中最重要的扩充就是增加了权限认证，即PAC（Privilege Attribute Certificate），特权属性证书</p>
 <p>  PAC的扩充主要旨在帮助B知道A是否有访问自身某些资源的权限，因为原本Kerberos并没有规定权限方面的问题</p>
 <p>  那么在一个域中，如何才能知道某个域用户所拥有的权限呢？自然是需要提供User的SID和所在组Group的SID。必须了解的一个前提是，KDC、A和B三者中，B只信任KDC所提供的关于A到底是什么权限，所以在一个域初始时，KDC上拥有A和B的权限。现在需要解决的是，KDC必须告诉B关于A的权限，这样B验证A的权限后才能决定让不让A访问自身的网络资源。</p>
@@ -216,7 +219,10 @@
 <p>  微软是这样打算的，无论如何也要把PAC从KDC传送到Server-B，为了在Kerberos认证过程中实现，微软选择了如下做法：</p>
 <p>  将PAC放在TGT中加密后从AS服务经Client-A中转给TGS服务，再放在由TGS服务返回的ServiceTicket中加密后经Client-A中转给Server-B</p>
 <p>  <img src="/img/Kerberos/ServiceTicket.png" alt="image"></p>
-<p>  需要注意的是，在KRB_TGS_REQ阶段，携带PAC的TGT被TGS服务接收后，认证A的合法性后（解密Authenticator符合要求）会将PAC解密出来，验证尾部两个签名的合法性，如果合法则认为PAC没有被篡改，于是重新在PAC的尾部更换了另外两个签名，一个是Server Signature，这次是以Server-B的密码副本生成的签名（因为对于Client-A和Server-B，这次的第三方机构是TGS服务），另外一个是KDC Signature，这次不再使用KDC的长期有效的Key，而是使用在AS阶段生成的短期有效的SessionKeya-b，最终成为New Signed PAC被拷贝在ServericeTicket中被加密起来。</p>
+<p>  需要注意的是，在KRB_TGS_REQ阶段，携带PAC的TGT被TGS服务接收后，认证A的合法性后（解密Authenticator符合要求）会将PAC解密出来，验证尾部两个签名的合法性，如果合法则认为PAC没有被篡改，于是重新在PAC的尾部更换了另外两个签名，一个是Server Signature，这次是以Server-B的密码副本生成的签名（因为对于Client-A和Server-B，这次的第三方机构是TGS服务），另外一个仍旧是KDC Signature，两者合在一起，最终成为New Signed PAC被拷贝在ServericeTicket中被加密起来。</p>
+<p><strong>注意，这里再次签发的PAC尾部的签名一个基于是B的密码hash一个仍然是基于KDC的密码hash（krgtgt用户的密码hash），在B端可以选择是否认证这个PAC的KDC签名，如果选择不认证，就不对PAC进行签名校验（也可能只校验基于B的密码hash的签名，这一点不太确定），但是如果选择认证，B将会把PAC中的签名传递给DC来进行检验，如下图所示,图片来自微软官方<a href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-apds/1d1f2b0c-8e8a-4d2a-8665-508d04976f84" target="_blank" rel="noopener">巨硬</a></strong></p>
+<p> <img src="/img/Kerberos/check_PAC.png" alt="check"></p>
+<p><strong>当然，有的服务器并不校验KDC签名，校验与否决定了银票是否能够正常被使用（银票下一篇文章会讲）</strong></p>
 <p>  最终绕过来绕过去，KDC上所拥有的关于Client-A的权限证书PAC终于发给了Server-B，Server-B在对Client-A进行认证的同时，同时也能判断Client-A有没有访问网络资源的权限。</p>
 <h2 id="MS14-068"><a href="#MS14-068" class="headerlink" title="MS14-068"></a>MS14-068</h2><p>  这里我发现的一个大师傅分析的很不错，受教了</p>
 <p>  <a href="/archives/Kerberos/MS14-068.html">详细</a></p>
