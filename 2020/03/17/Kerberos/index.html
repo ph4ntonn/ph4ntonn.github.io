@@ -17,8 +17,18 @@
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/snapshot.png">
 <meta property="og:image" content="http://yoursite.com/img/Kerberos/PAC.png">
 <meta property="og:image" content="http://yoursite.com/2020/03/17/Kerberos/img/Kerberos/ServiceTicket.png">
+<meta property="og:image" content="http://yoursite.com/archives/Kerberos/init.jpg">
+<meta property="og:image" content="http://yoursite.com/archives/Kerberos/beforeinject.jpg">
+<meta property="og:image" content="http://yoursite.com/archives/Kerberos/attack.jpg">
+<meta property="og:image" content="http://yoursite.com/archives/Kerberos/inject.jpg">
+<meta property="og:image" content="http://yoursite.com/archives/Kerberos/afterinject.jpg">
+<meta property="og:image" content="http://yoursite.com/archives/Kerberos/barren.jpg">
+<meta property="og:image" content="http://yoursite.com/archives/Kerberos/purge.jpg">
+<meta property="og:image" content="http://yoursite.com/archives/Kerberos/inject_twice.jpg">
+<meta property="og:image" content="http://yoursite.com/archives/Kerberos/success.jpg">
+<meta property="og:image" content="http://yoursite.com/archives/Kerberos/final.jpg">
 <meta property="article:published_time" content="2020-03-17T04:38:40.000Z">
-<meta property="article:modified_time" content="2020-03-17T08:11:47.052Z">
+<meta property="article:modified_time" content="2020-03-18T04:10:43.248Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="漏洞，内网渗透">
 <meta name="twitter:card" content="summary">
@@ -209,9 +219,37 @@
 <p>  需要注意的是，在KRB_TGS_REQ阶段，携带PAC的TGT被TGS服务接收后，认证A的合法性后（解密Authenticator符合要求）会将PAC解密出来，验证尾部两个签名的合法性，如果合法则认为PAC没有被篡改，于是重新在PAC的尾部更换了另外两个签名，一个是Server Signature，这次是以Server-B的密码副本生成的签名（因为对于Client-A和Server-B，这次的第三方机构是TGS服务），另外一个是KDC Signature，这次不再使用KDC的长期有效的Key，而是使用在AS阶段生成的短期有效的SessionKeya-b，最终成为New Signed PAC被拷贝在ServericeTicket中被加密起来。</p>
 <p>  最终绕过来绕过去，KDC上所拥有的关于Client-A的权限证书PAC终于发给了Server-B，Server-B在对Client-A进行认证的同时，同时也能判断Client-A有没有访问网络资源的权限。</p>
 <h2 id="MS14-068"><a href="#MS14-068" class="headerlink" title="MS14-068"></a>MS14-068</h2><p>  这里我发现的一个大师傅分析的很不错，受教了</p>
-<p>  <a href="/archives/Kerberos/MS14-068.html">analyze</a></p>
+<p>  <a href="/archives/Kerberos/MS14-068.html">详细</a></p>
 <p>  可以继续好好消化</p>
 <h2 id="实战测试"><a href="#实战测试" class="headerlink" title="实战测试"></a>实战测试</h2><p>  我自己在本地搭建了一下环境</p>
+<p>  域控是win2008，域用户端是win7</p>
+<p>  首先先看一下没有工具之前，我使用net use尝试挂载域控的c盘是无效的，需要输入用户名密码</p>
+<p>  <img src="/archives/Kerberos/init.jpg" alt="init"></p>
+<p>  可以看到是无效的</p>
+<p>  这是这个时候缓存的票据信息：</p>
+<p>  <img src="/archives/Kerberos/beforeinject.jpg" alt="before"></p>
+<p>  此时，执行exploit</p>
+<p>  <img src="/archives/Kerberos/attack.jpg" alt="attack"></p>
+<p>  将获得的TGT用mimikatz注入内存</p>
+<p>  <img src="/archives/Kerberos/inject.jpg" alt="inject"></p>
+<p>  此时的缓存票据信息：</p>
+<p>  <img src="/archives/Kerberos/afterinject.jpg" alt="after"></p>
+<p>  可以看见第一个票据被改变了（原来的第一个票据被移到第二个，看清标志），这就是我们的新TGT</p>
+<p>  接着再尝试挂载域控的c盘：</p>
+<p>  <img src="/archives/Kerberos/barren.jpg" alt="nah"></p>
+<p>  可以看见无效，这是因为，这时我们注入的是TGT，而我们实际上在登陆的时候就有了一张初始权限的ServiceTicket（可以看第三个票据，cifs/domain.test的那一个)，这是我们挂载时用到的ServiceTicket。也就是说其实系统会先检查内存中有没有相关服务的ServiceTicket，如果有就直接使用，如果没有，那么才会使用TGT去换ServiceTicket，故而这里我们虽然注入了高权限的TGT，系统却并没有用它来换ServiceTicket，而是用了之前的，故而还是无效的。</p>
+<p>  这时我们清空票据缓存</p>
+<p>  <img src="/archives/Kerberos/purge.jpg" alt="purge"></p>
+<p>  重新注入票据后：</p>
+<p>  <img src="/archives/Kerberos/inject_twice.jpg" alt="again"></p>
+<p>  可以看见只有一张我们注入的TGT了</p>
+<p>  重新尝试挂载：</p>
+<p>  <img src="/archives/Kerberos/success.jpg" alt="success"></p>
+<p>  可以看见已经不需要用户名密码了</p>
+<p>  再看看票据缓存：</p>
+<p>  <img src="/archives/Kerberos/final.jpg" alt="final"></p>
+<p>  可以发现，系统使用我们注入的高权限TGT重新申请了高权限的ServiceTicket，从而完成了攻击，在票据到期前，攻击者拥有域内最高的权限</p>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>  虽然是好几年前的漏洞了，但是对于理解Kerberos协议的工作原理还是有着很大的帮助</p>
 
       
 
