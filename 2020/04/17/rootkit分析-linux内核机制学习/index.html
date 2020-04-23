@@ -6,18 +6,18 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>端口复用的一些tricks | </title>
+  <title>rootkit分析&amp;&amp;linux内核机制学习（一） | </title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="前言  最近在写自己的多级代理跳板工具时，本来想为其加入端口复用的功能，以期在高度受限的环境下仍然可以正常工作,但在实施的过程中我发现了一些值得记录的点">
+  <meta name="description" content="前言  这篇文章将会长篇连载。。从分析一个rootkit的源代码来分析其功能模块并籍此学习部分linux内核知识">
 <meta property="og:type" content="article">
-<meta property="og:title" content="端口复用的一些tricks">
-<meta property="og:url" content="http://yoursite.com/2020/03/16/Port-reuse/index.html">
+<meta property="og:title" content="rootkit分析&amp;&amp;linux内核机制学习（一）">
+<meta property="og:url" content="http://yoursite.com/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/index.html">
 <meta property="og:site_name">
-<meta property="og:description" content="前言  最近在写自己的多级代理跳板工具时，本来想为其加入端口复用的功能，以期在高度受限的环境下仍然可以正常工作,但在实施的过程中我发现了一些值得记录的点">
-<meta property="article:published_time" content="2020-03-16T09:40:33.000Z">
-<meta property="article:modified_time" content="2020-04-14T05:43:03.933Z">
+<meta property="og:description" content="前言  这篇文章将会长篇连载。。从分析一个rootkit的源代码来分析其功能模块并籍此学习部分linux内核知识">
+<meta property="article:published_time" content="2020-04-17T08:02:43.000Z">
+<meta property="article:modified_time" content="2020-04-23T09:47:31.412Z">
 <meta property="article:author" content="ph4ntom">
-<meta property="article:tag" content="渗透,linux">
+<meta property="article:tag" content="linux内核，rootkit">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="" type="application/atom+xml">
@@ -148,44 +148,62 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Port-reuse" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-rootkit分析-linux内核机制学习" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      端口复用的一些tricks
+      rootkit分析&amp;&amp;linux内核机制学习（一）
     </h1>
   
 
         
-        <a href="/2020/03/16/Port-reuse/" class="archive-article-date">
-  	<time datetime="2020-03-16T09:40:33.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-03-16</time>
+        <a href="/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/" class="archive-article-date">
+  	<time datetime="2020-04-17T08:02:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-04-17</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  最近在写自己的多级代理跳板工具时，本来想为其加入端口复用的功能，以期在高度受限的环境下仍然可以正常工作,但在实施的过程中我发现了一些值得记录的点</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  这篇文章将会长篇连载。。从分析一个rootkit的源代码来分析其功能模块并籍此学习部分linux内核知识</p>
 <a id="more"></a>
 
-<p><strong>为了叙述方便，本文假设我们控制了一台主机，其80端口之上运行着apache服务，而我们需要复用80端口</strong></p>
-<h1 id="利用IPtables"><a href="#利用IPtables" class="headerlink" title="利用IPtables"></a>利用IPtables</h1><p>  首先第一种方法我是参考了网上的一篇<a href="/archives/Portreuse.htm">文章</a>，主要是利用IPtables规则来实现端口复用。</p>
-<p>  实际上这个方法属于伪端口复用，因为实际上我们的程序并不会复用同样的端口，而是利用IPtables会在路由决策之前生效的特性，将我们的程序监听在本地的另一个端口上（比方说8888），将外部流量全部导向我们自己的程序，再由我们自己的程序进行流量的分发（通过识别流量特征区分工具流量和正常http流量）</p>
-<p>  那么这个方法实际上确实效果还不错，不会影响到正常服务器的运行，而且在严格受限的环境当中（即只允许80端口的出入站连接），确实可以完成既定目标</p>
-<p>  但是，这个方法的局限性也比较明显，那就是需要完成这个操作需要有root权限（废话。。。），并且仅支持linux服务器，而且会监听额外的端口。root权限虽然说不是每次都搞不到，但是也算是一个受限的点，毕竟我们无法保证能否在一些受限严格的边缘服务器上搞到root权限。</p>
-<p>  总的来说，在有root权限的情况下，是个不错的方式。</p>
-<h1 id="利用SO-REUSEADDR和SO-REUSEPORT"><a href="#利用SO-REUSEADDR和SO-REUSEPORT" class="headerlink" title="利用SO_REUSEADDR和SO_REUSEPORT"></a>利用SO_REUSEADDR和SO_REUSEPORT</h1><p>  其实这个方法也是由来已久，先讲一下SO_REUSEPORT，这个选项在在linux是可用的，在windows上并没有这个设置，它的出现是旨在进一步实现负载均衡，可以让两个不同的进程同时监听在完全一致的ip：port组合上，从而实现端口复用</p>
-<p>  在windows上复用端口时，我们主要是利用了SO_REUSEADDR这个选项，这个选项将允许两个进程监听相同端口，只需要ip地址不完全相同即可，打个比方，绝大多数web服务器默认监听在0.0.0.0上，所以我们的程序可以监听在192.168.x.x的ip上，并且监听同一个端口（因为通配符0.0.0.0和具体的ip地址192.168.x.x不是“同一个”ip地址），这样就可以劫持端口流量（因为在路由决策时，是最大匹配原则，当用户在外网访问服务器上的web页面时，会输入具体的ip地址192.168.x.x，这样的话在路由决策时，所有应当流向web服务器的流量将会被我们劫持，而我们只需要分发流量就可以成功完成复用）</p>
-<p>  值得一提的是，在windows上启动一个新的设置了SO_REUSEADDR选项的进程时是不会校验之前已经监听在相同端口上的程序是否同样启用了该选项的，只要新进程设置即可，但这也导致端口劫持的风险，所以微软在windows中又加入了一个特殊的选项SO_EXCLUCIVEADDRUSE，只要之前监听的程序设置此选项，那么之后再有进程想要监听同样的端口，将会被直接拒绝，防止端口劫持的发生</p>
-<p>  另外，在linux上，其实现方法和BSD有很大区别，比如在linux上一个程序如果监听了通配符地址，那么就算后面的进程设置了SO_REUSEADDR地址，它也不能监听192.168.x.x（在相同端口的情况下），而这在BSD中是被允许的。另外，在linux上的许多web程序或者其他功能程序默认情况下不会设置SO_REUSEPORT选项，故而很难用SO_REUSEADDR和SO_REUSEPORT来复用linux端口，需要另辟蹊径。</p>
-<p>  当然这个方法也有好处</p>
-<p>  首先是这个方法不需要root权限，只需要与之前启动web程序的用户权限相同即可，而这通过webshell很容易做到，因为我们webshell的权限一般情况下和启动web服务的权限是一样的</p>
-<p>  另外就是这个方法不需要监听额外的端口，这就增加了一定的隐蔽性</p>
-<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>  感觉在应用层上做端口复用效果不是很理想，可能要在内核层面上做才会有更好的效果，但是聊胜于无，总比没有好～</p>
+<h1 id="rootkit自身隐藏及保护"><a href="#rootkit自身隐藏及保护" class="headerlink" title="rootkit自身隐藏及保护"></a>rootkit自身隐藏及保护</h1><h2 id="隐藏自身"><a href="#隐藏自身" class="headerlink" title="隐藏自身"></a>隐藏自身</h2><p>先讲讲自身的隐藏，这里主要是用到了以下函数段：</p>
+<p>``<br>`<br> module_list = THIS_MODULE-&gt;list.prev;</p>
+<p> list_del(&amp;THIS_MODULE-&gt;list);</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">其中module_list保存了此模块所在的链表结构体的第一个结构体，即链表的头节点，以便之后的恢复操作</span><br><span class="line"></span><br><span class="line">list_del函数将此模块所在的链表结构体的头节点删除，即将代表自身的结构体删除，从而在lsmod命令中隐藏此模块</span><br><span class="line"></span><br><span class="line">## 恢复自身</span><br><span class="line"></span><br><span class="line">讲完隐藏，讲讲自身恢复</span><br></pre></td></tr></table></figure>
 
+<p> list_add(&amp;THIS_MODULE-&gt;list, module_list);</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">这里利用到了list_add函数，将之前保存的module结构体（即之前代表自身的结构体）添加到链表头，从而重新在lsmod命令中可见</span><br><span class="line"></span><br><span class="line">## 保护自身不被删除</span><br><span class="line"></span><br><span class="line">保护自身不被删除主要利用了以下代码：</span><br></pre></td></tr></table></figure>
+
+<p>try_module_get(THIS_MODULE);</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">利用了try_module_get函数，将模块的使用计数加一，从而使得模块表现为“正在被使用”，由于linux不能卸载正在使用的模块，从而保护自身不被删除</span><br><span class="line"></span><br><span class="line">## 接触保护</span><br><span class="line"></span><br><span class="line">接触保护代码：</span><br></pre></td></tr></table></figure>
+
+<p>module_put(THIS_MODULE); </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">利用了module_put函数，将模块的使用计数减一至0，从而将其表示为空闲状态以卸载</span><br><span class="line"></span><br><span class="line"># rootkit查找系统调用表</span><br><span class="line"></span><br><span class="line">  首先系统调用表（syscall_table)是存在在内核中的一个数组，里面存放了所有指向系统调用函数的指针，故而rootkit若想hook系统调用，就必须先找到syscall_table在内存当中的地址（在早期的Linux内核中，是通过一个变量SYSCALL_TABLE明确指出其位置的，而在较新的kernel中移除了这一个变量，防止被滥用）</span><br><span class="line"></span><br><span class="line">  此rootkit采用的是暴力搜索遍历的方式来找到syscall_table，代码如下：</span><br></pre></td></tr></table></figure>
+<p>void **sys_call_table;</p>
+<p>void <em><em>find_syscall_table(void)<br>{<br>    void *</em>sctable;<br>    void *i = (void</em>) START_ADDRESS;</p>
+<pre><code>while (i &lt; END_ADDRESS) {
+    sctable = (void **) i;
+
+    if (sctable[__NR_close] == (void *) sys_close) {
+        size_t j;
+        const unsigned int SYS_CALL_NUM = 300;
+        for (j = 0; j &lt; SYS_CALL_NUM; j ++) {
+            if (sctable[j] == NULL) {
+                goto skip;
+            }
+        }
+        return sctable;
+    }</code></pre><p>skip:<br>        ;<br>        i += sizeof(void *);<br>    }</p>
+<pre><code>return NULL;</code></pre><p>}</p>
+<pre><code>
+首先我们先要确定一个比syscall_table更高位置的内存来作为起始点（不然你遍历不到），之后我们需要知道一个已经确定位置的函数，这里用到了sys_close函数，这个函数的位置是相对于syscall_table处在更低的内存位置，这样就可以用来标示遍历的终点。
+
+之后将i赋值为内存地址，在每一次遍历中，尝试将i代表的内存地址加上__NR_close（sys_close函数的偏移地址），查看加上偏移地址后的内存中所存放的指针所指向的地址是否指向了sys_close函数的地址，如果是，则代表我们找到了系统调用表的表头，如果不是，那么i加上一个void *的大小（继续推进内存地址），继续进行遍历，直到找到正确的表头</code></pre>
       
 
       
@@ -219,7 +237,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">渗透,linux</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">linux内核，rootkit</a>
         		</li>
       		
 		</ul>
@@ -275,7 +293,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/03/16/Port-reuse/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -289,18 +307,9 @@
   
 <nav id="article-nav">
   
-    <a href="/2020/03/17/Kerberos/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Kerberos MS14-068
-        
-      </div>
-    </a>
   
-  
-    <a href="/2020/03/14/Go-source-code/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Go net/http包源码解析（一）</div>
+    <a href="/2020/03/18/Steal-ntds-dit/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Steal_ntds.dit</div>
       <i class="icon-circle-right"></i>
     </a>
   
