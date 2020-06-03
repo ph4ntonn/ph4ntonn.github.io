@@ -6,16 +6,23 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title></title>
+  <title>密码“水坑” | </title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="The wheel turns,nothing is ever new">
-<meta property="og:type" content="website">
-<meta property="og:title">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="前言  我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户&#x2F;root下“水坑”">
+<meta property="og:type" content="article">
+<meta property="og:title" content="密码“水坑”">
+<meta property="og:url" content="http://yoursite.com/2020/05/27/Steal-password-by-alias/index.html">
 <meta property="og:site_name">
-<meta property="og:description" content="The wheel turns,nothing is ever new">
+<meta property="og:description" content="前言  我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户&#x2F;root下“水坑”">
+<meta property="og:image" content="http://yoursite.com/img/Steal-pass/strace.jpg">
+<meta property="og:image" content="http://yoursite.com/img/Steal-pass/password.jpg">
+<meta property="og:image" content="http://yoursite.com/img/Steal-pass/address.jpg">
+<meta property="article:published_time" content="2020-05-27T05:37:54.000Z">
+<meta property="article:modified_time" content="2020-06-03T06:47:24.330Z">
 <meta property="article:author" content="ph4ntom">
+<meta property="article:tag" content="内网渗透">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/img/Steal-pass/strace.jpg">
   
     <link rel="alternative" href="/atom.xml" title="" type="application/atom+xml">
   
@@ -145,16 +152,14 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-    <article id="post-Steal-password-by-alias" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+            <article id="post-Steal-password-by-alias" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/05/27/Steal-password-by-alias/">密码“水坑”</a>
+    <h1 class="article-title" itemprop="name">
+      密码“水坑”
     </h1>
   
 
@@ -168,11 +173,47 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想<br>记录一下一些小方法，如何给合法用户/root下“水坑”</p>
-        
-          <a class="article-more-a" href="/2020/05/27/Steal-password-by-alias/#more">more >></a>
-        
+<a id="more"></a>
+
+<h1 id="第一个暗桩-–-ssh命令"><a href="#第一个暗桩-–-ssh命令" class="headerlink" title="第一个暗桩 – ssh命令"></a>第一个暗桩 – ssh命令</h1><p>  当我们控制了一台linux服务器，并且发现有用户使用这台机器通过ssh连接其他机器的时候，那么假设我们有此用户的权限的shell，这时我们就可以巧<br>用alias来窃取用户的密码</p>
+<p>  首先我们将会用到strace命令，这在大部分的linux机器当中都有预装。为了劫持用户的ssh命令，我们需要修改～/.bashrc（修改前请先备份）</p>
+<p>  在.bashrc中加入如下语句：</p>
+<p>  alias ssh=’strace -o  /var/tmp/.syscache-<code>date +&#39;%Y-%m-%d+%H:%m:%S&#39;</code>.log -s 4096 ssh’</p>
+<p>  这句话的意思就是当用户使用ssh时，实际上我们悄悄的对ssh使用了strace来跟踪其调用过程，并将其输出文件保存在/var/tmp下，这样，当合法用户&gt;登陆被我们控制的机器，并使用ssh登陆其他机器的时候，其登陆其他机器时输入的密码、地址就会被我们记录下来。如下图</p>
+<p><img src="/img/Steal-pass/strace.jpg" alt="strace"></p>
+<p>此时我们使用grep，查找密码以及用户登陆的地址：</p>
+<p><img src="/img/Steal-pass/password.jpg" alt="password"></p>
+<p><img src="/img/Steal-pass/address.jpg" alt="address"></p>
+<p>可以看到成功捕获了用户名、地址、密码</p>
+<h1 id="第二个暗桩-–-窃取sudo密码"><a href="#第二个暗桩-–-窃取sudo密码" class="headerlink" title="第二个暗桩 – 窃取sudo密码"></a>第二个暗桩 – 窃取sudo密码</h1><p>  当我们控制了一台linux服务器，并且发现自己控制的用户经常使用sudo执行命令时，我们也可以巧用alias来窃取用户的sudo密码</p>
+<p>  自己也写了个小工具：<a href="https://github.com/ph4ntonn/Impost3r" target="_blank" rel="noopener">Impost3r</a></p>
+<p>  只需要合法用户登陆后使用sudo命令，就可以窃取到其密码，从而变相提权，甚至可以可以拿来做ssh账户/密码，大多数人密码都是一样的</p>
+<h1 id="第三个暗桩-–-劫持各类系统命令"><a href="#第三个暗桩-–-劫持各类系统命令" class="headerlink" title="第三个暗桩 – 劫持各类系统命令"></a>第三个暗桩 – 劫持各类系统命令</h1><p>  这个和第二个很像，但是我觉得不是很妥当，毕竟会弹出非预期的询问密码的操作，故而不去使用</p>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>  手法要骚，想法要淫荡（笑）</p>
+
       
 
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
       
     </div>
     <div class="article-info article-info-index">
@@ -192,16 +233,75 @@
       
 
       
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/05/27/Steal-password-by-alias/">展开全文 >></a>
-        </p>
-      
 
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/05/27/Steal-password-by-alias/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
       
       <div class="clearfix"></div>
     </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
+  
+  
+    <a href="/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">rootkit分析&amp;&amp;linux内核机制学习（一）</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -221,450 +321,14 @@
 
 
 
-
   
-    <article id="post-rootkit分析-linux内核机制学习" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/">rootkit分析&amp;&amp;linux内核机制学习（一）</a>
-    </h1>
   
 
-        
-        <a href="/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/" class="archive-article-date">
-  	<time datetime="2020-04-17T08:02:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-04-17</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  这篇文章将会长篇连载。。从分析一个rootkit的源代码来分析其功能模块并籍此学习部分linux内核知识</p>
-        
-          <a class="article-more-a" href="/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">linux内核，rootkit</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Steal-ntds-dit" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/03/18/Steal-ntds-dit/">Steal_ntds.dit</a>
-    </h1>
   
 
-        
-        <a href="/2020/03/18/Steal-ntds-dit/" class="archive-article-date">
-  	<time datetime="2020-03-18T04:31:16.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-03-18</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/03/18/Steal-ntds-dit/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Kerberos-gold-sliver-ticket" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/03/17/Kerberos-gold-sliver-ticket/">Kerberos黄金白银票据</a>
-    </h1>
   
 
-        
-        <a href="/2020/03/17/Kerberos-gold-sliver-ticket/" class="archive-article-date">
-  	<time datetime="2020-03-17T06:22:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-03-17</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  在分析了MS14-068漏洞之后，来讲讲域渗透中很重要的两个知识，Kerberos的黄金票据和白银票据，为了方便叙述，假定A为客户端，B为服务端</p>
-        
-          <a class="article-more-a" href="/2020/03/17/Kerberos-gold-sliver-ticket/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">内网渗透</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/03/17/Kerberos-gold-sliver-ticket/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Kerberos" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/03/17/Kerberos/">Kerberos MS14-068</a>
-    </h1>
-  
-
-        
-        <a href="/2020/03/17/Kerberos/" class="archive-article-date">
-  	<time datetime="2020-03-17T04:38:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-03-17</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  最近想继续搞一下内网方面的东西，并且对各个经典的ntlm，kerberos漏洞进行一些分析和复现，仅以此记录</p>
-        
-          <a class="article-more-a" href="/2020/03/17/Kerberos/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">漏洞，内网渗透</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/03/17/Kerberos/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Port-reuse" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/03/16/Port-reuse/">端口复用的一些tricks</a>
-    </h1>
-  
-
-        
-        <a href="/2020/03/16/Port-reuse/" class="archive-article-date">
-  	<time datetime="2020-03-16T09:40:33.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-03-16</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  最近在写自己的多级代理跳板工具时，本来想为其加入端口复用的功能，以期在高度受限的环境下仍然可以正常工作,但在实施的过程中我发现了一些值得记录的点</p>
-        
-          <a class="article-more-a" href="/2020/03/16/Port-reuse/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">渗透,trick</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/03/16/Port-reuse/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Go-source-code" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/03/14/Go-source-code/">Go net/http包源码解析（一）</a>
-    </h1>
-  
-
-        
-        <a href="/2020/03/14/Go-source-code/" class="archive-article-date">
-  	<time datetime="2020-03-14T11:07:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-03-14</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  net/http包是Go原生包中使用十分频繁的包，然而最近在写程序的时候发现了一些有意思的知识点，故想记录下来以防自己以后忘记。<br>  首先来看看一个最常出错的地方，net/http包中，Response结构体Body的处理方法不当所导致的内存泄露问题</p>
-        
-          <a class="article-more-a" href="/2020/03/14/Go-source-code/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">源码</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/03/14/Go-source-code/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
 
 
@@ -687,8 +351,8 @@
     <script>
 	var yiliaConfig = {
 		mathjax: false,
-		isHome: true,
-		isPost: false,
+		isHome: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,
