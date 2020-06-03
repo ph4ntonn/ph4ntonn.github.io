@@ -8,17 +8,17 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>密码“水坑” | </title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="前言  我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户&#x2F;root下“水坑”">
+  <meta name="description" content="前言  我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户下“水坑”">
 <meta property="og:type" content="article">
 <meta property="og:title" content="密码“水坑”">
 <meta property="og:url" content="http://yoursite.com/2020/05/27/Steal-password-by-alias/index.html">
 <meta property="og:site_name">
-<meta property="og:description" content="前言  我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户&#x2F;root下“水坑”">
+<meta property="og:description" content="前言  我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户下“水坑”">
 <meta property="og:image" content="http://yoursite.com/img/Steal-pass/strace.jpg">
 <meta property="og:image" content="http://yoursite.com/img/Steal-pass/password.jpg">
 <meta property="og:image" content="http://yoursite.com/img/Steal-pass/address.jpg">
 <meta property="article:published_time" content="2020-05-27T05:37:54.000Z">
-<meta property="article:modified_time" content="2020-06-03T07:00:13.615Z">
+<meta property="article:modified_time" content="2020-06-03T07:01:28.911Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="内网渗透">
 <meta name="twitter:card" content="summary">
@@ -172,7 +172,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户/root下“水坑”</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户下“水坑”</p>
 <a id="more"></a>
 
 <h1 id="第一个暗桩-–-ssh命令"><a href="#第一个暗桩-–-ssh命令" class="headerlink" title="第一个暗桩 – ssh命令"></a>第一个暗桩 – ssh命令</h1><p>  当我们控制了一台linux服务器，并且发现有用户使用这台机器通过ssh连接其他机器的时候，那么假设我们有此用户的权限的shell，这时我们就可以巧用alias来窃取用户的密码</p>
