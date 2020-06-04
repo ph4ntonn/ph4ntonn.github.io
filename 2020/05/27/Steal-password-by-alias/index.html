@@ -18,7 +18,7 @@
 <meta property="og:image" content="http://yoursite.com/img/Steal-pass/password.jpg">
 <meta property="og:image" content="http://yoursite.com/img/Steal-pass/address.jpg">
 <meta property="article:published_time" content="2020-05-27T05:37:54.000Z">
-<meta property="article:modified_time" content="2020-06-03T07:01:28.911Z">
+<meta property="article:modified_time" content="2020-06-04T08:32:42.870Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="内网渗透">
 <meta name="twitter:card" content="summary">
@@ -189,6 +189,15 @@
 <p>  自己也写了个小工具：<a href="https://github.com/ph4ntonn/Impost3r" target="_blank" rel="noopener">Impost3r</a></p>
 <p>  只需要合法用户登陆后使用sudo命令，就可以窃取到其密码，从而变相提权，甚至可以可以拿来做ssh账户/密码，大多数人密码都是一样的</p>
 <h1 id="第三个暗桩-–-劫持各类系统命令"><a href="#第三个暗桩-–-劫持各类系统命令" class="headerlink" title="第三个暗桩 – 劫持各类系统命令"></a>第三个暗桩 – 劫持各类系统命令</h1><p>  这个和第二个很像，但是我觉得不是很妥当，毕竟会弹出非预期的询问密码的操作，故而不去使用</p>
+<h1 id="第四个暗桩-–-修改pam文件"><a href="#第四个暗桩-–-修改pam文件" class="headerlink" title="第四个暗桩 – 修改pam文件"></a>第四个暗桩 – 修改pam文件</h1><p>  在linux当中，用户的认证都是基于pam的，也就是说如果我们在获取了root权限的情况下,可以通过修改pam相关模块及配置来窃取所有通过ssh登陆至此机器的用户名/密码、所有执行su命令的用户名/密码</p>
+<p>  有一个小工具:<a href="https://github.com/mthbernardes/sshLooterC" target="_blank" rel="noopener">looterc</a></p>
+<p>  稍加修改，并进行编译，得到<code>looter.so</code>，并将此so复制至<code>/lib/security</code>下(如果是ubuntu，应当在<code>/lib/x86_64-linux-gnu/security</code>下)</p>
+<p>  再修改<code>/etc/pam.d/</code>下的common-auth，在最后一行加上以下两句语句:</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">auth optional looter.so</span><br><span class="line">account optional looter.so</span><br></pre></td></tr></table></figure>
+
+<p>  保存并退出后，任何使用su命令的普通用户的用户名和密码都将会被捕获</p>
+<p>  如果想窃取所有ssh到此机器上的用户名/密码，那么就修改<code>/etc/pam.d/</code>下的sshd文件，同样在最后加上同样的两句语句</p>
+<p>  保存并退出后，任何使用ssh命令连接到此机器的用户的用户名和密码都将会被捕获</p>
 <h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>  手法要骚，想法要淫荡（笑）</p>
 
       
