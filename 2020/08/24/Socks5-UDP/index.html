@@ -6,18 +6,17 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>rootkit分析&amp;&amp;linux内核机制学习（一） | </title>
+  <title>Socks5中UDP Associate特性实现与trick | </title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="前言  这篇文章将会长篇连载。。从分析一个rootkit的源代码来分析其功能模块并籍此学习部分linux内核知识">
+  <meta name="description" content="最近有大师傅在我的repo下提了个issue，希望我能加入特性以支持socks5的udp代理，即UDP Associate特性，而这个特性在网上找到的资料也比较少，绝大多数的开源socks5服务器也并不支持这样的特性 故而特以此记录踩坑经历和简单阐述实现过程">
 <meta property="og:type" content="article">
-<meta property="og:title" content="rootkit分析&amp;&amp;linux内核机制学习（一）">
-<meta property="og:url" content="http://yoursite.com/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:title" content="Socks5中UDP Associate特性实现与trick">
+<meta property="og:url" content="http://yoursite.com/2020/08/24/Socks5-UDP/index.html">
 <meta property="og:site_name">
-<meta property="og:description" content="前言  这篇文章将会长篇连载。。从分析一个rootkit的源代码来分析其功能模块并籍此学习部分linux内核知识">
-<meta property="article:published_time" content="2020-04-17T08:02:43.000Z">
-<meta property="article:modified_time" content="2020-04-29T07:28:27.638Z">
+<meta property="og:description" content="最近有大师傅在我的repo下提了个issue，希望我能加入特性以支持socks5的udp代理，即UDP Associate特性，而这个特性在网上找到的资料也比较少，绝大多数的开源socks5服务器也并不支持这样的特性 故而特以此记录踩坑经历和简单阐述实现过程">
+<meta property="article:published_time" content="2020-08-24T06:13:27.000Z">
+<meta property="article:modified_time" content="2020-08-24T07:31:30.899Z">
 <meta property="article:author" content="ph4ntom">
-<meta property="article:tag" content="linux内核，rootkit">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="" type="application/atom+xml">
@@ -148,49 +147,45 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-rootkit分析-linux内核机制学习" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-Socks5-UDP" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      rootkit分析&amp;&amp;linux内核机制学习（一）
+      Socks5中UDP Associate特性实现与trick
     </h1>
   
 
         
-        <a href="/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/" class="archive-article-date">
-  	<time datetime="2020-04-17T08:02:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-04-17</time>
+        <a href="/2020/08/24/Socks5-UDP/" class="archive-article-date">
+  	<time datetime="2020-08-24T06:13:27.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-24</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  这篇文章将会长篇连载。。从分析一个rootkit的源代码来分析其功能模块并籍此学习部分linux内核知识</p>
+        <p>最近有大师傅在我的repo下提了个issue，希望我能加入特性以支持socks5的udp代理，即UDP Associate特性，而这个特性在网上找到的资料也比较少，绝大多数的开源socks5服务器也并不支持这样的特性</p>
+<p>故而特以此记录踩坑经历和简单阐述实现过程</p>
 <a id="more"></a>
 
-<h1 id="rootkit自身隐藏及保护"><a href="#rootkit自身隐藏及保护" class="headerlink" title="rootkit自身隐藏及保护"></a>rootkit自身隐藏及保护</h1><h2 id="隐藏自身"><a href="#隐藏自身" class="headerlink" title="隐藏自身"></a>隐藏自身</h2><p>先讲讲自身的隐藏，这里主要是用到了以下函数段：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">module_list &#x3D; THIS_MODULE-&gt;list.prev;</span><br><span class="line"></span><br><span class="line">list_del(&amp;THIS_MODULE-&gt;list);</span><br></pre></td></tr></table></figure>
-<p>其中module_list保存了此模块所在的链表结构体的第一个结构体，即链表的头节点，以便之后的恢复操作</p>
-<p>list_del函数将此模块所在的链表结构体的头节点删除，即将代表自身的结构体删除，从而在lsmod命令中隐藏此模块</p>
-<h2 id="恢复自身"><a href="#恢复自身" class="headerlink" title="恢复自身"></a>恢复自身</h2><p>讲完隐藏，讲讲自身恢复</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">list_add(&amp;THIS_MODULE-&gt;list, module_list);</span><br></pre></td></tr></table></figure>
-<p>这里利用到了list_add函数，将之前保存的module结构体（即之前代表自身的结构体）添加到链表头，从而重新在lsmod命令中可见</p>
-<h2 id="保护自身不被删除"><a href="#保护自身不被删除" class="headerlink" title="保护自身不被删除"></a>保护自身不被删除</h2><p>保护自身不被删除主要利用了以下代码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">try_module_get(THIS_MODULE);</span><br></pre></td></tr></table></figure>
-
-<p>利用了try_module_get函数，将模块的使用计数加一，从而使得模块表现为“正在被使用”，由于linux不能卸载正在使用的模块，从而保护自身不被删除</p>
-<h2 id="解除保护"><a href="#解除保护" class="headerlink" title="解除保护"></a>解除保护</h2><p>解除保护代码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">module_put(THIS_MODULE);</span><br></pre></td></tr></table></figure>
-<p>利用了module_put函数，将模块的使用计数减一至0，从而将其表示为空闲状态以卸载</p>
-<h1 id="rootkit查找系统调用表"><a href="#rootkit查找系统调用表" class="headerlink" title="rootkit查找系统调用表"></a>rootkit查找系统调用表</h1><p>  首先系统调用表（syscall_table)是存在在内核中的一个数组，里面存放了所有指向系统调用函数的指针，故而rootkit若想hook系统调用，就必须先找到syscall_table在内存当中的地址（在早期的Linux内核中，是通过一个变量SYSCALL_TABLE明确指出其位置的，而在较新的kernel中移除了这一个变量，防止被滥用）</p>
-<p>  此rootkit采用的是暴力搜索遍历的方式来找到syscall_table，代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">void **sys_call_table;</span><br><span class="line"></span><br><span class="line">void **find_syscall_table(void)</span><br><span class="line">&#123;</span><br><span class="line">    void **sctable;</span><br><span class="line">    void *i &#x3D; (void*) START_ADDRESS;</span><br><span class="line"></span><br><span class="line">    while (i &lt; END_ADDRESS) &#123;</span><br><span class="line">        sctable &#x3D; (void **) i;</span><br><span class="line"></span><br><span class="line">        if (sctable[__NR_close] &#x3D;&#x3D; (void *) sys_close) &#123;</span><br><span class="line">            size_t j;</span><br><span class="line">            const unsigned int SYS_CALL_NUM &#x3D; 300;</span><br><span class="line">            for (j &#x3D; 0; j &lt; SYS_CALL_NUM; j ++) &#123;</span><br><span class="line">                if (sctable[j] &#x3D;&#x3D; NULL) &#123;</span><br><span class="line">                    goto skip;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            return sctable;</span><br><span class="line">        &#125;</span><br><span class="line">skip:</span><br><span class="line">        ;</span><br><span class="line">        i +&#x3D; sizeof(void *);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return NULL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>首先我们先要确定一个比syscall_table更高位置的内存来作为起始点（不然你遍历不到），之后我们需要知道一个已经确定位置的函数，这里用到了sys_close函数，这个函数的位置是相对于syscall_table处在更低的内存位置，这样就可以用来标示遍历的终点。</p>
-<p>之后将i赋值为内存地址，在每一次遍历中，尝试将i代表的内存地址加上__NR_close（sys_close函数的偏移地址），查看加上偏移地址后的内存中所存放的指针所指向的地址是否指向了sys_close函数的地址，如果是，则代表我们找到了系统调用表的表头，如果不是，那么i加上一个void *的大小（继续推进内存地址），继续进行遍历，直到找到正确的表头</p>
+<h2 id="RFC文档"><a href="#RFC文档" class="headerlink" title="RFC文档"></a>RFC文档</h2><p>首先要实现这个特性，那么必不可少的，需要去查看这个定义此特性的<a href="https://www.ietf.org/rfc/rfc1928.txt" target="_blank" rel="noopener">RFC1928</a></p>
+<p>这里要吐槽一下，由于此RFC文档又使用了传统艺能– xxx MAY xxx，所以文档对于此功能的描述是模糊的，很多相关问题并没有详细的说明，所以可能各人的实现方法也会有些许的不同，但是大体上还是有一个共识，不会过分影响其核心的功能</p>
+<p>通过阅读此RFC，可以得出主要的几个要点：</p>
+<ul>
+<li>UDP Associate中的每一个UDP Listener生存周期必须与其最初协商时所使用的tcp链接相关，即一个UDP Associate请求最终会对应一条tcp链接和一个UDP Listener，当tcp链接断开时，UDP Listener也将会退出，反之亦然</li>
+<li>在udp客户端发出的UDP Associate请求中应当带上自己期望发送数据的源端口及源地址，而socks5服务器可以选择是否基于此来对数据来源进行限制(RFC原文：The UDP ASSOCIATE request is used to establish an association within the UDP relay process to handle UDP datagrams. The DST.ADDR and DST.PORT fields contain the address and port that the client expects to use to send UDP datagrams on for the association.  The server MAY use this information to limit access to the association.  If the client is not in possesion of the information at the time of the UDP ASSOCIATE, the client MUST use a port number and address of all zeros.)  </li>
+<li>UDP Associate中的所有udp请求都应当带上一个标准的包头，标示此udp包的目的地(供socks5 server解析)以及标示此包的响应者(供UDP Client解析)</li>
+<li>socks5服务器可以选择不处理分片的udp请求，UDP Client应当自己负责重传丢包的问题</li>
+<li>UDP Associate的协商是在最初的TCP连接上实现的，即要用UDP Associate，必须先像TCP Connect一样先打开一个tcp链接来与socks5服务器通讯，完成相关协商后，再打开UDP通讯信道进行实际的UDP包relay</li>
+</ul>
+<p>在以上的几个要点中，第二点有个问题就是很多支持socks5代理的udp客户端并没有严格执行这一标准，在UDP Associate请求包里携带的仍然是目标ip及port，为了保持对这种客户端的兼容，我在具体实现的过程中以第一个向协商后的udp端口发送数据的源ip+port作为标准(因为一般在UDP Associate后，客户端会在极短的时间内向协商好的端口发送数据)，放弃了以UDP Associate包作为标准的尝试。</p>
+<p>另外，虽然RFC文档中没有说明是否一个UDP Associate链接应当只对应一个目的IP+port，但是基于其第三条要点，推测其大概率允许一个UDP Associate所创建的listener对应多个目的IP+port，只要在标准的包头中定义好此包的目的IP+port即可</p>
+<h2 id="实现过程"><a href="#实现过程" class="headerlink" title="实现过程"></a>实现过程</h2><p>由于网上开源的socks5服务器99%都是单独的服务器，不会涉及多跳的问题，故而我的工具实现起来会较复杂一些</p>
+<p>首先agent需要在接收到client发来的UDP Associate请求后，现在自身机器上打开一个UDP Listener，之后向admin提交启动UDP Associate的消息，admin在收到此消息后也在本地打开一个UDP listener，并且回复agent，告知自身listener的详细信息，agent在收到此消息后，将此详细信息中包含的listener地址+端口以标准的socks5响应回复给client。此时client就可以向admin的此listener发送数据了，admin会将这些数据打包后发送给对应的agent，agent解析并保存要点三中的标头，将数据包发送给对应IP+port。agent在收到相关udp包的回复包后，查找存储的标头，用此标头重新封装回复包，打包返回给admin，admin在收到此数据包后，查找对应的UDP Listener，将数据包由对应的UDP Listener发送给client，从而完成通讯</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>实际上UDP Associate在实际应用中非常小众，一方面是应用场景不够多，另一方面就是性能也不够好(一个UDP Associate需要消耗一个UDP Listener和一个TCP Conn)，还有就是对于client要求也比较高，要求client自身拥有处理丢包重传的能力，socks5服务器是不管理丢包重传方面的问题的。</p>
 
       
 
@@ -220,17 +215,6 @@
     <div class="article-info article-info-index">
       
       
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">linux内核，rootkit</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
       
 
       
@@ -281,7 +265,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/08/24/Socks5-UDP/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -295,18 +279,9 @@
   
 <nav id="article-nav">
   
-    <a href="/2020/05/27/Steal-password-by-alias/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          密码“水坑”
-        
-      </div>
-    </a>
   
-  
-    <a href="/2020/03/17/Kerberos-gold-sliver-ticket/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Kerberos黄金白银票据</div>
+    <a href="/2020/06/17/Hackerone-Knowledege/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Hackerone-Knowledege</div>
       <i class="icon-circle-right"></i>
     </a>
   
