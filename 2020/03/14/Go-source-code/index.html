@@ -16,7 +16,7 @@
 <meta property="og:description" content="前言  net&#x2F;http包是Go原生包中使用十分频繁的包，然而最近在写程序的时候发现了一些有意思的知识点，故想记录下来以防自己以后忘记。  首先来看看一个最常出错的地方，net&#x2F;http包中，Response结构体Body的处理方法不当所导致的内存泄露问题">
 <meta property="og:image" content="http://yoursite.com/img/Sourcecode/fake-not-keepalive.png">
 <meta property="article:published_time" content="2020-03-14T11:07:17.000Z">
-<meta property="article:modified_time" content="2020-03-16T07:25:42.936Z">
+<meta property="article:modified_time" content="2020-05-27T05:53:18.365Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="源码">
 <meta name="twitter:card" content="summary">
@@ -494,19 +494,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">源码</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">漏洞，内网渗透</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">内网渗透</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux内核，rootkit</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -519,6 +507,18 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">bug bounty</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">linux内核，rootkit</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">漏洞，内网渗透</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">源码</a>
               </li>
             
             <div class="clearfix"></div>
