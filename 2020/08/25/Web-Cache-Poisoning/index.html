@@ -46,7 +46,7 @@
 <meta property="og:image" content="http://yoursite.com/img/Web-Cache-Poisoning/drupal-posion-internal.jpg">
 <meta property="og:image" content="http://yoursite.com/img/Web-Cache-Poisoning/drupal-posion-external.jpg">
 <meta property="article:published_time" content="2020-08-25T03:02:20.000Z">
-<meta property="article:modified_time" content="2020-08-27T09:17:41.444Z">
+<meta property="article:modified_time" content="2020-08-27T09:21:09.505Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="安全研究">
 <meta name="twitter:card" content="summary">
@@ -236,7 +236,7 @@
 <p>这时我们打开无痕浏览，模拟受害者，再次访问这个页面</p>
 <p><img src="/img/Web-Cache-Poisoning/redhat-result.jpg" alt="redhat-result"></p>
 <p>可以看见，我们成功的让CDN缓存了这个界面，所有访问这一页面的用户将会在不知情的情况下遭受XSS攻击</p>
-<h2 id="变得更为谨慎"><a href="#变得更为谨慎" class="headerlink" title="变得更为谨慎"></a>变得更为谨慎</h2><p>上面我们成功的毒化了<a href="https://www.redhat.com/en?dontpoisoneveryone=1，但是，当我们想要毒化类似https://www.redhat.com/en这样的链接时，我们将会遇到很多困难，最主要就是由于这种链接的访问流量将会很大，攻击者很难保证自己的请求能在缓存过期时精确的成为第一个到达的请求，而光靠暴力的方式往往会消耗大量的资源却无法得到预期的结果" target="_blank" rel="noopener">https://www.redhat.com/en?dontpoisoneveryone=1，但是，当我们想要毒化类似https://www.redhat.com/en这样的链接时，我们将会遇到很多困难，最主要就是由于这种链接的访问流量将会很大，攻击者很难保证自己的请求能在缓存过期时精确的成为第一个到达的请求，而光靠暴力的方式往往会消耗大量的资源却无法得到预期的结果</a></p>
+<h2 id="变得更为谨慎"><a href="#变得更为谨慎" class="headerlink" title="变得更为谨慎"></a>变得更为谨慎</h2><p>上面我们成功的毒化了<a href="https://www.redhat.com/en?dontpoisoneveryone=1" target="_blank" rel="noopener">https://www.redhat.com/en?dontpoisoneveryone=1</a>, 但是，当我们想要毒化类似<a href="https://www.redhat.com/en" target="_blank" rel="noopener">https://www.redhat.com/en</a> 这样的链接时，我们将会遇到很多困难，最主要就是由于这种链接的访问流量将会很大，攻击者很难保证自己的请求能在缓存过期时精确的成为第一个到达的请求，而光靠暴力的方式往往会消耗大量的资源却无法得到预期的结果</p>
 <p>所以，我们需要抓住一切我们可以利用的细节，尝试缩小我们尝试毒化的时间窗口</p>
 <p>就像在unity3d.com中，我们可以发现如下的场景</p>
 <p><img src="/img/Web-Cache-Poisoning/unity3d.jpg" alt="unity3d"></p>
