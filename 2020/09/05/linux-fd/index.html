@@ -6,18 +6,18 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>rootkit分析&amp;&amp;linux内核机制学习（一） | </title>
+  <title>linux中的pipe与fd | </title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="前言  这篇文章将会长篇连载。。从分析一个rootkit的源代码来分析其功能模块并籍此学习部分linux内核知识">
+  <meta name="description" content="最近写程序的时候，在处理c在linux下的pipe时，遇到了一些问题，为了防止老年痴呆所带来的记忆错乱，故而趁热写个备忘。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="rootkit分析&amp;&amp;linux内核机制学习（一）">
-<meta property="og:url" content="http://yoursite.com/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:title" content="linux中的pipe与fd">
+<meta property="og:url" content="http://yoursite.com/2020/09/05/linux-fd/index.html">
 <meta property="og:site_name">
-<meta property="og:description" content="前言  这篇文章将会长篇连载。。从分析一个rootkit的源代码来分析其功能模块并籍此学习部分linux内核知识">
-<meta property="article:published_time" content="2020-04-17T08:02:43.000Z">
-<meta property="article:modified_time" content="2020-04-29T07:28:27.638Z">
+<meta property="og:description" content="最近写程序的时候，在处理c在linux下的pipe时，遇到了一些问题，为了防止老年痴呆所带来的记忆错乱，故而趁热写个备忘。">
+<meta property="article:published_time" content="2020-09-05T08:12:33.000Z">
+<meta property="article:modified_time" content="2020-09-05T09:16:25.477Z">
 <meta property="article:author" content="ph4ntom">
-<meta property="article:tag" content="linux内核，rootkit">
+<meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="" type="application/atom+xml">
@@ -148,49 +148,65 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-rootkit分析-linux内核机制学习" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-linux-fd" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      rootkit分析&amp;&amp;linux内核机制学习（一）
+      linux中的pipe与fd
     </h1>
   
 
         
-        <a href="/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/" class="archive-article-date">
-  	<time datetime="2020-04-17T08:02:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-04-17</time>
+        <a href="/2020/09/05/linux-fd/" class="archive-article-date">
+  	<time datetime="2020-09-05T08:12:33.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-05</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  这篇文章将会长篇连载。。从分析一个rootkit的源代码来分析其功能模块并籍此学习部分linux内核知识</p>
+        <p>最近写程序的时候，在处理c在linux下的pipe时，遇到了一些问题，为了防止老年痴呆所带来的记忆错乱，故而趁热写个备忘。</p>
 <a id="more"></a>
 
-<h1 id="rootkit自身隐藏及保护"><a href="#rootkit自身隐藏及保护" class="headerlink" title="rootkit自身隐藏及保护"></a>rootkit自身隐藏及保护</h1><h2 id="隐藏自身"><a href="#隐藏自身" class="headerlink" title="隐藏自身"></a>隐藏自身</h2><p>先讲讲自身的隐藏，这里主要是用到了以下函数段：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">module_list &#x3D; THIS_MODULE-&gt;list.prev;</span><br><span class="line"></span><br><span class="line">list_del(&amp;THIS_MODULE-&gt;list);</span><br></pre></td></tr></table></figure>
-<p>其中module_list保存了此模块所在的链表结构体的第一个结构体，即链表的头节点，以便之后的恢复操作</p>
-<p>list_del函数将此模块所在的链表结构体的头节点删除，即将代表自身的结构体删除，从而在lsmod命令中隐藏此模块</p>
-<h2 id="恢复自身"><a href="#恢复自身" class="headerlink" title="恢复自身"></a>恢复自身</h2><p>讲完隐藏，讲讲自身恢复</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">list_add(&amp;THIS_MODULE-&gt;list, module_list);</span><br></pre></td></tr></table></figure>
-<p>这里利用到了list_add函数，将之前保存的module结构体（即之前代表自身的结构体）添加到链表头，从而重新在lsmod命令中可见</p>
-<h2 id="保护自身不被删除"><a href="#保护自身不被删除" class="headerlink" title="保护自身不被删除"></a>保护自身不被删除</h2><p>保护自身不被删除主要利用了以下代码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">try_module_get(THIS_MODULE);</span><br></pre></td></tr></table></figure>
+<h1 id="Pipe"><a href="#Pipe" class="headerlink" title="Pipe"></a>Pipe</h1><p>我们经常能看到如下的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">int pipefd[2];</span><br><span class="line">int status &#x3D; pipe(pipefd);</span><br><span class="line">if(status&#x3D;&#x3D;-1)&#123;</span><br><span class="line">  printf(&quot;create pipe erro\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line">......</span><br><span class="line">...fork()....</span><br><span class="line">&#x2F;&#x2F;child</span><br><span class="line">dup2(pipefd[0], STDIN_FILENO);</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+<p>(这边省略了父子进程close无用fd的代码，要close这些无用fd，参看下面的讲解)</p>
+<p>上面这段代码首先定义了一对pipe的fd，初始化这对pipe，并在fork后的子进程中将子进程的标准输入重定向至pipefd[1]</p>
+<p>在理解上面的含义之前，其实我应当声明一些重要的概念，首先是在声明初始化一对pipe时，默认pipefd[1]是数据流入端，而pipefd[0]是数据流出端，并且，pipe是单向的，永远从pipefd[1] –&gt; pipefd[0]</p>
+<p>另外，以下这部分代码经常引起疑惑(大概)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dup2(pipefd[0], STDIN_FILENO);</span><br></pre></td></tr></table></figure>
 
-<p>利用了try_module_get函数，将模块的使用计数加一，从而使得模块表现为“正在被使用”，由于linux不能卸载正在使用的模块，从而保护自身不被删除</p>
-<h2 id="解除保护"><a href="#解除保护" class="headerlink" title="解除保护"></a>解除保护</h2><p>解除保护代码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">module_put(THIS_MODULE);</span><br></pre></td></tr></table></figure>
-<p>利用了module_put函数，将模块的使用计数减一至0，从而将其表示为空闲状态以卸载</p>
-<h1 id="rootkit查找系统调用表"><a href="#rootkit查找系统调用表" class="headerlink" title="rootkit查找系统调用表"></a>rootkit查找系统调用表</h1><p>  首先系统调用表（syscall_table)是存在在内核中的一个数组，里面存放了所有指向系统调用函数的指针，故而rootkit若想hook系统调用，就必须先找到syscall_table在内存当中的地址（在早期的Linux内核中，是通过一个变量SYSCALL_TABLE明确指出其位置的，而在较新的kernel中移除了这一个变量，防止被滥用）</p>
-<p>  此rootkit采用的是暴力搜索遍历的方式来找到syscall_table，代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">void **sys_call_table;</span><br><span class="line"></span><br><span class="line">void **find_syscall_table(void)</span><br><span class="line">&#123;</span><br><span class="line">    void **sctable;</span><br><span class="line">    void *i &#x3D; (void*) START_ADDRESS;</span><br><span class="line"></span><br><span class="line">    while (i &lt; END_ADDRESS) &#123;</span><br><span class="line">        sctable &#x3D; (void **) i;</span><br><span class="line"></span><br><span class="line">        if (sctable[__NR_close] &#x3D;&#x3D; (void *) sys_close) &#123;</span><br><span class="line">            size_t j;</span><br><span class="line">            const unsigned int SYS_CALL_NUM &#x3D; 300;</span><br><span class="line">            for (j &#x3D; 0; j &lt; SYS_CALL_NUM; j ++) &#123;</span><br><span class="line">                if (sctable[j] &#x3D;&#x3D; NULL) &#123;</span><br><span class="line">                    goto skip;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            return sctable;</span><br><span class="line">        &#125;</span><br><span class="line">skip:</span><br><span class="line">        ;</span><br><span class="line">        i +&#x3D; sizeof(void *);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return NULL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为上面说过，pipefd[0]是数据流出端，那为啥<strong>标准输入</strong>会与pipefd[0]打上交道呢？一个<strong>输入</strong>，一个<strong>流出</strong>，感觉貌似弄反了。</p>
+<p>但实际上，并不是如此，因为如果你细细看过dup2的实现你会发现，dup2函数的原型是int dup2(int fd,int fd2)，其实现的功能就是：对于dup2，可以用fd2参数指定新描述符的值。如果fd2已经打开，则先将其关闭。如若fd等于fd2，则dup2返回fd2，而不关闭它。否则，fd2的FD_CLOEXEC文件描述符标志就被清楚，这样fd2在进程调用exec时是打开状态。</p>
+<p>那这里面实际上最重要的，就是这个<strong>关闭</strong>是啥意思</p>
+<p>实际上，我们可以把fd看成一个连线图的感觉，举例来说，原先STDIN_FILENO指向的是键盘，也就是我们所谓的标准输出，但是，如果经过上面的代码，那么STDIN_FILENO将会取消指向键盘，转而指向pipefd[0]，所以此时只要是pipefd[0]<strong>流出的任何东西</strong>都将会成为STDIN_FILENO所<strong>接受的输入</strong></p>
+<p>看到这儿，基本能解释“弄反”的疑惑了，反之同理，如下的代码将表示STDOUT_FILENO以及STDERR_FILENO所<strong>输出的任何东西</strong>将变为pipefd[1]所<strong>流入的任何东西</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dup2(pipefd[1],STDOUT_FILENO);</span><br><span class="line">dup2(pipefd[1],STDERR_FILENO);</span><br></pre></td></tr></table></figure>
 
-<p>首先我们先要确定一个比syscall_table更高位置的内存来作为起始点（不然你遍历不到），之后我们需要知道一个已经确定位置的函数，这里用到了sys_close函数，这个函数的位置是相对于syscall_table处在更低的内存位置，这样就可以用来标示遍历的终点。</p>
-<p>之后将i赋值为内存地址，在每一次遍历中，尝试将i代表的内存地址加上__NR_close（sys_close函数的偏移地址），查看加上偏移地址后的内存中所存放的指针所指向的地址是否指向了sys_close函数的地址，如果是，则代表我们找到了系统调用表的表头，如果不是，那么i加上一个void *的大小（继续推进内存地址），继续进行遍历，直到找到正确的表头</p>
+<p>那管道呢，实际上我们可以将其抽象为这样一个图形：</p>
+<p>pipe ：           pipefd[1]–指向–&gt;1———数据流转———&gt;0&lt;–指向–pipefd[0]</p>
+<p>而所谓的dup2(pipefd[0], STDIN_FILENO)，也就是这样：</p>
+<p>更改后：        pipefd[1]–指向–&gt;1———数据流转———&gt;0&lt;–指向–(pipefd[0],STDIN_FILENO)  注意：这里写在一起只是因为不方便画图，实际上pipefd[0]，STDIN_FILENO是<strong>分别</strong>指向0的，并不是STDIN_FILENO先指向<br>pipefd[0]，pipefd[0]再指向0，这很关键！是分叉而不是直线！</p>
+<p>而一般我们在子进程中调用完<code>dup2(pipefd[0], STDIN_FILENO);</code>后会调用<code>close(pipefd[0])</code>，让pipefd[0]不再指向0，从而将管道变为这样：</p>
+<p>pipe ：           pipefd[1]–指向–&gt;1———数据流转———&gt;0&lt;–指向–STDIN_FILENO</p>
+<p>这时，父进程只需要向pipefd[1]中写入数据，就会通过管道，写入至子进程的STDIN_FILENO中了</p>
+<p>但是这里要注意了，务必要在调用完<code>dup2(pipefd[0], STDIN_FILENO);</code>之后再调用<code>close(pipefd[0])</code>，切不可倒过来，因为一旦倒过来，先取消了pipefd[0]与管道0端的绑定，那么STDIN_FILENO将无法与管道0端进行绑定!(其实就有点pipefd[0]把自己的绑定信息“拷贝”给STDIN_FILENO的感觉，如果自己绑定信息被清空，那么自然也就无法“拷贝”给STDIN_FILENO了，意思是这么个意思，不想深究其原理的话大致可以粗浅的这么认为)</p>
+<p>另外还有一点需要提一下，那就是如果在fork之前执行了dup2函数，那么fork后的子进程依然会继承父进程dup2函数所带来的影响，换句话说，就是继承相同的fd表。那么如果上面的dup2语句放在了fork前执行，那么管道会变成这样：</p>
+<p>pipe ：           pipefd[1]–指向–&gt;1———数据流转———&gt;0&lt;–指向–(父-STDIN_FILENO,子-STDIN_FILENO）</p>
+<p>那么此时可以发现，有两个标准输入都指向了同一条管道的0端，那么为了防止由1端输入的数据被错误进程的标准输入读走，我们必须在读出数据前取消其中一个STDIN_FILENO与此管道的绑定</p>
+<p>如果说我们希望子进程来读，那么在fork之后，父进程必须记得执行close(0),取消自己的标准输入与管道的绑定，让管道变成如下这样：</p>
+<p>pipe ：           pipefd[1]–指向–&gt;1———数据流转———&gt;0&lt;–指向–子-STDIN_FILENO</p>
+<p>这样的话，父进程向pipefd[1]中写入数据，就能保证一定会被子进程的标准输入所捕获了，所以由此可得，我们在使用一条管道时，<strong>务必保证指向管道1端以及指向管道0端的fd分别有且仅有一个</strong>，不然程序可能会出现预期之外的行为</p>
+<p>最后，因为管道是单向的，所以如果我们还希望将子进程的输出由父进程捕获，那么我们就还需要另一条管道，用来使子进程向父进程传输数据</p>
+<p>如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">int pipefd[2];</span><br><span class="line">int pipefd2[2];</span><br><span class="line">int status &#x3D; pipe(pipefd);</span><br><span class="line">if(status&#x3D;&#x3D;-1)&#123;</span><br><span class="line">  printf(&quot;create pipe erro\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line">int status2 &#x3D; pipe(pipefd2);</span><br><span class="line">if(status2&#x3D;&#x3D;-1)&#123;</span><br><span class="line">  printf(&quot;create pipe erro\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line">......</span><br><span class="line">...fork()....</span><br><span class="line">&#x2F;&#x2F;child</span><br><span class="line">dup2(pipefd[0], STDIN_FILENO);</span><br><span class="line">dup2(pipefd2[1],STDOUT_FILENO);</span><br><span class="line">dup2(pipefd2[1],STDERR_FILENO);</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<p>(这边省略了父子进程close无用fd的代码，要close这些无用fd，参看上面的讲解，是一个意思)</p>
+<p>这样，子进程的输出将会自动写入pipefd2[1]，父进程只需要根据需要，读出pipefd2[0]的数据即可实现子—-&gt;父的通讯过程</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>其实管道的内部实现是很复杂的，linux的管道机制要深究起来能写一本书。。。以后有空还是要多研究总结，不然老是记混 👻</p>
 
       
 
@@ -225,7 +241,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">linux内核，rootkit</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">linux</a>
         		</li>
       		
 		</ul>
@@ -281,7 +297,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/09/05/linux-fd/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -295,18 +311,9 @@
   
 <nav id="article-nav">
   
-    <a href="/2020/05/27/Steal-password-by-alias/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          密码“水坑”
-        
-      </div>
-    </a>
   
-  
-    <a href="/2020/03/17/Kerberos-gold-sliver-ticket/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Kerberos黄金白银票据</div>
+    <a href="/2020/08/25/Web-Cache-Poisoning/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">WEB缓存投毒攻击技术</div>
       <i class="icon-circle-right"></i>
     </a>
   
