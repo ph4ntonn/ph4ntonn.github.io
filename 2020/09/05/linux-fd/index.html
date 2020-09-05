@@ -15,7 +15,7 @@
 <meta property="og:site_name">
 <meta property="og:description" content="最近写程序的时候，在处理c在linux下的pipe时，遇到了一些问题，为了防止老年痴呆所带来的记忆错乱，故而趁热写个备忘。">
 <meta property="article:published_time" content="2020-09-05T08:12:33.000Z">
-<meta property="article:modified_time" content="2020-09-05T09:25:40.960Z">
+<meta property="article:modified_time" content="2020-09-05T09:27:07.190Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary">
@@ -191,7 +191,7 @@
 <p>pipe :           pipefd[1]–指向–&gt;1———数据流转———&gt;0&lt;–指向–pipefd[0]</p>
 <p>而所谓的dup2(pipefd[0], STDIN_FILENO)，也就是这样：</p>
 <p>更改后：        pipefd[1]–指向–&gt;1———数据流转———&gt;0&lt;–指向–(pipefd[0],STDIN_FILENO)  </p>
-<p>(注意:这里写在一起只是因为不方便画图，实际上pipefd[0]，STDIN_FILENO是<strong>分别</strong>指向0的，并不是STDIN_FILENO先指向pipefd[0]，pipefd[0]再指向0，这很关键！是分叉而不是直线!)</p>
+<p>(注意:这里写在一起只是因为不方便画图，实际上pipefd[0]，STDIN_FILENO是<strong>分别</strong>指向管道的0端，并不是STDIN_FILENO先指向pipefd[0]，pipefd[0]再指向管道的0端，这很关键！是分叉而不是直线!)</p>
 <p>而一般我们在子进程中调用完<code>dup2(pipefd[0], STDIN_FILENO);</code>后会调用<code>close(pipefd[0])</code>，让pipefd[0]不再指向0，从而将管道变为这样：</p>
 <p>pipe :           pipefd[1]–指向–&gt;1———数据流转———&gt;0&lt;–指向–STDIN_FILENO</p>
 <p>这时，父进程只需要向pipefd[1]中写入数据，就会通过管道，写入至子进程的STDIN_FILENO中了</p>
