@@ -20,17 +20,17 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="前言  我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户下“水坑”">
+  <meta name="description" content="我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户下“水坑”">
 <meta property="og:type" content="article">
 <meta property="og:title" content="密码“水坑”">
 <meta property="og:url" content="http://yoursite.com/2020/05/27/Steal-password-by-alias/index.html">
 <meta property="og:site_name">
-<meta property="og:description" content="前言  我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户下“水坑”">
+<meta property="og:description" content="我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户下“水坑”">
 <meta property="og:image" content="http://yoursite.com/img/Steal-pass/strace.jpg">
 <meta property="og:image" content="http://yoursite.com/img/Steal-pass/password.jpg">
 <meta property="og:image" content="http://yoursite.com/img/Steal-pass/address.jpg">
 <meta property="article:published_time" content="2020-05-27T05:37:54.000Z">
-<meta property="article:modified_time" content="2020-06-04T08:32:42.870Z">
+<meta property="article:modified_time" content="2020-09-17T11:01:14.261Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="内网渗透">
 <meta name="twitter:card" content="summary">
@@ -184,7 +184,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-06-04 16:32:42" itemprop="dateModified" datetime="2020-06-04T16:32:42+08:00">2020-06-04</time>
+                <time title="Modified: 2020-09-17 19:01:14" itemprop="dateModified" datetime="2020-09-17T19:01:14+08:00">2020-09-17</time>
               </span>
 
           
@@ -198,7 +198,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户下“水坑”</p>
+        <p>我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户下“水坑”</p>
 <a id="more"></a>
 
 <h1 id="第一个暗桩-–-ssh命令"><a href="#第一个暗桩-–-ssh命令" class="headerlink" title="第一个暗桩 – ssh命令"></a>第一个暗桩 – ssh命令</h1><p>  当我们控制了一台linux服务器，并且发现有用户使用这台机器通过ssh连接其他机器的时候，那么假设我们有此用户的权限的shell，这时我们就可以巧用alias来窃取用户的密码</p>
@@ -247,8 +247,8 @@
       <i class="fa fa-chevron-left"></i> rootkit分析&&linux内核机制学习（一）
     </a></div>
       <div class="post-nav-item">
-    <a href="/2020/06/04/Linux-backdoors/" rel="next" title="Linux-backdoors">
-      Linux-backdoors <i class="fa fa-chevron-right"></i>
+    <a href="/2020/06/04/Linux-backdoors/" rel="next" title="Linux后门权限维持">
+      Linux后门权限维持 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -308,7 +308,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第一个暗桩-–-ssh命令"><span class="nav-number">2.</span> <span class="nav-text">第一个暗桩 – ssh命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第二个暗桩-–-窃取sudo密码"><span class="nav-number">3.</span> <span class="nav-text">第二个暗桩 – 窃取sudo密码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第三个暗桩-–-劫持各类系统命令"><span class="nav-number">4.</span> <span class="nav-text">第三个暗桩 – 劫持各类系统命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第四个暗桩-–-修改pam文件"><span class="nav-number">5.</span> <span class="nav-text">第四个暗桩 – 修改pam文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结语"><span class="nav-number">6.</span> <span class="nav-text">结语</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#第一个暗桩-–-ssh命令"><span class="nav-number">1.</span> <span class="nav-text">第一个暗桩 – ssh命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第二个暗桩-–-窃取sudo密码"><span class="nav-number">2.</span> <span class="nav-text">第二个暗桩 – 窃取sudo密码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第三个暗桩-–-劫持各类系统命令"><span class="nav-number">3.</span> <span class="nav-text">第三个暗桩 – 劫持各类系统命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第四个暗桩-–-修改pam文件"><span class="nav-number">4.</span> <span class="nav-text">第四个暗桩 – 修改pam文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结语"><span class="nav-number">5.</span> <span class="nav-text">结语</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -322,7 +322,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">13</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
