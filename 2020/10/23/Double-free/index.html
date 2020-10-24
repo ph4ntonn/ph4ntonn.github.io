@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="调试一个double free问题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Double free">
+<meta property="og:url" content="http://yoursite.com/2020/10/23/Double-free/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="调试一个double free问题">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/heap.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/chunkheader.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/firstfree.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/firstfree-tcache.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/firstfree-mnb.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/afterfirstfree-code.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/afterfirstfree-tcache.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/afterfirstfree-mnb.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/secondfree-code.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/secondfree-tcache.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/secondfree-mnb.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/aftersecondfree-code.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/aftersecondfree-tcache.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/aftersecondfree-mnb.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/aftersecondfree-another.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/first-ecd-code.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/firstalloc-ecd-tcache.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/firstalloc-ecd-twoheap.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/rec-data-first-ecd-code.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/rec-data-first-twoheap.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/rec-data-first-tcache.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/rec-data-first-done-code.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/rec-data-first-done-tcache.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/rec-data-first-done-twoheap.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/boooom-code.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/boooom-tcache.jpg">
+<meta property="og:image" content="http://yoursite.com/img/doubleFree/boooom-twoheap.jpg">
+<meta property="article:published_time" content="2020-10-23T11:08:20.000Z">
+<meta property="article:modified_time" content="2020-10-24T03:09:01.279Z">
+<meta property="article:author" content="ph4ntom">
+<meta property="article:tag" content="binary">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/img/doubleFree/heap.jpg">
+
+<link rel="canonical" href="http://yoursite.com/2020/10/23/Double-free/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Double free | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/23/Double-free/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="ph4ntom">
+      <meta itemprop="description" content="The wheel turns,nothing is ever new">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Double free
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-10-23 19:08:20" itemprop="dateCreated datePublished" datetime="2020-10-23T19:08:20+08:00">2020-10-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-10-24 11:09:01" itemprop="dateModified" datetime="2020-10-24T11:09:01+08:00">2020-10-24</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>调试一个double free问题</p>
+<a id="more"></a>
+
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>仅记录自己调试程序的一个double free漏洞的问题</p>
+<h1 id="Tcachebins"><a href="#Tcachebins" class="headerlink" title="Tcachebins"></a>Tcachebins</h1><p>对于稍微了解linux堆内存管理的人来说，fastbins这个词一定不陌生，而在libc2.26之后，一个新的机制 <strong>Tcachebins</strong>被引入了，Tcachebins和fastbins很像，但优先级在fastbins之前。</p>
+<p>被free的适当大小的内存块会优先被放入Tcachebins，且Tcachebins的每一个链上可以最多链接7个堆块，只有当Tcachebins满了之后，再free的内存块才会被放入fastbins及unsorted bins</p>
+<p>在malloc时，也会优先取Tcachebins中的内存块</p>
+<p>Tcachebins和fastbins一样，仅基于fd指针构造单链表，且遵循LIFO的原则</p>
+<h1 id="ptmalloc堆结构"><a href="#ptmalloc堆结构" class="headerlink" title="ptmalloc堆结构"></a>ptmalloc堆结构</h1><p>如下图所示：</p>
+<p><img src="/img/doubleFree/heap.jpg" alt="heap"></p>
+<p>在图中，prev_size以及size构成了chunk头：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.prev_size    只有在前一个堆块是空闲时才会有值，用来指示前一个堆块的大小</span><br><span class="line">2.size         当前chunk的大小。由于chunk大小是8的整数倍，所以此size的后3 bit被用于存储其他信息</span><br></pre></td></tr></table></figure>
+
+<p>prev_size与size分别占据8字节的长度，即chunk头为0x10长.</p>
+<p>size的后三bit有特殊用途，被用于存储其他信息,如下图所示：</p>
+<p><img src="/img/doubleFree/chunkheader.jpg" alt="chunkheader"></p>
+<p>这三位的作用是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.NON_MAIN_ARENA     这个堆块是否位于主线程</span><br><span class="line">2.IS_MAPPED          记录当前 chunk 是否是由 mmap 分配的</span><br><span class="line">3.PREV_INUSE         记录前一个 chunk 块是否被分配</span><br></pre></td></tr></table></figure>
+
+<p>如果当前chunk处于未被使用状态，则mem前8 bytes被用来存储其他信息，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fd:     下一个未被使用的chunk的地址</span><br><span class="line">bk:     上一个未被使用的chunk的地址</span><br></pre></td></tr></table></figure>
+
+<p>一般我们使用void *x = malloc(1)，获得的指针地址指向的是fd的开头，chunk header为ptmalloc自动分配</p>
+<p>另外，在malloc时，根据操作系统的位数，有一个最小分配空间的概念，在64位上=16字节，32位=8字节，即哪怕malloc(0)，也会按照最小值分配</p>
+<h1 id="Start"><a href="#Start" class="headerlink" title="Start"></a>Start</h1><ol>
+<li>gdb调试，下断点至第一次free</li>
+</ol>
+<p><img src="/img/doubleFree/firstfree.jpg" alt="firstfree"></p>
+<p>此时，tcache如下图所示</p>
+<p><img src="/img/doubleFree/firstfree-tcache.jpg" alt="firstfree-tcache"></p>
+<p>moduleNameBuff指向的地址内容如下所示：</p>
+<p><img src="/img/doubleFree/firstfree-mnb.jpg" alt="firstfree-mnb"></p>
+<ol start="2">
+<li>当第一次free后</li>
+</ol>
+<p><img src="/img/doubleFree/afterfirstfree-code.jpg" alt="afterfirstfree-code"></p>
+<p>tacache如下所示：</p>
+<p><img src="/img/doubleFree/afterfirstfree-tcache.jpg" alt="afterfirstfree-tcache"></p>
+<p>原moduleNameBuff所指向的地址(0x55555575ecd0)，这里-0x10是为了指向chunk头</p>
+<p><img src="/img/doubleFree/afterfirstfree-mnb.jpg" alt="afterfirstfree-mnb"></p>
+<p>可以看到对应上面提到的堆结构，fd指针已经指向了tcachebins中的下一块未被使用的堆地址(0x000055555575ed70)</p>
+<ol start="3">
+<li>下断点并运行至第二次free</li>
+</ol>
+<p><img src="/img/doubleFree/secondfree-code.jpg" alt="secondfree-tcache"></p>
+<p>此时tcache如下图所示：</p>
+<p><img src="/img/doubleFree/secondfree-tcache.jpg" alt="secondfree-tcache"></p>
+<p>地址0x55555575ecd0-0x10如下所示：</p>
+<p><img src="/img/doubleFree/secondfree-mnb.jpg" alt="secondfree-mnb"></p>
+<p>此时可以看到，由于4-5步之间我还进行了其他的操作，所以导致tcache链上增加了其他的几个空闲块，且此时将要被double free的内存块并未有异常</p>
+<ol start="4">
+<li>第二次free后</li>
+</ol>
+<p><img src="/img/doubleFree/aftersecondfree-code.jpg" alt="aftersecondfree-code"></p>
+<p>此时tcache如下所示：</p>
+<p><img src="/img/doubleFree/aftersecondfree-tcache.jpg" alt="aftersecondfree-tcache"></p>
+<p>此时地址0x55555575ecd0-0x10如下所示：</p>
+<p><img src="/img/doubleFree/aftersecondfree-mnb.jpg" alt="aftersecondfree-mnb"></p>
+<p>可以看到，tcache显示loop detected，并且被double free的0x55555575ecd0这一堆块的fd指针指向了0x000055555575edd0，即tcache中显示的下一个空闲堆块，而0x000055555575edd0所指向的堆块如下所示：</p>
+<p><img src="/img/doubleFree/aftersecondfree-another.jpg" alt="aftersecondfree-another"></p>
+<p>可以看到此时0x000055555575edd0所指向的堆块中fd为0x55555575ecd0，那么这也就可以解释loop出现的原因，0x55555575ecd0与0x000055555575edd0中的fd互相指向，形成了一个循环，这是不应当的</p>
+<ol start="5">
+<li>此时double free的问题还没有显现出来，跳至“第一块”0x55555575ecd0被分配的时候</li>
+</ol>
+<p><img src="/img/doubleFree/first-ecd-code.jpg" alt="first-ecd-code"></p>
+<p>此时tcache如下所示：</p>
+<p><img src="/img/doubleFree/firstalloc-ecd-tcache.jpg" alt="firstalloc-ecd-tcache"></p>
+<p>0x000055555575edd0和0x55555575ecd0堆块如下所示：</p>
+<p><img src="/img/doubleFree/firstalloc-ecd-twoheap.jpg" alt="firstalloc-ecd-twoheap"></p>
+<p>可以看到，断点下到了即将执行malloc的代码处，申请的堆空间为4字节，加上头长为0x14，故而分配0x20size的堆块，此时tcache显示下一个即将被分配的0x20size的堆块为被我们double free的”第一块”0x55555575ecd0</p>
+<ol start="6">
+<li>当“第一块”0x55555575ecd0被分配给data_len后，我准备向这个堆块中填入数据：</li>
+</ol>
+<p><img src="/img/doubleFree/rec-data-first-ecd-code.jpg" alt="rec-data-first-ecd-code"></p>
+<p> 此时0x000055555575edd0和0x55555575ecd0堆块如下所示：</p>
+<p><img src="/img/doubleFree/rec-data-first-twoheap.jpg" alt="rec-data-first-twoheap"></p>
+<p>tcache如下所示：</p>
+<p><img src="/img/doubleFree/rec-data-first-tcache.jpg" alt="rec-data-first-tcache"></p>
+<p>可以看到，我准备向0x55555575ecd0指向的堆块中写入四个字节的数据，而且此时0x000055555575edd0和0x55555575ecd0堆块以及tcache并没有变动</p>
+<ol start="7">
+<li>填入数据：</li>
+</ol>
+<p><img src="/img/doubleFree/rec-data-first-done-code.jpg" alt="rec-data-first-done-code"></p>
+<p>此时tcache：</p>
+<p><img src="/img/doubleFree/rec-data-first-done-tcache.jpg" alt="rec-data-first-done-tcache"></p>
+<p>此时0x000055555575edd0和0x55555575ecd0堆块：</p>
+<p><img src="/img/doubleFree/rec-data-first-done-twoheap.jpg" alt="rec-data-first-done-twoheap"></p>
+<p>可以看到，我向0x55555575ecd0指向的堆块中的低四字节写入了0x00000001,而此时由于0x55555575ecd0被tcache误认为仍是空闲堆块(还存在在tcache的链上)，故而在tcache看来，0x55555575ecd0所指向的堆块的头八个字节应当是fd，即指向下一个空闲堆块，故而误将我写入后的四字节+原本的四字节当作了下一个空闲堆块的地址，即0x0000555510000000，而这个地址是无法访问的，从tcache也可以看出，其误将0x0000555510000000作为了“第二个”0x55555575ecd0后的空闲堆块，由于无法访问这一个地址，故而显示<code>[Corrupted chunk at 0x555510000000]</code></p>
+<p>实际上我这里还有一个错误，就是在data_len使用完后并没有立即释放，故而0x55555575ecd0所指向的堆块在之后的程序中会一直呈现被占用的状态，不会再有指针去修改其中的数据，这也代表着Corrupted chunk像一个定时炸弹一样，等待其被分配的那一刻</p>
+<p>不过就算我立即free了data_len，随后仍有可能会有其他的指针获得0x55555575ecd0指向的堆块并修改其中的数据，将0x0000555510000000改为其他的值，继续维持异常的状态，导致同样的崩溃</p>
+<ol start="8">
+<li>跳至等到所有排在Corrupted chunk之前的堆块都被分配后：</li>
+</ol>
+<p><img src="/img/doubleFree/boooom-code.jpg" alt="boooom-code"></p>
+<p>此时tcache：</p>
+<p><img src="/img/doubleFree/boooom-tcache.jpg" alt="boooom-tcache"></p>
+<p>此时0x000055555575edd0和0x55555575ecd0堆块：</p>
+<p><img src="/img/doubleFree/boooom-twoheap.jpg" alt="boooom-twoheap"></p>
+<p>可以看见即将要执行malloc(4)的操作，对应0x20size的堆块，而在tcache中显示下一块即将被分配的0x20size的堆块为<code>Corrupted chunk</code>，故而在此句程序结束后，程序崩溃，并抛出了错误<code>Program received signal SIGSEGV, Segmentation fault.</code></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>实际上，这样的漏洞进一步可以导致<code>write-anything-anywhere</code>问题，而且当写入的内容可以由外部决定时(例如从socket上获取数据)尤为严重，配合其他的漏洞就有可能形成攻击链。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/binary/" rel="tag"># binary</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/05/linux-fd/" rel="prev" title="linux中的pipe与fd">
+      <i class="fa fa-chevron-left"></i> linux中的pipe与fd
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Tcachebins"><span class="nav-number">2.</span> <span class="nav-text">Tcachebins</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ptmalloc堆结构"><span class="nav-number">3.</span> <span class="nav-text">ptmalloc堆结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Start"><span class="nav-number">4.</span> <span class="nav-text">Start</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ph4ntom</p>
+  <div class="site-description" itemprop="description">The wheel turns,nothing is ever new</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ph4ntom</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
