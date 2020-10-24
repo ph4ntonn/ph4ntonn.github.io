@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本篇主要闲扯一下ptmalloc机制中一些需要注意的点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ptmalloc机制闲扯">
+<meta property="og:url" content="http://yoursite.com/2020/10/24/ptmalloc/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="本篇主要闲扯一下ptmalloc机制中一些需要注意的点">
+<meta property="og:image" content="http://yoursite.com/img/ptmalloc/struct.jpg">
+<meta property="og:image" content="http://yoursite.com/img/ptmalloc/beforemalloc-code.jpg">
+<meta property="og:image" content="http://yoursite.com/img/ptmalloc/beforemalloc-tcache.jpg">
+<meta property="og:image" content="http://yoursite.com/img/ptmalloc/aftermalloc-tcache.jpg">
+<meta property="og:image" content="http://yoursite.com/img/ptmalloc/oriheap.jpg">
+<meta property="og:image" content="http://yoursite.com/img/ptmalloc/unpack.jpg">
+<meta property="og:image" content="http://yoursite.com/img/ptmalloc/unpack-1.jpg">
+<meta property="og:image" content="http://yoursite.com/img/ptmalloc/unpack-2.jpg">
+<meta property="og:image" content="http://yoursite.com/img/ptmalloc/firstchange.jpg">
+<meta property="og:image" content="http://yoursite.com/img/ptmalloc/unpack-3.jpg">
+<meta property="og:image" content="http://yoursite.com/img/ptmalloc/secondchange.jpg">
+<meta property="og:image" content="http://yoursite.com/img/ptmalloc/unpack-4.jpg">
+<meta property="og:image" content="http://yoursite.com/img/ptmalloc/final.jpg">
+<meta property="og:image" content="http://yoursite.com/img/ptmalloc/afterfree.jpg">
+<meta property="article:published_time" content="2020-10-24T13:40:30.000Z">
+<meta property="article:modified_time" content="2020-10-24T14:56:52.436Z">
+<meta property="article:author" content="ph4ntom">
+<meta property="article:tag" content="binary">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/img/ptmalloc/struct.jpg">
+
+<link rel="canonical" href="http://yoursite.com/2020/10/24/ptmalloc/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>ptmalloc机制闲扯 | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/24/ptmalloc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="ph4ntom">
+      <meta itemprop="description" content="The wheel turns,nothing is ever new">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ptmalloc机制闲扯
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-10-24 21:40:30 / Modified: 22:56:52" itemprop="dateCreated datePublished" datetime="2020-10-24T21:40:30+08:00">2020-10-24</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本篇主要闲扯一下ptmalloc机制中一些需要注意的点</p>
+<a id="more"></a>
+
+<h1 id="三个标志位"><a href="#三个标志位" class="headerlink" title="三个标志位"></a>三个标志位</h1><p>熟悉ptmalloc的都知道在ptmalloc分配的chunk header中的size部分有三bit标志位，分别为NON_MAIN_ARENA，IS_MAPPED，PREV_INUSE，这也算是ptmalloc的特征</p>
+<p>分别讲讲这三个标志位吧，首先是NON_MAIN_ARENA，要讲这个标志位，那就要先知道什么是main_arena.</p>
+<p>main_arena指程序主线程所申请并占据的内存空间，一般这个值为132kb，ptmalloc在程序主线程启动后向内核申请长度为132kb的堆空间，并将此堆空间作为此程序的main_arena,由ptmalloc来对其进行管理</p>
+<p>那么很显而易见的，NON_MAIN_ARENA指的就是当前堆块是否是在main_arena，0=no,1=yes</p>
+<p>再来讲讲IS_MAPPED这个标志位，这个标志位也很明显，表示此堆块是否为mmap分配，0=no，1=yes</p>
+<p>最后看看PREV_INUSE，乍一看是表示前一个堆块是否处于被allocated的状态，其实没错(笑)，就是这个意思，但要注意的一点是，这里指的前一个堆块是指物理地址上adajcent的堆块，而不是类似fastbins，tcachebins的链表上的堆块</p>
+<p>另外PREV_INUSE也可以作为堆块合并的参照之一，当其为0时，chunk header中的prev_size就是有效的，系统可以通过prev_size的值获得前一块堆块的长度(为1时不可，原因下面会说)</p>
+<h1 id="PREV-SIZE"><a href="#PREV-SIZE" class="headerlink" title="PREV_SIZE"></a>PREV_SIZE</h1><p>在chunk header中，除了三个标志位，还有一个地方需要关注，那就是第一个8(64位系统)字节的值，这个值代表了上一个堆块的长度，但是这个值仅当当前堆块的PREV_INUSE标志位为0时才有效</p>
+<p>那么为啥PREV_INUSE为1时无效呢</p>
+<p>主要是因为ptmalloc有一个特殊的机制，就是当前一个堆块处于allocated状态时，其可以“借用”当前堆块的PREV_SIZE所占据的空间(64位系统上为8字节)，这也是ptmalloc内存空间复用的一种手段，减少内存消耗</p>
+<p>其实一开始我觉得很奇怪且无法理解，因为在64位系统上分配堆空间时，需要16字节对齐，而如果又可以借用8字节，那么岂不是违反了内存对齐的规定(其实是把自己绕进去了hh，现在写下来觉得自己挺傻的)</p>
+<p>然而其实你可以把它看作一个约定，即分配堆空间时仍然遵循内存对齐的规则，但是也允许额外“溢出”一点空间，这里的溢出由ptmalloc保证不会出现异常</p>
+<p>看个例子可能更好理解</p>
+<p>这是一个结构体</p>
+<p><img src="/img/ptmalloc/struct.jpg" alt="struct"></p>
+<p>准备位这个结构体分配堆空间</p>
+<p><img src="/img/ptmalloc/beforemalloc-code.jpg" alt="beforemalloc-code"></p>
+<p>为这个结构体分配堆空间之前，tcache的情况</p>
+<p><img src="/img/ptmalloc/beforemalloc-tcache.jpg" alt="beforemalloc-tcache"></p>
+<p>分配堆空间之后，tcache的情况</p>
+<p><img src="/img/ptmalloc/aftermalloc-tcache.jpg" alt="aftermalloc-tcache"></p>
+<p>此时其实msg_moduleinit这个指针已经指向了位于0x55555575ecb0的堆空间(没截图，但从tcache上可以看出来)，但是，如果细心一点你会发现，msg_moduleinit的结构体类型应当占用的堆空间为4+4+8+8+16=40字节(16是chunk header的长度)</p>
+<p>但是从tcache中我们可以看到位于0x55555575ecb0的堆空间只有0x20，32字节大小，那就很奇怪，咋少了8个字节呢？</p>
+<p>不急，慢慢看下去</p>
+<p>这是分配后，msg_moduleinit指向的堆空间情况</p>
+<p><img src="/img/ptmalloc/oriheap.jpg" alt="oriheap"></p>
+<p>跟进unpack_moduledatainitreq_mess函数</p>
+<p><img src="/img/ptmalloc/unpack.jpg" alt="unpack"></p>
+<p>这里将msg_moduleinit传入了unpack_moduledatainitreq_mess函数</p>
+<p>跟进unpack_moduledatainitreq_mess函数</p>
+<p><img src="/img/ptmalloc/unpack-1.jpg" alt="unpack-1"></p>
+<p>可以看到这里一波操作，将ntohl(*(uint32_t *)statusBuff)的值赋给了mess结构体的Status(就是msg_moduleinit的Status，为了叙述方便，后面改用msg_moduleinit来指代)</p>
+<p>之后继续看下去</p>
+<p><img src="/img/ptmalloc/unpack-2.jpg" alt="unpack-2"></p>
+<p>又是一波操作，将值赋给了msg_moduleinit的ModuleNameLen</p>
+<p>此时msg_moduleinit所指向的堆空间已经变为了如下这样</p>
+<p><img src="/img/ptmalloc/firstchange.jpg" alt="firstchange"></p>
+<p>可以看到低位的八个字节已经被重新赋值为了新的Status以及ModuleNameLen的值(分别为十进制的1和13)</p>
+<p>继续</p>
+<p><img src="/img/ptmalloc/unpack-3.jpg" alt="unpack-3"></p>
+<p>操作一波，将moduleNameBuff所指向的地址赋值给msg_moduleinit的ModuleName指针</p>
+<p>此时msg_moduleinit所指向的堆空间已经变为了如下这样</p>
+<p><img src="/img/ptmalloc/secondchange.jpg" alt="secondchange"></p>
+<p>可以看到0x55555575ecb8-0x55555575ecc0的八个字节已经被赋值为了moduleNameBuff所指向的地址</p>
+<p>到这里，ptmalloc分配的0x20长度的堆空间已经霍霍完了，但是还有一个Size(占8个字节)无处安放，那它会被放在哪里呢？</p>
+<p>go on</p>
+<p><img src="/img/ptmalloc/unpack-4.jpg" alt="unpack-4"></p>
+<p>可以看到这里操作了一波，将htobe64(*(uint64_t *)sizeBuff)的值赋给了msg_moduleinit的Size</p>
+<p>此时msg_moduleinit指向的堆空间如下</p>
+<p><img src="/img/ptmalloc/final.jpg" alt="final"></p>
+<p>可以看见，代表msg_moduleinit的Size的八个字节，“溢出”了原本ptmalloc分配给msg_moduleinit的0x20长度，占据了下一个堆块的prev_size的空间，奇特，但合法 XD</p>
+<p>并且，哪怕将msg_moduleinit给free了之后，被“溢出”的8个字节也并不会变为msg_moduleinit所指向的堆块的长度，如下图所示</p>
+<p><img src="/img/ptmalloc/afterfree.jpg" alt="afterfree"></p>
+<p>然而按规定，当前一个堆块被free后，当前堆块的prev_size应该要变为前一个堆块的长度，且将PREV_INUSE置零</p>
+<p>出现这种现象是因为tcachebins与fastbins有一个特点，就是放入这两个bins的堆块不会被标记为空闲，PREV_INUSE不会被置零，而是一直保持着allocated的状态，并且也不会主动合并空闲堆块</p>
+<p>所以这里被“溢出”的，本来表示前一堆块的prev_size的值并没有改变，而是继续保留原来“溢出”后的值</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>之后可能还有一些要点会记录，今天先记录到这里～</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/binary/" rel="tag"># binary</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/10/23/Double-free/" rel="prev" title="Double free">
+      <i class="fa fa-chevron-left"></i> Double free
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#三个标志位"><span class="nav-number">1.</span> <span class="nav-text">三个标志位</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PREV-SIZE"><span class="nav-number">2.</span> <span class="nav-text">PREV_SIZE</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">3.</span> <span class="nav-text">后记</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ph4ntom</p>
+  <div class="site-description" itemprop="description">The wheel turns,nothing is ever new</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ph4ntom</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

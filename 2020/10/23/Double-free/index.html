@@ -54,7 +54,7 @@
 <meta property="og:image" content="http://yoursite.com/img/doubleFree/boooom-tcache.jpg">
 <meta property="og:image" content="http://yoursite.com/img/doubleFree/boooom-twoheap.jpg">
 <meta property="article:published_time" content="2020-10-23T11:08:20.000Z">
-<meta property="article:modified_time" content="2020-10-24T03:31:41.804Z">
+<meta property="article:modified_time" content="2020-10-24T07:51:31.706Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="binary">
 <meta name="twitter:card" content="summary">
@@ -208,7 +208,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-10-24 11:31:41" itemprop="dateModified" datetime="2020-10-24T11:31:41+08:00">2020-10-24</time>
+                <time title="Modified: 2020-10-24 15:51:31" itemprop="dateModified" datetime="2020-10-24T15:51:31+08:00">2020-10-24</time>
               </span>
 
           
@@ -233,9 +233,10 @@
 <h1 id="ptmalloc堆结构"><a href="#ptmalloc堆结构" class="headerlink" title="ptmalloc堆结构"></a>ptmalloc堆结构</h1><p>如下图所示：</p>
 <p><img src="/img/doubleFree/heap.jpg" alt="heap"></p>
 <p>在图中，prev_size以及size构成了chunk头：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.prev_size    只有在前一个堆块是空闲时才会有值，用来指示前一个堆块的大小</span><br><span class="line">2.size         当前chunk的大小。由于chunk大小是8的整数倍，所以此size的后3 bit被用于存储其他信息</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.prev_size    只有在前一个堆块是空闲时才会有值，用来指示前一个堆块的大小</span><br><span class="line">2.size         当前chunk的大小（包括chunk header的长度）。由于chunk大小是8的整数倍，所以此size的后3 bit被用于存储其他信息</span><br></pre></td></tr></table></figure>
 
 <p>prev_size与size分别占据8字节的长度，即chunk头为0x10长.</p>
+<p>prev_size所占据的8个字节在prev chunk处在in-use的情况下是无用的，可以被prev chunk使用</p>
 <p>size的后三bit有特殊用途，被用于存储其他信息,如下图所示：</p>
 <p><img src="/img/doubleFree/chunkheader.jpg" alt="chunkheader"></p>
 <p>这三位的作用是：</p>
@@ -323,7 +324,10 @@
     <a href="/2020/09/05/linux-fd/" rel="prev" title="linux中的pipe与fd">
       <i class="fa fa-chevron-left"></i> linux中的pipe与fd
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020/10/24/ptmalloc/" rel="next" title="ptmalloc机制闲扯">
+      ptmalloc机制闲扯 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -396,7 +400,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-count">14</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
