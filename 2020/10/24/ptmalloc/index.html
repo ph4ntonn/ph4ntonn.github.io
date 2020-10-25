@@ -43,7 +43,7 @@
 <meta property="og:image" content="http://yoursite.com/img/ptmalloc/nah.jpg">
 <meta property="og:image" content="http://yoursite.com/img/ptmalloc/aaa.jpg">
 <meta property="article:published_time" content="2020-10-24T13:40:30.000Z">
-<meta property="article:modified_time" content="2020-10-24T15:16:34.979Z">
+<meta property="article:modified_time" content="2020-10-25T02:30:52.740Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="binary">
 <meta name="twitter:card" content="summary">
@@ -189,10 +189,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-10-24 21:40:30 / Modified: 23:16:34" itemprop="dateCreated datePublished" datetime="2020-10-24T21:40:30+08:00">2020-10-24</time>
+              <time title="Created: 2020-10-24 21:40:30" itemprop="dateCreated datePublished" datetime="2020-10-24T21:40:30+08:00">2020-10-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-10-25 10:30:52" itemprop="dateModified" datetime="2020-10-25T10:30:52+08:00">2020-10-25</time>
+              </span>
 
           
 
@@ -270,7 +276,7 @@
 <p><img src="/img/ptmalloc/aaa.jpg" alt="aaa"></p>
 <p>可以看到，虽然0x55555575ecb0和0x55555575ecd0这两个堆块物理上相邻，且0x55555575ecb0刚刚被释放(就是msg_moduleinit所指向的堆块),但是此时0x55555575ecd0堆块上的PREV_INUSE标志位仍然置1，而不是我们想象中的0</p>
 <p>所以这里被“溢出”的，本来表示前一堆块的prev_size的值并没有改变，而是继续保留原来“溢出”后的值</p>
-<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>之后可能还有一些要点会记录，今天先记录到这里～</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>之后可能还有一些要点会记录，今天先记录到这里～～</p>
 
     </div>
 
