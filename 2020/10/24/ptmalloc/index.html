@@ -46,7 +46,7 @@
 <meta property="og:image" content="http://yoursite.com/img/ptmalloc/mallocstatemem.jpg">
 <meta property="og:image" content="http://yoursite.com/img/ptmalloc/unsortedbins.jpg">
 <meta property="article:published_time" content="2020-10-24T13:40:30.000Z">
-<meta property="article:modified_time" content="2020-10-26T06:41:00.877Z">
+<meta property="article:modified_time" content="2020-10-26T06:43:48.554Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="binary">
 <meta name="twitter:card" content="summary">
@@ -200,7 +200,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-10-26 14:41:00" itemprop="dateModified" datetime="2020-10-26T14:41:00+08:00">2020-10-26</time>
+                <time title="Modified: 2020-10-26 14:43:48" itemprop="dateModified" datetime="2020-10-26T14:43:48+08:00">2020-10-26</time>
               </span>
 
           
@@ -299,7 +299,7 @@
 <p>这里还要注意的一个地方就是，unsortedbins占据bin数组的下标为1处，即0x7ffff7dcfcb0-0x7ffff7dcfcc0</p>
 <p>small bins占据62个，largebins占据63个</p>
 <p>可以从上图以及malloc_state分布状况中看出，unsortedbins头节点已经标示了第一个待分配堆块的地址0x0000555555756870，同时标示了最后一个待分配堆块的地址0x0000555555756250</p>
-<p>综上可以看出，每一条bins链的头节点结构与普通的堆块节点结构是不相同的，这里有一个解释(<a href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/heap_structure-zh/#chunk),但我私以为其中的解释有些许绕，并且也不是prev_size和size重用的问题" target="_blank" rel="noopener">https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/heap_structure-zh/#chunk),但我私以为其中的解释有些许绕，并且也不是prev_size和size重用的问题</a></p>
+<p>综上可以看出，每一条bins链的头节点结构与普通的堆块节点结构是不相同的，这里有一个解释( <a href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/heap_structure-zh/#chunk" target="_blank" rel="noopener">https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/heap_structure-zh/#chunk</a> ),但我私以为其中的解释有些许绕，并且也不是prev_size和size重用的问题</p>
 <p>实际上头节点的构造与普通堆块的构造本来就不相同，普通堆块的prev_size以及size这两个区域在头节点这里本身就没有实现。</p>
 <p>所以如果要操作头节点，务必不能误以为其结构与普通堆节点相同，从而去操作其prev_size以及size的值，因为从内存分布的角度来看，头节点的prev_size和size实际上是top chunk以及last remainder的内存位置(unsortedbins)，或者就是前一条bin链的头节点结构(small、largebins)，<br>随意操作将会导致malloc_state结构错乱，发生不可预期的错误</p>
 <h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>study pwn,and be well</p>
