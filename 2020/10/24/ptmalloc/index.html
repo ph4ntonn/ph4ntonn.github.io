@@ -46,7 +46,7 @@
 <meta property="og:image" content="http://yoursite.com/img/ptmalloc/mallocstatemem.jpg">
 <meta property="og:image" content="http://yoursite.com/img/ptmalloc/unsortedbins.jpg">
 <meta property="article:published_time" content="2020-10-24T13:40:30.000Z">
-<meta property="article:modified_time" content="2020-10-26T10:24:37.509Z">
+<meta property="article:modified_time" content="2020-11-13T03:44:39.672Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="binary">
 <meta name="twitter:card" content="summary">
@@ -200,7 +200,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-10-26 18:24:37" itemprop="dateModified" datetime="2020-10-26T18:24:37+08:00">2020-10-26</time>
+                <time title="Modified: 2020-11-13 11:44:39" itemprop="dateModified" datetime="2020-11-13T11:44:39+08:00">2020-11-13</time>
               </span>
 
           
@@ -262,7 +262,7 @@
 <p><img src="/img/ptmalloc/secondchange.jpg" alt="secondchange"></p>
 <p>可以看到0x55555575ecb8-0x55555575ecc0的八个字节已经被赋值为了moduleNameBuff所指向的地址</p>
 <p>到这里，ptmalloc分配的0x20长度的堆空间已经霍霍完了，但是还有一个Size(占8个字节)无处安放，那它会被放在哪里呢？</p>
-<p>go on</p>
+<p>Move on</p>
 <p><img src="/img/ptmalloc/unpack-4.jpg" alt="unpack-4"></p>
 <p>可以看到这里操作了一波，将htobe64(*(uint64_t *)sizeBuff)的值赋给了msg_moduleinit的Size</p>
 <p>此时msg_moduleinit指向的堆空间如下</p>
@@ -400,7 +400,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
