@@ -29,7 +29,7 @@
 <meta property="og:image" content="http://yoursite.com/img/ret2dl/error.png">
 <meta property="og:image" content="http://yoursite.com/img/ret2dl/success.png">
 <meta property="article:published_time" content="2020-11-13T03:45:20.000Z">
-<meta property="article:modified_time" content="2020-11-23T12:22:09.797Z">
+<meta property="article:modified_time" content="2020-11-23T12:30:24.875Z">
 <meta property="article:author" content="ph4ntom">
 <meta property="article:tag" content="binary">
 <meta name="twitter:card" content="summary">
@@ -183,7 +183,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-11-23 20:22:09" itemprop="dateModified" datetime="2020-11-23T20:22:09+08:00">2020-11-23</time>
+                <time title="Modified: 2020-11-23 20:30:24" itemprop="dateModified" datetime="2020-11-23T20:30:24+08:00">2020-11-23</time>
               </span>
 
           
@@ -238,7 +238,7 @@
 <p>而<code>reloc-&gt;r_info</code>值则关系到了<code>ndx</code>的值</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <p>ElfW(Half) ndx = vernum[ELFW(R_SYM) (reloc-&gt;r_info)] &amp; 0x7fff;</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">对应的汇编代码如下，其中&#96;&#96;&#96;esi&#96;&#96;&#96;的值&#96;&#96;&#96;0x269&#96;&#96;&#96;是我们伪造的&#96;&#96;&#96;reloc-&gt;r_info&#96;&#96;&#96;的值，&#96;&#96;&#96;edx&#96;&#96;&#96;是&#96;&#96;&#96;.gnu.version&#96;&#96;&#96;的起始地址，并且此时栈顶抬高的距离为&#96;&#96;&#96;0x800</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">对应的汇编代码如下，其中&#96;&#96;&#96;esi&#96;&#96;&#96;的值&#96;&#96;&#96;0x269&#96;&#96;&#96;是我们伪造的&#96;&#96;&#96;reloc-&gt;r_info&#96;&#96;&#96;的值，&#96;&#96;&#96;edx&#96;&#96;&#96;是&#96;&#96;&#96;.gnu.version&#96;&#96;&#96;的起始地址，并且此时栈顶抬高的距离为&#96;&#96;&#96;0x800</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$edx   : 0x080482d8</span><br><span class="line">$esi   : 0x269</span><br><span class="line">......</span><br><span class="line">0xf7f45fda &lt;_dl_fixup+106&gt;  movzx  edx, WORD PTR [edx+esi*2]</span><br><span class="line">0xf7f45fde &lt;_dl_fixup+110&gt;  and    edx, 0x7fff</span><br></pre></td></tr></table></figure>
 
