@@ -1,1016 +1,237 @@
-<!DOCTYPE html>
-<html lang="zh-Hans">
-<head>
-  <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
-
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
-  </script>
-
-  <meta name="description" content="The wheel turns,nothing is ever new">
+<!DOCTYPE html><html lang="zh-Hans" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>null</title><meta name="author" content="ph4ntom"><meta name="copyright" content="ph4ntom"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="The wheel turns,nothing is ever new">
 <meta property="og:type" content="website">
 <meta property="og:title">
 <meta property="og:url" content="http://yoursite.com/index.html">
 <meta property="og:site_name">
 <meta property="og:description" content="The wheel turns,nothing is ever new">
+<meta property="og:locale">
+<meta property="og:image" content="http://yoursite.com/null">
 <meta property="article:author" content="ph4ntom">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/null"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://yoursite.com/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
 
-<link rel="canonical" href="http://yoursite.com/">
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
 
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
 
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : true,
-    isPost : false,
-    lang   : 'zh-Hans'
-  };
-</script>
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
 
-  <title></title>
-  
-
-
-
-
-
-
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
-
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: false,
+  isHome: true,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2020-11-25 12:16:54'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
   }
 
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
-
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
-
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
-    </div>
-  </div>
-
-  <div class="site-meta">
-
-    <a href="/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title"></h1>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-    </div>
-  </div>
-</div>
-
-
-
-
-<nav class="site-nav">
-  <ul id="menu" class="main-menu menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
-
-  </li>
-  </ul>
-</nav>
-
-
-
-
-</div>
-    </header>
-
-    
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
-
-
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
-
-          <div class="content index posts-expand">
-            
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/13/ret2dl/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/13/ret2dl/" class="post-title-link" itemprop="url">ret2dl</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-11-13 11:45:20" itemprop="dateCreated datePublished" datetime="2020-11-13T11:45:20+08:00">2020-11-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-11-23 20:55:48" itemprop="dateModified" datetime="2020-11-23T20:55:48+08:00">2020-11-23</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>憋问，问就是来踩坑的(笑)</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/11/13/ret2dl/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/11/bypass-Canary/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/11/bypass-Canary/" class="post-title-link" itemprop="url">bypass Canary</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-11-11 18:19:56" itemprop="dateCreated datePublished" datetime="2020-11-11T18:19:56+08:00">2020-11-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-11-12 18:47:11" itemprop="dateModified" datetime="2020-11-12T18:47:11+08:00">2020-11-12</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>记录一个bypass canary的题目，以及其延伸出来的一大堆知识和大坑</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/11/11/bypass-Canary/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/24/ptmalloc/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/10/24/ptmalloc/" class="post-title-link" itemprop="url">ptmalloc机制闲扯</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-10-24 21:40:30" itemprop="dateCreated datePublished" datetime="2020-10-24T21:40:30+08:00">2020-10-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-11-13 11:44:39" itemprop="dateModified" datetime="2020-11-13T11:44:39+08:00">2020-11-13</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>本篇主要闲扯一下ptmalloc机制中一些需要注意的点</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/10/24/ptmalloc/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/23/Double-free/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/10/23/Double-free/" class="post-title-link" itemprop="url">Double free</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-10-23 19:08:20" itemprop="dateCreated datePublished" datetime="2020-10-23T19:08:20+08:00">2020-10-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-10-24 15:51:31" itemprop="dateModified" datetime="2020-10-24T15:51:31+08:00">2020-10-24</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>调试一个double free问题</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/10/23/Double-free/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/05/linux-fd/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/09/05/linux-fd/" class="post-title-link" itemprop="url">linux中的pipe与fd</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-09-05 16:12:33" itemprop="dateCreated datePublished" datetime="2020-09-05T16:12:33+08:00">2020-09-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-08 15:25:35" itemprop="dateModified" datetime="2020-09-08T15:25:35+08:00">2020-09-08</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>最近写程序的时候，在处理c在linux下的pipe时，遇到了一些问题，为了防止老年痴呆所带来的记忆错乱，故而趁热写个备忘。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/09/05/linux-fd/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/25/Web-Cache-Poisoning/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/25/Web-Cache-Poisoning/" class="post-title-link" itemprop="url">WEB缓存投毒攻击技术</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-08-25 11:02:20" itemprop="dateCreated datePublished" datetime="2020-08-25T11:02:20+08:00">2020-08-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-08-27 17:21:09" itemprop="dateModified" datetime="2020-08-27T17:21:09+08:00">2020-08-27</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>继续总结一下另一种缺乏重视的攻击技术—-Web Cache Posioning</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/08/25/Web-Cache-Poisoning/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/24/HTTP-Smuggling/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/24/HTTP-Smuggling/" class="post-title-link" itemprop="url">HTTP Smuggling攻击</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-08-24 15:34:57" itemprop="dateCreated datePublished" datetime="2020-08-24T15:34:57+08:00">2020-08-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-08-25 11:29:06" itemprop="dateModified" datetime="2020-08-25T11:29:06+08:00">2020-08-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>总结一下自己学习HTTP Smuggling相关的要点及技巧，致敬albinowax</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/08/24/HTTP-Smuggling/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/24/Socks5-UDP/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/24/Socks5-UDP/" class="post-title-link" itemprop="url">Socks5中UDP Associate特性实现与trick</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-08-24 14:13:27 / Modified: 15:33:52" itemprop="dateCreated datePublished" datetime="2020-08-24T14:13:27+08:00">2020-08-24</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>最近有大师傅在我的repo下提了个issue，希望我能加入特性以支持socks5的udp代理，即UDP Associate特性，而这个特性在网上找到的资料也比较少，绝大多数的开源socks5服务器也并不支持这样的特性</p>
-<p>故而特以此记录踩坑经历和简单阐述实现过程</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/08/24/Socks5-UDP/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/17/Hackerone-Knowledege/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/17/Hackerone-Knowledege/" class="post-title-link" itemprop="url">Hackerone-Knowledege</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-06-17 14:20:20 / Modified: 15:09:00" itemprop="dateCreated datePublished" datetime="2020-06-17T14:20:20+08:00">2020-06-17</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>记录一些hackerone上面的骚操作</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/06/17/Hackerone-Knowledege/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/04/Linux-backdoors/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/04/Linux-backdoors/" class="post-title-link" itemprop="url">Linux后门权限维持</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-06-04 12:03:49" itemprop="dateCreated datePublished" datetime="2020-06-04T12:03:49+08:00">2020-06-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-21 13:00:11" itemprop="dateModified" datetime="2020-09-21T13:00:11+08:00">2020-09-21</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>记录一下常见的linux上获得root权限后，不利用RAT维持权限的方法，并做一些分析记录</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/06/04/Linux-backdoors/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
-  </nav>
-
-
-
-          </div>
-          
-
-<script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
     }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
       }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
-    });
-  }
-</script>
-
-        </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          Table of Contents
-        </li>
-        <li class="sidebar-nav-overview">
-          Overview
-        </li>
-      </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-      </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">ph4ntom</p>
-  <div class="site-description" itemprop="description">The wheel turns,nothing is ever new</div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives/">
-        
-          <span class="site-state-item-count">16</span>
-          <span class="site-state-item-name">posts</span>
-        </a>
-      </div>
-      <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">10</span>
-        <span class="site-state-item-name">tags</span>
-      </div>
-  </nav>
-</div>
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/null" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">16</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">10</div></a></div></div></div><hr/></div></div><div id="body-wrap"><header class="full_page" id="page-header"><nav id="nav"><span id="blog_name"><a id="site-name" href="/"></a></span><span id="menus"><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="site-info"><h1 id="site-title"></h1><div id="site-subtitle"><span id="subtitle"></span></div></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/11/13/ret2dl/" title="ret2dl">ret2dl</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-11-13T03:45:20.000Z" title="Created 2020-11-13 11:45:20">2020-11-13</time></span></div><div class="content">憋问，问就是来踩坑的(笑)
 
 
+Ret2dl?What?直接贴链接，不再赘述 http://pwn4.fun/2016/11/09/Return-to-dl-resolve/
+复现环境
+Ubuntu 18.04
+glibc 2.27
 
-      </div>
+Problem首先，我按照 http://pwn4.fun/2016/11/09/Return-to-dl-resolve/ 中的payload进行了调试，自行调整，一直到stage 4，大体都是ok的，原理也比较清晰易懂，修改的地方也不是很多
+但是，在stage 4时，却一直无法成功，于是我先仔细研究了payload，发现和作者步骤过程基本一致，与ctf-wiki上也是大差不差，但是却一直报非法内存地址访问。
+嘛，那就gdb大法呗～
+确定报错位置首先先确定了报错位置
 
-    </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
-
-
-      </div>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        
-
-        
-
-<div class="copyright">
-  
-  &copy; 
-  <span itemprop="copyrightYear">2020</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">ph4ntom</span>
-</div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
-  </div>
-
-        
+可以看到，此时的edx所指向的内存地址是无法访问的，故而在0xf7fd6fed &lt;_dl_fixup+125&gt;  mov    ebx, DWORD PTR [edx+0x4] 尝试取值的过程中，程序崩溃退出
+那么为何在payload几乎相同的情况下，却会发生这种问题呢，带着 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/11/11/bypass-Canary/" title="bypass Canary">bypass Canary</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-11-11T10:19:56.000Z" title="Created 2020-11-11 18:19:56">2020-11-11</time></span></div><div class="content">记录一个bypass canary的题目，以及其延伸出来的一大堆知识和大坑
 
 
+题目这道题是来自starctf2018的一道pwn题，主要是通过覆盖TCB结构体中的stack_guard值来bypass Canary的校验过程
+赛题链接:  https://github.com/sixstars/starctf2018/tree/master/pwn-babystack
+TCB介绍: http://www.openwall.com/lists/oss-security/2018/02/27/5
+环境
+Ubuntu 18.04
+libc-2.27
+
+解题由于大致了解解题细节，所以我就直接拿现成的exp来先运行试一下，如下
+1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606162636465666768697071727374757677787980#!&#x2F;usr&#x2F;bin&#x2F;pythonfro ...</div></div></div><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/10/24/ptmalloc/" title="ptmalloc机制闲扯">ptmalloc机制闲扯</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-10-24T13:40:30.000Z" title="Created 2020-10-24 21:40:30">2020-10-24</time></span></div><div class="content">本篇主要闲扯一下ptmalloc机制中一些需要注意的点
 
 
+三个标志位熟悉ptmalloc的都知道在ptmalloc分配的chunk header中的size部分有三bit标志位，分别为NON_MAIN_ARENA，IS_MAPPED，PREV_INUSE，这也算是ptmalloc的特征
+分别讲讲这三个标志位吧，首先是NON_MAIN_ARENA，要讲这个标志位，那就要先知道什么是main_arena.
+main_arena指程序主线程所申请并占据的内存空间，一般这个值为132kb，ptmalloc在程序主线程启动后向内核申请长度为132kb的堆空间，并将此堆空间作为此程序的main_arena,由ptmalloc来对其进行管理
+那么很显而易见的，NON_MAIN_ARENA指的就是当前堆块是否是在main_arena，0=no,1=yes
+再来讲讲IS_MAPPED这个标志位，这个标志位也很明显，表示此堆块是否为mmap分配，0=no，1=yes
+最后看看PREV_INUSE，乍一看是表示前一个堆块是否处于被allocated的状态，其实没错(笑)，就是这个意思，但要注意的一点是，这 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/10/23/Double-free/" title="Double free">Double free</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-10-23T11:08:20.000Z" title="Created 2020-10-23 19:08:20">2020-10-23</time></span></div><div class="content">调试一个double free问题
 
 
+前言仅记录自己调试程序的一个double free漏洞的问题
+Tcachebins对于稍微了解linux堆内存管理的人来说，fastbins这个词一定不陌生，而在libc2.26之后，一个新的机制 Tcachebins被引入了，Tcachebins和fastbins很像，但优先级在fastbins之前。
+被free的适当大小的内存块会优先被放入Tcachebins，且Tcachebins的每一个链上可以最多链接7个堆块，只有当Tcachebins满了之后，再free的内存块才会被放入fastbins及unsorted bins
+在malloc时，也会优先取Tcachebins中的内存块
+Tcachebins和fastbins一样，仅基于fd指针构造单链表，且遵循LIFO的原则
+ptmalloc堆结构如下图所示：
+
+在图中，prev_size以及size构成了chunk头：
+121.prev_size    只有在前一个堆块是空闲时才会有值，用来指示前一个堆块的大小2.size         当前chunk的大小（包括chunk header的长 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/09/05/linux-fd/" title="linux中的pipe与fd">linux中的pipe与fd</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-09-05T08:12:33.000Z" title="Created 2020-09-05 16:12:33">2020-09-05</time></span></div><div class="content">最近写程序的时候，在处理c在linux下的pipe时，遇到了一些问题，为了防止老年痴呆所带来的记忆错乱，故而趁热写个备忘。
 
 
-      </div>
-    </footer>
-  </div>
-
-  
-  <script src="/lib/anime.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
+Pipe我们经常能看到如下的代码：
+12345678910int pipefd[2];int status &#x3D; pipe(pipefd);if(status&#x3D;&#x3D;-1)&#123;  printf(&quot;create pipe erro\n&quot;);&#125;.........fork()....&#x2F;&#x2F;childdup2(pipefd[0], STDIN_FILENO);......
+(这边省略了父子进程close无用fd的代码，要close这些无用fd，参看下面的讲解)
+上面这段代码首先定义了一对pipe的fd，初始化这对pipe，并在fork后的子进程中将子进程的标准输入重定向至pipefd[1]
+在理解上面的含义之前，其实我应当声明一些重要的概念，首先是在声明初始化一对pipe时，默认pipefd[1]是数据流入端，而pipefd[0]是数据流出端，并且，pipe是单向的，永远从pipefd[1 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/08/25/Web-Cache-Poisoning/" title="WEB缓存投毒攻击技术">WEB缓存投毒攻击技术</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-08-25T03:02:20.000Z" title="Created 2020-08-25 11:02:20">2020-08-25</time></span></div><div class="content">继续总结一下另一种缺乏重视的攻击技术—-Web Cache Posioning
 
 
-<script src="/js/schemes/muse.js"></script>
+前言老规矩,还是要简单介绍一下这个技术，实际上这个技术和我之前总结的HTTP Smuggling一样，属于比较”冷门”的漏洞，在大家热衷于寻找RCE、XSS、Sql injection的今天，此漏洞看似“垂垂老矣”，其复杂的攻击方式及“理论上的”威胁实在难以得到安全研究人员的青睐
+但是实际上，还是老话，没有无用的，只有你不会的～
+简单说，Web Cache Posioning旨在欺骗网站缓存，尝试劫持缓存服务器，使其缓存错误的资源，从而导致其后一系列如：DOS，XSS等等的攻击
+那我们就来详细聊一聊这个“孤独”的攻击手法吧
+原理由于Web Cache Posioning这种攻击手段与缓存有着很大的关联，所以首先，需要先熟悉一下缓存的基本原理
+下图可以简单了解缓存的原理:
+
+简单来说，就是当一个用户访问了例如/static/test.png这一资源后，Cache服务将会缓存(如果是可缓存的话)这一资源，当之后再有用户访问相同的资源时，Cache服务将不会转发此请求至后端服务器，而是直接将其保存的对应的数据 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/08/24/HTTP-Smuggling/" title="HTTP Smuggling攻击">HTTP Smuggling攻击</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-08-24T07:34:57.000Z" title="Created 2020-08-24 15:34:57">2020-08-24</time></span></div><div class="content">总结一下自己学习HTTP Smuggling相关的要点及技巧，致敬albinowax
 
 
-<script src="/js/next-boot.js"></script>
+前言实际上HTTP Smuggling已经不是一个很新的攻击技术，早在2005年，就已经有人提出过这一攻击方式，只是这一攻击方式普遍被认为过于复杂以及难以利用于实战，故而在被提出后并没有受到太多的重视
+然而，往往人们不看好的东西会有着巨大的财富
+借用albinowax的原话:
+If a technique has a reputation for being difficult, fiddly, or dangerous, that’s a topic in dire need of further research. After repeatedly experiencing breakthroughs due to being pressured into exploring topics well outside my comfort zone, I’ve decided that the fastest route to novel findings is actively seeking ...</div></div></div><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/08/24/Socks5-UDP/" title="Socks5中UDP Associate特性实现与trick">Socks5中UDP Associate特性实现与trick</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-08-24T06:13:27.000Z" title="Created 2020-08-24 14:13:27">2020-08-24</time></span></div><div class="content">最近有大师傅在我的repo下提了个issue，希望我能加入特性以支持socks5的udp代理，即UDP Associate特性，而这个特性在网上找到的资料也比较少，绝大多数的开源socks5服务器也并不支持这样的特性
+故而特以此记录踩坑经历和简单阐述实现过程
+
+
+RFC文档首先要实现这个特性，那么必不可少的，需要去查看这个定义此特性的RFC1928
+这里要吐槽一下，由于此RFC文档又使用了传统艺能 – xxx MAY xxx，所以文档对于此功能的描述是模糊的，很多相关问题并没有详细的说明，所以可能各人的实现方法也会有些许的不同，但是大体上还是有一个共识，不会过分影响其核心的功能
+通过阅读此RFC，可以得出主要的几个要点：
+
+UDP Associate中的每一个UDP Listener生存周期必须与其最初协商时所使用的tcp链接相关，即一个UDP Associate请求最终会对应一条tcp链接和一个UDP Listener，当tcp链接断开时，UDP Listener也将会退出，反之亦然
+在udp客户端发出的UDP Associate请求中应当带上自己期望发送数据的源端口及源地址，而so ...</div></div></div><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/06/17/Hackerone-Knowledege/" title="Hackerone-Knowledege">Hackerone-Knowledege</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-06-17T06:20:20.000Z" title="Created 2020-06-17 14:20:20">2020-06-17</time></span></div><div class="content">记录一些hackerone上面的骚操作
 
 
 
+当一个命令执行漏洞过滤了空格符号且后端服务器为linux时，可以利用${IFS}这个特殊的内置变量来绕过，此变量是bash中默认的域分隔符。其默认值是空格，tab, 和新行(即” \r\n”，其中” \r\n”任意一个值都代表”空白”)。并且当遇到需要分割字符串的场景时，多个连续的空白将会被压缩为一个空白（经测试，压缩为了空格），故而可以用来代替空格使用。
 
-  
-
-
-
-
-
+还有一些别的方法，例如：
+ls$IFS-lals$IFS$100-la
+</div></div></div><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/06/04/Linux-backdoors/" title="Linux后门权限维持">Linux后门权限维持</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-06-04T04:03:49.000Z" title="Created 2020-06-04 12:03:49">2020-06-04</time></span></div><div class="content">记录一下常见的linux上获得root权限后，不利用RAT维持权限的方法，并做一些分析记录
 
 
+sshd后门sshd后门应该是比较老的一种后门维持方式了，简单来说需要的条件是目标机上需要装有perl环境以及root权限
+在获取root权限后，首先cp /usr/sbin/sshd /usr/bin/sshd保存一份真的sshd文件
+之后在sbin目录下新建一个sshd文件，并在里面写入：
+123#!&#x2F;usr&#x2F;bin&#x2F;perlexec&quot;&#x2F;bin&#x2F;sh&quot;if(getpeername(STDIN)&#x3D;~&#x2F;^..zf&#x2F;);exec&#123;&quot;&#x2F;usr&#x2F;bin&#x2F;sshd&quot;&#125;&quot;&#x2F;usr&#x2F;sbin&#x2F;sshd&quot;,@ARGV;
 
-
-
-
-
-
-
-
-  
-
-  
-
-</body>
-</html>
+代码的解释:
+123第一行， 如果当前文件句柄STDIN是一个socket，且socket的远程连接源端口是31334（Big 网络字节序中的16进制字符串为\x00\x ...</div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside_content" id="aside_content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><img class="avatar-img" src="/null" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">ph4ntom</div><div class="author-info__description">The wheel turns,nothing is ever new</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">16</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">10</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div></div><div class="card-widget card-announcement"><div class="card-content"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="card-content"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><div class="content"><a class="title" href="/2020/11/13/ret2dl/" title="ret2dl">ret2dl</a><time datetime="2020-11-13T03:45:20.000Z" title="Created 2020-11-13 11:45:20">2020-11-13</time></div></div><div class="aside-list-item"><div class="content"><a class="title" href="/2020/11/11/bypass-Canary/" title="bypass Canary">bypass Canary</a><time datetime="2020-11-11T10:19:56.000Z" title="Created 2020-11-11 18:19:56">2020-11-11</time></div></div><div class="aside-list-item"><div class="content"><a class="title" href="/2020/10/24/ptmalloc/" title="ptmalloc机制闲扯">ptmalloc机制闲扯</a><time datetime="2020-10-24T13:40:30.000Z" title="Created 2020-10-24 21:40:30">2020-10-24</time></div></div><div class="aside-list-item"><div class="content"><a class="title" href="/2020/10/23/Double-free/" title="Double free">Double free</a><time datetime="2020-10-23T11:08:20.000Z" title="Created 2020-10-23 19:08:20">2020-10-23</time></div></div><div class="aside-list-item"><div class="content"><a class="title" href="/2020/09/05/linux-fd/" title="linux中的pipe与fd">linux中的pipe与fd</a><time datetime="2020-09-05T08:12:33.000Z" title="Created 2020-09-05 16:12:33">2020-09-05</time></div></div></div></div></div><div class="card-widget card-tags"><div class="card-content"><div class="item-headline"><i class="fas fa-tags"></i><span>Tags</span></div><div class="card-tag-cloud"><a href="/tags/binary/" style="font-size: 1.5em; color: #99a9bf">binary</a> <a href="/tags/bug-bounty/" style="font-size: 1.1em; color: #999">bug bounty</a> <a href="/tags/linux/" style="font-size: 1.1em; color: #999">linux</a> <a href="/tags/linux%E5%86%85%E6%A0%B8%EF%BC%8Crootkit/" style="font-size: 1.1em; color: #999">linux内核，rootkit</a> <a href="/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" style="font-size: 1.3em; color: #99a1ac">内网渗透</a> <a href="/tags/%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/" style="font-size: 1.3em; color: #99a1ac">安全研究</a> <a href="/tags/%E6%B8%97%E9%80%8F-trick/" style="font-size: 1.1em; color: #999">渗透,trick</a> <a href="/tags/%E6%B8%97%E9%80%8F-%E5%90%8E%E9%97%A8/" style="font-size: 1.1em; color: #999">渗透,后门</a> <a href="/tags/%E6%BA%90%E7%A0%81/" style="font-size: 1.1em; color: #999">源码</a> <a href="/tags/%E6%BC%8F%E6%B4%9E%EF%BC%8C%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" style="font-size: 1.1em; color: #999">漏洞，内网渗透</a></div></div></div><div class="card-widget card-archives"><div class="card-content"><div class="item-headline"><i class="fas fa-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/11/"><span class="card-archive-list-date">November 2020</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/10/"><span class="card-archive-list-date">October 2020</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/09/"><span class="card-archive-list-date">September 2020</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/08/"><span class="card-archive-list-date">August 2020</span><span class="card-archive-list-count">3</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/06/"><span class="card-archive-list-date">June 2020</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/05/"><span class="card-archive-list-date">May 2020</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/04/"><span class="card-archive-list-date">April 2020</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/03/"><span class="card-archive-list-date">March 2020</span><span class="card-archive-list-count">4</span></a></li></ul></div></div><div class="card-widget card-webinfo"><div class="card-content"><div class="item-headline"><i class="fas fa-chart-line"></i><span>Info</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">Article :</div><div class="item-count">16</div></div><div class="webinfo-item"><div class="item-name">UV :</div><div class="item-count" id="busuanzi_value_site_uv"></div></div><div class="webinfo-item"><div class="item-name">PV :</div><div class="item-count" id="busuanzi_value_site_pv"></div></div><div class="webinfo-item"><div class="item-name">Last Push :</div><div class="item-count" id="last-push-date" data-lastPushDate="2020-11-25T04:16:54.617Z"></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 By ph4ntom</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>

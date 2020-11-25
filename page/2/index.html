@@ -1,740 +1,190 @@
-<!DOCTYPE html>
-<html lang="zh-Hans">
-<head>
-  <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
-
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
-  </script>
-
-  <meta name="description" content="The wheel turns,nothing is ever new">
+<!DOCTYPE html><html lang="zh-Hans" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>null</title><meta name="author" content="ph4ntom"><meta name="copyright" content="ph4ntom"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="The wheel turns,nothing is ever new">
 <meta property="og:type" content="website">
 <meta property="og:title">
 <meta property="og:url" content="http://yoursite.com/page/2/index.html">
 <meta property="og:site_name">
 <meta property="og:description" content="The wheel turns,nothing is ever new">
+<meta property="og:locale">
+<meta property="og:image" content="http://yoursite.com/null">
 <meta property="article:author" content="ph4ntom">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/null"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://yoursite.com/page/2/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
 
-<link rel="canonical" href="http://yoursite.com/page/2/">
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
 
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
 
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : true,
-    isPost : false,
-    lang   : 'zh-Hans'
-  };
-</script>
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
 
-  <title></title>
-  
-
-
-
-
-
-
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
-
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: false,
+  isHome: true,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2020-11-25 12:16:54'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
   }
 
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
-
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
-
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
-    </div>
-  </div>
-
-  <div class="site-meta">
-
-    <a href="/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title"></h1>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-    </div>
-  </div>
-</div>
-
-
-
-
-<nav class="site-nav">
-  <ul id="menu" class="main-menu menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
-
-  </li>
-  </ul>
-</nav>
-
-
-
-
-</div>
-    </header>
-
-    
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
-
-
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
-
-          <div class="content index posts-expand">
-            
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/27/Steal-password-by-alias/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/27/Steal-password-by-alias/" class="post-title-link" itemprop="url">密码“水坑”</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-05-27 13:37:54" itemprop="dateCreated datePublished" datetime="2020-05-27T13:37:54+08:00">2020-05-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-17 19:01:14" itemprop="dateModified" datetime="2020-09-17T19:01:14+08:00">2020-09-17</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户下“水坑”</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/05/27/Steal-password-by-alias/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/" class="post-title-link" itemprop="url">rootkit分析&&linux内核机制学习（一）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-04-17 16:02:43" itemprop="dateCreated datePublished" datetime="2020-04-17T16:02:43+08:00">2020-04-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-17 19:00:57" itemprop="dateModified" datetime="2020-09-17T19:00:57+08:00">2020-09-17</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这篇文章将会长篇连载。。从分析一个rootkit的源代码来分析其功能模块并籍此学习部分linux内核知识</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/17/Kerberos-gold-sliver-ticket/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/03/17/Kerberos-gold-sliver-ticket/" class="post-title-link" itemprop="url">Kerberos黄金白银票据</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-03-17 14:22:25" itemprop="dateCreated datePublished" datetime="2020-03-17T14:22:25+08:00">2020-03-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-17 18:59:49" itemprop="dateModified" datetime="2020-09-17T18:59:49+08:00">2020-09-17</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>在分析了MS14-068漏洞之后，来讲讲域渗透中很重要的两个知识，Kerberos的黄金票据和白银票据，为了方便叙述，假定A为客户端，B为服务端</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/03/17/Kerberos-gold-sliver-ticket/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/17/Kerberos/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/03/17/Kerberos/" class="post-title-link" itemprop="url">Kerberos MS14-068</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-03-17 12:38:40" itemprop="dateCreated datePublished" datetime="2020-03-17T12:38:40+08:00">2020-03-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-27 13:53:41" itemprop="dateModified" datetime="2020-05-27T13:53:41+08:00">2020-05-27</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  最近想继续搞一下内网方面的东西，并且对各个经典的ntlm，kerberos漏洞进行一些分析和复现，仅以此记录</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/03/17/Kerberos/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/16/Port-reuse/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/03/16/Port-reuse/" class="post-title-link" itemprop="url">端口复用的一些tricks</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-03-16 17:40:33" itemprop="dateCreated datePublished" datetime="2020-03-16T17:40:33+08:00">2020-03-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-17 19:00:24" itemprop="dateModified" datetime="2020-09-17T19:00:24+08:00">2020-09-17</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>最近在写自己的多级代理跳板工具时，本来想为其加入端口复用的功能，以期在高度受限的环境下仍然可以正常工作,但在实施的过程中我发现了一些值得记录的点</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/03/16/Port-reuse/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/14/Go-source-code/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ph4ntom">
-      <meta itemprop="description" content="The wheel turns,nothing is ever new">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/03/14/Go-source-code/" class="post-title-link" itemprop="url">Go net/http包源码解析（一）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-03-14 19:07:17" itemprop="dateCreated datePublished" datetime="2020-03-14T19:07:17+08:00">2020-03-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-17 19:00:04" itemprop="dateModified" datetime="2020-09-17T19:00:04+08:00">2020-09-17</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>net/http包是Go原生包中使用十分频繁的包，然而最近在写程序的时候发现了一些有意思的知识点，故想记录下来以防自己以后忘记。</p>
-<p>首先来看看一个最常出错的地方，net/http包中，Response结构体Body的处理方法不当所导致的内存泄露问题</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/03/14/Go-source-code/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-
-  
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
-  </nav>
-
-
-
-          </div>
-          
-
-<script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
     }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
       }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
-    });
-  }
-</script>
-
-        </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          Table of Contents
-        </li>
-        <li class="sidebar-nav-overview">
-          Overview
-        </li>
-      </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-      </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">ph4ntom</p>
-  <div class="site-description" itemprop="description">The wheel turns,nothing is ever new</div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives/">
-        
-          <span class="site-state-item-count">16</span>
-          <span class="site-state-item-name">posts</span>
-        </a>
-      </div>
-      <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">10</span>
-        <span class="site-state-item-name">tags</span>
-      </div>
-  </nav>
-</div>
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/null" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">16</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">10</div></a></div></div></div><hr/></div></div><div id="body-wrap"><header class="full_page" id="page-header"><nav id="nav"><span id="blog_name"><a id="site-name" href="/"></a></span><span id="menus"><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="site-info"><h1 id="site-title"></h1><div id="site-subtitle"><span id="subtitle"></span></div></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/05/27/Steal-password-by-alias/" title="密码“水坑”">密码“水坑”</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-05-27T05:37:54.000Z" title="Created 2020-05-27 13:37:54">2020-05-27</time></span></div><div class="content">我们在渗透的过程中，往往会遇到拿下了边界linux服务器的权限，但是由于得不到root的密码，内网也没有其他可控点，从而无法横向移动，故而我想记录一下一些小方法，如何给合法用户下“水坑”
 
 
-
-      </div>
-
-    </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
-
-
-      </div>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        
-
-        
-
-<div class="copyright">
-  
-  &copy; 
-  <span itemprop="copyrightYear">2020</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">ph4ntom</span>
-</div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
-  </div>
-
-        
+第一个暗桩 – ssh命令  当我们控制了一台linux服务器，并且发现有用户使用这台机器通过ssh连接其他机器的时候，那么假设我们有此用户的权限的shell，这时我们就可以巧用alias来窃取用户的密码
+  首先我们将会用到strace命令，这在大部分的linux机器当中都有预装。为了劫持用户的ssh命令，我们需要修改～/.bashrc（修改前请先备份）
+  在.bashrc中加入如下语句：
+  alias ssh=’strace -o  /var/tmp/.syscache-date +&#39;%Y-%m-%d+%H:%m:%S&#39;.log -s 4096 ssh’
+  这句话的意思就是当用户使用ssh时，实际上我们悄悄的对ssh使用了strace来跟踪其调用过程，并将其输出文件保存在/var/tmp下，这样，当合法用户登陆被我们控制的机器，并使用ssh登陆其他机器的时候，其登陆其他机 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/04/17/rootkit%E5%88%86%E6%9E%90-linux%E5%86%85%E6%A0%B8%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0/" title="rootkit分析&amp;&amp;linux内核机制学习（一）">rootkit分析&amp;&amp;linux内核机制学习（一）</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-04-17T08:02:43.000Z" title="Created 2020-04-17 16:02:43">2020-04-17</time></span></div><div class="content">这篇文章将会长篇连载。。从分析一个rootkit的源代码来分析其功能模块并籍此学习部分linux内核知识
 
 
+rootkit自身隐藏及保护隐藏自身先讲讲自身的隐藏，这里主要是用到了以下函数段：
+123module_list &#x3D; THIS_MODULE-&gt;list.prev;list_del(&amp;THIS_MODULE-&gt;list);
+其中module_list保存了此模块所在的链表结构体的第一个结构体，即链表的头节点，以便之后的恢复操作
+list_del函数将此模块所在的链表结构体的头节点删除，即将代表自身的结构体删除，从而在lsmod命令中隐藏此模块
+恢复自身讲完隐藏，讲讲自身恢复
+1list_add(&amp;THIS_MODULE-&gt;list, module_list);
+这里利用到了list_add函数，将之前保存的module结构体（即之前代表自身的结构体）添加到链表头，从而重新在lsmod命令中可见
+保护自身不被删除保护自身不被删除主要利用了以下代码：
+1try_module_get(THIS_MODULE);
+
+利用了try_module ...</div></div></div><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/03/17/Kerberos-gold-sliver-ticket/" title="Kerberos黄金白银票据">Kerberos黄金白银票据</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-03-17T06:22:25.000Z" title="Created 2020-03-17 14:22:25">2020-03-17</time></span></div><div class="content">在分析了MS14-068漏洞之后，来讲讲域渗透中很重要的两个知识，Kerberos的黄金票据和白银票据，为了方便叙述，假定A为客户端，B为服务端
 
 
+白银票据  从上一篇文章中我们可以懂得微软对于windosw系列的Kerberos协议的具体实现过程
+  那么我们可以总结出来一点就是，实际上A作为客户端访问B的时候，其权限完全是基于KDC所颁发的PAC的，B也只认这个PAC，并以这个PAC为参考来决定是否允许A访问B上的一些资源，那也就是说如果我们能够伪造发送给B的serrviceTicket中的PAC，我们就可以随意对B的资源进行访问了
+  让我们来看看构成ServerTicket的必要条件：KDC密码的副本以及B的密码的副本（两者的hash），主要缺少的就是B的密码的hash值，那么如果我们有了这个hash值，我们就可以伪造PAC，伪造PAC后面的校验签名，从而实现对B资源完全的访问权。那么这样的票据就被称为白银票据，拥有这样的票据表示着客户端A对B有着完全的访问权，但是注意了，由于我们同样也不知道KDC的密码hash，所以实际上我们伪造的PAC最后是没有有效的KDC的校验签名的， ...</div></div></div><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/03/17/Kerberos/" title="Kerberos MS14-068">Kerberos MS14-068</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-03-17T04:38:40.000Z" title="Created 2020-03-17 12:38:40">2020-03-17</time></span></div><div class="content">前言  最近想继续搞一下内网方面的东西，并且对各个经典的ntlm，kerberos漏洞进行一些分析和复现，仅以此记录
 
 
+MS14-068漏洞  先从一个知名的漏洞开始吧：MS14-068
+  这个漏洞在当时影响了全版本的Windows服务器，攻击者可以籍由这个漏洞实现权限提升，从普通域用户提升至域管理员身份。
+  那在分析以及复现这个漏洞之前，先让我们来看看什么是Kerberos协议，这是所有这一切的核心所在
+Kerberos：地狱三头犬  Kerberos协议是一种基于第三方可信主机的计算机网络协议，它允许两个实体之间在非安全网络环境（可能被窃听、被重放攻击）下以一种安全的方式证明自己的身份。
+  假设一个场景，即有两者A和B，他们共同享有同样的一个secret，那么A在不安全的网络环境下如何向B证明其身份就成了一个问题
+  最简单的方法就是A直接发送secret给B，让B来验证其真实性，但是在不安全的网络环境中，这段secret随时可能被恶意攻击者窃取，故而这一方法不可行
+  那么要不A将secret作为密钥，用secret加密一段数据后，将密文和明文一起发给B，由B再进行校验？ ...</div></div></div><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/03/16/Port-reuse/" title="端口复用的一些tricks">端口复用的一些tricks</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-03-16T09:40:33.000Z" title="Created 2020-03-16 17:40:33">2020-03-16</time></span></div><div class="content">最近在写自己的多级代理跳板工具时，本来想为其加入端口复用的功能，以期在高度受限的环境下仍然可以正常工作,但在实施的过程中我发现了一些值得记录的点
 
 
-      </div>
-    </footer>
-  </div>
-
-  
-  <script src="/lib/anime.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
+为了叙述方便，本文假设我们控制了一台主机，其80端口之上运行着apache服务，而我们需要复用80端口
+利用IPtables  首先第一种方法我是参考了网上的一篇文章，主要是利用IPtables规则来实现端口复用。
+  实际上这个方法属于伪端口复用，因为实际上我们的程序并不会复用同样的端口，而是利用IPtables会在路由决策之前生效的特性，将我们的程序监听在本地的另一个端口上（比方说8888），将外部流量全部导向我们自己的程序，再由我们自己的程序进行流量的分发（通过识别流量特征区分工具流量和正常http流量）
+  那么这个方法实际上确实效果还不错，不会影响到正常服务器的运行，而且在严格受限的环境当中（即只允许80端口的出入站连接），确实可以完成既定目标
+  但是，这个方法的局限性也比较明显，那就是需要完成这个操作需要有root权限（废话。。。），并且仅支持linux服务器，而且会监听额外的端口。root权限虽然说不是每次都搞不到，但是也 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info"><a class="article-title" href="/2020/03/14/Go-source-code/" title="Go net/http包源码解析（一）">Go net/http包源码解析（一）</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2020-03-14T11:07:17.000Z" title="Created 2020-03-14 19:07:17">2020-03-14</time></span></div><div class="content">net/http包是Go原生包中使用十分频繁的包，然而最近在写程序的时候发现了一些有意思的知识点，故想记录下来以防自己以后忘记。
+首先来看看一个最常出错的地方，net/http包中，Response结构体Body的处理方法不当所导致的内存泄露问题
 
 
-<script src="/js/schemes/muse.js"></script>
-
-
-<script src="/js/next-boot.js"></script>
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
-
-</body>
-</html>
+为什么要Close？  首先来看一段代码：
+12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455package mainimport (	&quot;fmt&quot;	&quot;io&#x2F;ioutil&quot;	&quot;net&quot;	&quot;net&#x2F;http&quot;	&quot;time&quot;)func PrintLocalDial(network, addr string) (net.Conn, error) &#123;	dial :&#x3D; net.Dialer&#123;		Timeout:   30 * time.Second,		 ...</div></div></div><nav id="pagination"><div class="pagination"><a class="extend prev" rel="prev" href="/"><i class="fas fa-chevron-left fa-fw"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span></div></nav></div><div class="aside_content" id="aside_content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><img class="avatar-img" src="/null" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">ph4ntom</div><div class="author-info__description">The wheel turns,nothing is ever new</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">16</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">10</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div></div><div class="card-widget card-announcement"><div class="card-content"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="card-content"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><div class="content"><a class="title" href="/2020/11/13/ret2dl/" title="ret2dl">ret2dl</a><time datetime="2020-11-13T03:45:20.000Z" title="Created 2020-11-13 11:45:20">2020-11-13</time></div></div><div class="aside-list-item"><div class="content"><a class="title" href="/2020/11/11/bypass-Canary/" title="bypass Canary">bypass Canary</a><time datetime="2020-11-11T10:19:56.000Z" title="Created 2020-11-11 18:19:56">2020-11-11</time></div></div><div class="aside-list-item"><div class="content"><a class="title" href="/2020/10/24/ptmalloc/" title="ptmalloc机制闲扯">ptmalloc机制闲扯</a><time datetime="2020-10-24T13:40:30.000Z" title="Created 2020-10-24 21:40:30">2020-10-24</time></div></div><div class="aside-list-item"><div class="content"><a class="title" href="/2020/10/23/Double-free/" title="Double free">Double free</a><time datetime="2020-10-23T11:08:20.000Z" title="Created 2020-10-23 19:08:20">2020-10-23</time></div></div><div class="aside-list-item"><div class="content"><a class="title" href="/2020/09/05/linux-fd/" title="linux中的pipe与fd">linux中的pipe与fd</a><time datetime="2020-09-05T08:12:33.000Z" title="Created 2020-09-05 16:12:33">2020-09-05</time></div></div></div></div></div><div class="card-widget card-tags"><div class="card-content"><div class="item-headline"><i class="fas fa-tags"></i><span>Tags</span></div><div class="card-tag-cloud"><a href="/tags/binary/" style="font-size: 1.5em; color: #99a9bf">binary</a> <a href="/tags/bug-bounty/" style="font-size: 1.1em; color: #999">bug bounty</a> <a href="/tags/linux/" style="font-size: 1.1em; color: #999">linux</a> <a href="/tags/linux%E5%86%85%E6%A0%B8%EF%BC%8Crootkit/" style="font-size: 1.1em; color: #999">linux内核，rootkit</a> <a href="/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" style="font-size: 1.3em; color: #99a1ac">内网渗透</a> <a href="/tags/%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/" style="font-size: 1.3em; color: #99a1ac">安全研究</a> <a href="/tags/%E6%B8%97%E9%80%8F-trick/" style="font-size: 1.1em; color: #999">渗透,trick</a> <a href="/tags/%E6%B8%97%E9%80%8F-%E5%90%8E%E9%97%A8/" style="font-size: 1.1em; color: #999">渗透,后门</a> <a href="/tags/%E6%BA%90%E7%A0%81/" style="font-size: 1.1em; color: #999">源码</a> <a href="/tags/%E6%BC%8F%E6%B4%9E%EF%BC%8C%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" style="font-size: 1.1em; color: #999">漏洞，内网渗透</a></div></div></div><div class="card-widget card-archives"><div class="card-content"><div class="item-headline"><i class="fas fa-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/11/"><span class="card-archive-list-date">November 2020</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/10/"><span class="card-archive-list-date">October 2020</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/09/"><span class="card-archive-list-date">September 2020</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/08/"><span class="card-archive-list-date">August 2020</span><span class="card-archive-list-count">3</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/06/"><span class="card-archive-list-date">June 2020</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/05/"><span class="card-archive-list-date">May 2020</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/04/"><span class="card-archive-list-date">April 2020</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/03/"><span class="card-archive-list-date">March 2020</span><span class="card-archive-list-count">4</span></a></li></ul></div></div><div class="card-widget card-webinfo"><div class="card-content"><div class="item-headline"><i class="fas fa-chart-line"></i><span>Info</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">Article :</div><div class="item-count">16</div></div><div class="webinfo-item"><div class="item-name">UV :</div><div class="item-count" id="busuanzi_value_site_uv"></div></div><div class="webinfo-item"><div class="item-name">PV :</div><div class="item-count" id="busuanzi_value_site_pv"></div></div><div class="webinfo-item"><div class="item-name">Last Push :</div><div class="item-count" id="last-push-date" data-lastPushDate="2020-11-25T04:16:54.617Z"></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 By ph4ntom</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>
