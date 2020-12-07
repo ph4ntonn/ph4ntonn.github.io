@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://ph4ntonn.github.io/ptmalloc.html</loc>
+    <lastmod>2020-12-07</lastmod>
+  </url>
+  <url>
+    <loc>https://ph4ntonn.github.io/how-ptmalloc-malloc-free.html</loc>
+    <lastmod>2020-12-07</lastmod>
+  </url>
+  <url>
     <loc>https://ph4ntonn.github.io/partial-write.html</loc>
     <lastmod>2020-11-27</lastmod>
   </url>
@@ -14,10 +22,6 @@
   </url>
   <url>
     <loc>https://ph4ntonn.github.io/ret2dl.html</loc>
-    <lastmod>2020-11-25</lastmod>
-  </url>
-  <url>
-    <loc>https://ph4ntonn.github.io/ptmalloc.html</loc>
     <lastmod>2020-11-25</lastmod>
   </url>
   <url>
