@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://ph4ntonn.github.io/CVE-2017-16995-trigger.html</loc>
+    <lastmod>2021-01-21</lastmod>
+  </url>
+  <url>
     <loc>https://ph4ntonn.github.io/CVE-2017-16995-structure.html</loc>
     <lastmod>2021-01-21</lastmod>
   </url>
@@ -11,10 +15,6 @@
   <url>
     <loc>https://ph4ntonn.github.io/linux-xid.html</loc>
     <lastmod>2021-01-21</lastmod>
-  </url>
-  <url>
-    <loc>https://ph4ntonn.github.io/CVE-2017-16995-trigger.html</loc>
-    <lastmod>2021-01-13</lastmod>
   </url>
   <url>
     <loc>https://ph4ntonn.github.io/how-ptmalloc-malloc-free.html</loc>
