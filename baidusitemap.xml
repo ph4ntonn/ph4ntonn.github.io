@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://ph4ntonn.github.io/kernel-pwn.html</loc>
+    <lastmod>2021-05-13</lastmod>
+  </url>
+  <url>
     <loc>https://ph4ntonn.github.io/Why-U-S-10-Year-Treasury-Bond-Yield-matters.html</loc>
     <lastmod>2021-02-27</lastmod>
   </url>
   <url>
     <loc>https://ph4ntonn.github.io/tiny-knowledge.html</loc>
     <lastmod>2021-02-23</lastmod>
-  </url>
-  <url>
-    <loc>https://ph4ntonn.github.io/user2kernel.html</loc>
-    <lastmod>2021-02-13</lastmod>
   </url>
   <url>
     <loc>https://ph4ntonn.github.io/CVE-2017-16995-structure.html</loc>
