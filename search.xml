@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>Bypass smap</title>
+      <link href="Bypass-smap.html"/>
+      <url>Bypass-smap.html</url>
+      
+        <content type="html"><![CDATA[<h1 id="SMAP"><a href="#SMAP" class="headerlink" title="SMAP"></a>SMAP</h1><p>这个其实就不用太多说了，SMAP(Supervisor Mode Access Prevention，管理模式访问保护)，其作用旨在防止内核访问用户空间的数据，和SMEP(Supervisor Mode Execution Prevention）是一对好基友</p><h1 id="绕过"><a href="#绕过" class="headerlink" title="绕过"></a>绕过</h1><p>一般来说，我们绕过它的办法大多是将数据拷贝至内核栈/堆中，防止直接访问ring3数据</p><p>但有的时候，利用条件比较苛刻的情况下，这个拷贝的操作也许根本无法触发</p><p>还有一种大家用的比较多的方法就是尝试在内核空间中找到类似<code>mov cr4，xxx</code>这种语句，将cr4寄存器的第21，22位置零来分别绕过smep/smap</p><p>不过实战中，这种语句还是比较难找（欧洲人请绕道</p><h1 id="新的绕过方式？"><a href="#新的绕过方式？" class="headerlink" title="新的绕过方式？"></a>新的绕过方式？</h1><p>实际上，对比smap的好基友smep，内核访问用户态数据实际上还是一个比较大的需求，如果开启了smap，那么有一个疑问就出现了，系统是如何防止出现内核必须访问用户态数据的情况呢？换句话说，系统是如何bypass smap的呢？</p><p>先回ring3利用寄存器暂存数据后再回ring0？想想也不太现实，真这么干，内核效率将会极其低下，切换开销将会很大</p><p>那么就来看看系统是如何做的</p><p>经过网上冲浪后，找到了一种比较小众的办法</p><p>那就是利用intel指令集中的<code>stac</code>指令(与其相对的是<code>clac</code>指令)</p><p>贴一段wiki的解释</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Processors indicate support for Supervisor Mode Access Prevention through the Extended Features CPUID leaf.</span><br><span class="line"></span><br><span class="line">SMAP is enabled when memory paging is active and the SMAP bit in the CR4 control register is set. SMAP can be temporarily disabled for explicit memory accesses by setting the EFLAGS.AC (Alignment Check) flag. The stac (Set AC Flag) and clac (Clear AC Flag) instructions can be used to easily set or clear the flag.[5]</span><br><span class="line"></span><br><span class="line">When the SMAP bit in CR4 is set, explicit memory reads and writes to user-mode pages performed by code running with a privilege level less than 3 will always result in a page fault if the EFLAGS.AC flag is not set. Implicit reads and writes (such as those made to descriptor tables) to user-mode pages will always trigger a page fault if SMAP is enabled, regardless of the value of EFLAGS.AC.[5]</span><br></pre></td></tr></table></figure><p>利用<code>stac</code>指令就可以暂时“关闭”smap，从而使得内核可以访问ring3的数据</p><p>附一张图</p><p><img src="/image/Bypass-SMAP/stac.jpg" alt="stac"></p><p>可以看到，在检查了eflag后，调用了<code>stac</code>暂时“关闭”smap</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 二进制安全 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> binary </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>kernel pwn</title>
       <link href="kernel-pwn.html"/>
       <url>kernel-pwn.html</url>
